@@ -778,6 +778,15 @@ function ensureReportViewer(){
   "#reportViewer.rvMovement th:nth-child(7),#reportViewer.rvMovement td:nth-child(7){width:10%}"+
   "#reportViewer.rvMovement th:nth-child(8),#reportViewer.rvMovement td:nth-child(8){width:10%}"+
   "#reportViewer.rvMovement th:nth-child(9),#reportViewer.rvMovement td:nth-child(9){width:10%}"+
+  "#reportViewer.rvInvoices .rvWrap{padding:10px;font-size:11px}"+
+  "#reportViewer.rvInvoices table{table-layout:fixed;width:100%}"+
+  "#reportViewer.rvInvoices th,#reportViewer.rvInvoices td{font-size:8px;padding:4px 3px;line-height:1.2;overflow-wrap:anywhere;word-break:break-word}"+
+  "#reportViewer.rvInvoices th:nth-child(1),#reportViewer.rvInvoices td:nth-child(1){width:11%}"+
+  "#reportViewer.rvInvoices th:nth-child(2),#reportViewer.rvInvoices td:nth-child(2){width:29%}"+
+  "#reportViewer.rvInvoices th:nth-child(3),#reportViewer.rvInvoices td:nth-child(3){width:10%}"+
+  "#reportViewer.rvInvoices th:nth-child(4),#reportViewer.rvInvoices td:nth-child(4){width:10%}"+
+  "#reportViewer.rvInvoices th:nth-child(5),#reportViewer.rvInvoices td:nth-child(5){width:18%}"+
+  "#reportViewer.rvInvoices th:nth-child(6),#reportViewer.rvInvoices td:nth-child(6){width:22%}"+
   "#reportViewer .tot{margin-top:14px;line-height:1.8}"+
   "#reportViewer .foot{margin-top:18px;color:#777;font-size:9px}"+
   "@media print{body.report-printing>*:not(#reportViewer){display:none!important}body.report-printing #reportViewer{display:block!important;position:static!important;overflow:visible!important}body.report-printing #reportViewer .rvToolbar{display:none!important}body.report-printing #reportViewer .rvWrap{padding:0!important}}";
@@ -797,6 +806,7 @@ function openReportViewer(title,bodyHtml){
  const cariName=activeCari?activeCari.name:"";
  const cariCode=activeCari?activeCari.code:"";
  viewer.classList.toggle("rvMovement",title==="Cari Hesap Ekstresi");
+ viewer.classList.toggle("rvInvoices",title==="Faturalar");
  document.getElementById("rvContent").innerHTML=
   '<h1>MAU OTO SERVİS</h1><h2>'+esc(title)+'</h2>'+
   '<div class="meta"><b>'+esc(cariName)+'</b> · '+esc(cariCode||"-")+'</div>'+
