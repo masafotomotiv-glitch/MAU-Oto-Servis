@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Lisans</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#11834f;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}button,input{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:900px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1c;color:#fff;width:40px;height:40px;border-radius:9px;font-size:23px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:900px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.status{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.box{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px;overflow-wrap:anywhere}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:4px}.field input{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:11px}.actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.blue{background:#0b76c5;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.note{font-size:10px;color:var(--muted);line-height:1.6}.good{background:#eaf8ef;border:1px solid #cce9d6;color:#146b40;border-radius:9px;padding:10px}.warn{background:#fff6e4;border:1px solid #efd9aa;color:#7b5400;border-radius:9px;padding:10px}.privacy{display:grid;gap:7px}.privacy div{border:1px solid #e3e9ef;border-radius:8px;padding:9px;font-size:11px}
+#devBox{display:none}
+@media(max-width:700px){.status,.actions{grid-template-columns:1fr 1fr}}@media(max-width:480px){.status,.actions{grid-template-columns:1fr}}
+</style>
+<script src="lisans.js"></script>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Lisans · Abonelik · Cihaz Yetkisi</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="cardHead">Lisans Durumu</div><div class="body">
+  <div class="status">
+   <div class="box"><span>Durum</span><b id="stStatus">-</b></div>
+   <div class="box"><span>Paket</span><b id="stPlan">-</b></div>
+   <div class="box"><span>Bitiş</span><b id="stExpire">-</b></div>
+   <div class="box"><span>Cihaz</span><b id="stDevice">-</b></div>
+  </div>
+  <div id="stateNote" class="note" style="margin-top:9px"></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Lisansı Etkinleştir / Yenile</div><div class="body">
+  <div class="field"><label>Lisans Kodu</label><input id="licenseKey" placeholder="MAU-XXXX-XXXX-XXXX" autocomplete="off"></div>
+  <div class="actions"><button class="btn blue" onclick="verify()">Lisansı Kontrol Et</button><button class="btn gray" onclick="location.href='Yedekleme.html'">Verilerimi Yedekle</button></div>
+  <div id="verifyResult" class="note" style="margin-top:9px"></div>
+ </div></div>
+
+ <div id="devBox" class="card"><div class="cardHead">Geliştirme Testi</div><div class="body">
+  <div class="warn">Bu bölüm sadece geliştirme modunda görünür. Satış APK'sında kapatılacaktır.</div>
+  <button class="btn green" style="margin-top:8px;width:100%" onclick="devLicense()">30 Günlük Test Lisansı Oluştur</button>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Veri Gizliliği</div><div class="body">
+  <div class="privacy">
+   <div><b>Servis verileri cihazda kalır.</b> Müşteri, araç, iş emri, cari, fatura, fotoğraf ve hasar dosyaları lisans kontrolüne gönderilmez.</div>
+   <div><b>Lisans sunucusuna yalnızca</b> uygulama kimliği, sürüm, lisans kodu ve cihaz kimliği gönderilir.</div>
+   <div><b>Lisans biterse veri silinmez.</b> Sistem salt okunur moda geçer; görüntüleme ve yedek alma devam eder.</div>
+  </div>
+ </div></div>
+</div>
+<script>
+function fmt(v){if(!v)return"-";try{return new Date(v).toLocaleString("tr-TR")}catch(e){return v}}
+function refresh(){
+ const a=MAULicense.assess(),s=MAULicense.state(),c=MAULicense.config();
+ document.getElementById("stStatus").textContent=MAULicense.statusText();
+ document.getElementById("stPlan").textContent=s.plan||"-";
+ document.getElementById("stExpire").textContent=fmt(s.validUntil);
+ document.getElementById("stDevice").textContent=MAULicense.deviceId();
+ document.getElementById("licenseKey").value=s.licenseKey||"";
+ document.getElementById("devBox").style.display=c.mode==="production"?"none":"block";
+ document.getElementById("stateNote").textContent=c.mode==="production"?(a.active?"Lisans doğrulandı.":(a.reason||"Lisans doğrulaması gerekli.")):"Geliştirme modu aktif. Ticari lisans sunucusu henüz bağlanmadı.";
+}
+async function verify(){
+ const key=document.getElementById("licenseKey").value.trim(),el=document.getElementById("verifyResult");if(!key){alert("Lisans kodunu giriniz.");return}
+ el.className="note";el.textContent="Lisans kontrol ediliyor...";
+ try{await MAULicense.verifyOnline(key);el.className="good";el.textContent="Lisans aktif. Süre bilgisi güncellendi.";refresh()}
+ catch(e){el.className="warn";el.textContent=e.message||String(e)}
+}
+function devLicense(){try{MAULicense.activateDevelopment(30);refresh();document.getElementById("verifyResult").className="good";document.getElementById("verifyResult").textContent="30 günlük test lisansı oluşturuldu."}catch(e){alert(e.message||e)}}
+refresh();
+</script>
+</body>
+</html>
