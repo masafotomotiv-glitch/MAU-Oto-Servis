@@ -317,94 +317,124 @@ function normalizeFuel(v){
  if(u.includes("LPG"))return "LPG";
  return "";
 }
-function isKnownLabel(v){
+function compactValue(v){
+ return upperTR(v).replace(/[^A-Z0-9]/g,"");
+}
+function isFieldHeader(v){
  const u=upperTR(v);
- return /(?:PLAKA|TESCİL|TESCIL|ŞASİ|SASI|ŞASE|SASE|VIN|MOTOR\s*(?:NO|NUMARASI)|BELGE\s*SERİ|BELGE\s*SERI|RUHSAT\s*SERİ|RUHSAT\s*SERI|MARKA|MARKASI|MODEL|MODELİ|MODELI|TİPİ|TIPI|YAKIT|GÜÇ|GUC|HACMİ|HACMI|NOTER|SATIŞ|SATIS)/.test(u);
+ return /^\(?[A-Z](?:\.\d(?:\.\d)?)?\)?\s/.test(u) ||
+  /(?:PLAKA|İLK TESCİL|ILK TESCIL|MARKASI|TİPİ|TIPI|TİCARİ ADI|TICARI ADI|MODEL YILI|MOTOR NO|ŞASE NO|ŞASİ NO|SASE NO|SASI NO|BELGE SERİ NO|BELGE SERI NO|YAKIT CİNSİ|YAKIT CINSI|MOTOR HACMİ|MOTOR HACMI|MOTOR GÜCÜ|MOTOR GUCU)/.test(u);
 }
-function inlineAfterLabel(raw,labelRegex){
- const text=cleanOcrLine(raw);
- const up=upperTR(text);
- const m=up.match(labelRegex);
- if(!m)return "";
+function stripFieldLabel(raw,codePattern,labelPattern){
+ let s=cleanOcrLine(raw);
+ s=s.replace(codePattern," ");
+ s=s.replace(labelPattern," ");
+ s=s.replace(/^[\s:;=\-–]+/,"").trim();
+ return s;
+}
+function extractField(lines,codePattern,labelPattern,validator){
+ for(let i=0;i<lines.length;i++){
+  const raw=lines[i];
+  const up=upperTR(raw);
+  const codeHit=codePattern.test(up);
+  const labelHit=labelPattern.test(up);
+  if(!codeHit&&!labelHit)continue;
 
- // Önce ":" sonrası; en güvenilir durum.
- const colon=text.indexOf(":");
- if(colon>=0){
-  const v=cleanOcrLine(text.slice(colon+1));
-  if(v&&!isKnownLabel(v))return v;
- }
+  const same=stripFieldLabel(raw,codePattern,labelPattern);
+  if(same&&validator(same))return same;
 
- // "MARKA FIAT" gibi aynı satırdaki değer.
- const idx=up.indexOf(m[0]);
- if(idx>=0){
-  const after=cleanOcrLine(text.slice(idx+m[0].length).replace(/^[\s:;=\-–]+/,""));
-  if(after&&after.length>1&&!isKnownLabel(after))return after;
+  // Ruhsat OCR'ında etiket ile değer ayrı satıra düşerse yalnızca
+  // hemen alt satıra bak; başka alana geçildiğinde aramayı kes.
+  for(let j=i+1;j<Math.min(lines.length,i+3);j++){
+   const next=cleanOcrLine(lines[j]);
+   if(!next)continue;
+   if(isFieldHeader(next))break;
+   if(validator(next))return next;
+  }
  }
  return "";
 }
-function exactLabeledValue(lines,labelRegex,validator){
- for(const raw of lines){
-  const v=inlineAfterLabel(raw,labelRegex);
-  if(v&&(!validator||validator(v)))return v;
- }
- return "";
+function validVin(v){
+ const s=compactValue(v);
+ return /^[A-HJ-NPR-Z0-9]{17}$/.test(s);
 }
-function safeAlphaValue(v){
+function validMotorNo(v){
+ const s=compactValue(v);
+ if(s.length<5||s.length>25)return false;
+ if(/NOTER|SATIS|SATIŞ|TESCIL|TESCİL|BELGE|SIRA/.test(upperTR(v)))return false;
+ return /^[A-Z0-9]+$/.test(s);
+}
+function validDocSerial(v){
+ const s=compactValue(v);
+ return /^[A-Z]{2}\d{6}$/.test(s);
+}
+function validText(v){
  const s=cleanOcrLine(v);
- if(s.length<2||s.length>40)return false;
- if(/\b(?:NOTER|SATIŞ|SATIS|BELGE|TESCİL|TESCIL|ŞASİ|SASI|MOTOR\s*NO)\b/i.test(upperTR(s)))return false;
- return /[A-ZÇĞİÖŞÜ]/i.test(s);
-}
-function safeMotorValue(v){
- const s=upperTR(v).replace(/\s+/g,"");
- if(s.length<4||s.length>30)return false;
- if(/NOTER|SATIŞ|SATIS|BELGE|TESC/.test(s))return false;
- return /^[A-Z0-9.\-\/]+$/.test(s);
+ return s.length>=2&&s.length<=40&&!/(?:NOTER|SATIŞ|SATIS|BELGE|TESCİL|TESCIL)/.test(upperTR(s));
 }
 function parseRuhsatText(rawText){
  const raw=String(rawText||"");
  const lines=raw.split(/\r?\n/).map(cleanOcrLine).filter(Boolean);
  const joined=lines.join("\n");
 
- // Plaka: tüm metinde Türk plaka biçimi aranır.
- let plaka=normalizePlateCandidate(joined);
+ // Türkiye tescil belgesi alan kodlarına göre kritik alanlar:
+ // (A) Plaka, (P.5) Motor No, (E) Şase No, (N) Belge Seri No.
+ let plaka=extractField(
+  lines,
+  /^\s*\(?A\)?(?:\s|$)/,
+  /(?:PLAKA)/,
+  v=>!!normalizePlateCandidate(v)
+ );
+ plaka=normalizePlateCandidate(plaka||joined);
 
- // Şasi/VIN: yalnız 17 karakterlik VIN biçimi kabul edilir.
- let sasi="";
- const vinMatches=upperTR(raw).match(/\b[A-HJ-NPR-Z0-9]{17}\b/g)||[];
- if(vinMatches.length===1)sasi=vinMatches[0];
- else if(vinMatches.length>1){
-  const labeled=exactLabeledValue(lines,/(?:ŞASİ|SASI|ŞASE|SASE|VIN)/,v=>/^[A-HJ-NPR-Z0-9]{17}$/.test(upperTR(v).replace(/[^A-Z0-9]/g,"")));
-  if(labeled)sasi=upperTR(labeled).replace(/[^A-Z0-9]/g,"");
- }
+ const motorRaw=extractField(
+  lines,
+  /^\s*\(?P\s*[.]?\s*5\)?(?:\s|$)/,
+  /(?:MOTOR\s*(?:NO|NUMARASI))/,
+  validMotorNo
+ );
+ const motorNo=motorRaw?compactValue(motorRaw):"";
 
- // Diğer alanlarda artık "sonraki satırı tahmin etme" yok.
- // Sadece etiket ile değer aynı OCR satırındaysa doldurulur.
- const motorNo=exactLabeledValue(lines,/(?:MOTOR\s*(?:NO|NUMARASI)|ENGINE\s*NO)/,safeMotorValue);
- const ruhsatSeriNo=exactLabeledValue(lines,/(?:BELGE\s*SERİ|BELGE\s*SERI|RUHSAT\s*SERİ|RUHSAT\s*SERI)/,safeMotorValue);
- const marka=exactLabeledValue(lines,/(?:MARKASI|MARKA)/,safeAlphaValue);
- const model=exactLabeledValue(lines,/(?:TİCARİ\s*ADI|TICARI\s*ADI|MODELİ|MODELI|MODEL)/,safeAlphaValue);
- const versiyon=exactLabeledValue(lines,/(?:TİPİ|TIPI|TİP\s*\/\s*VARYANT|TIP\s*\/\s*VARYANT)/,safeAlphaValue);
- const tescil=exactLabeledValue(lines,/(?:İLK\s*TESCİL|ILK\s*TESCIL|TESCİL\s*TARİHİ|TESCIL\s*TARIHI)/,v=>!!parseDateTR(v));
- const modelYili=exactLabeledValue(lines,/(?:MODEL\s*YILI)/,v=>/\b(19|20)\d{2}\b/.test(v));
- const yakit=exactLabeledValue(lines,/(?:YAKIT\s*CİNSİ|YAKIT\s*CINSI|YAKIT)/,v=>!!normalizeFuel(v));
- const motorHacmi=exactLabeledValue(lines,/(?:MOTOR\s*HACMİ|MOTOR\s*HACMI)/,v=>/\d/.test(v));
- const guc=exactLabeledValue(lines,/(?:MOTOR\s*GÜCÜ|MOTOR\s*GUCU|GÜÇ|GUC)/,v=>/\d/.test(v));
+ const sasiRaw=extractField(
+  lines,
+  /^\s*\(?E\)?(?:\s|$)/,
+  /(?:ŞASE\s*NO|ŞASİ\s*NO|SASE\s*NO|SASI\s*NO|VIN)/,
+  validVin
+ );
+ const sasi=sasiRaw?compactValue(sasiRaw):"";
+
+ const serialRaw=extractField(
+  lines,
+  /^\s*\(?N\)?(?:\s|$)/,
+  /(?:BELGE\s*SERİ\s*NO|BELGE\s*SERI\s*NO|RUHSAT\s*SERİ\s*NO|RUHSAT\s*SERI\s*NO)/,
+  validDocSerial
+ );
+ const ruhsatSeriNo=serialRaw?compactValue(serialRaw):"";
+
+ const marka=extractField(lines,/^\s*\(?D\s*[.]?\s*1\)?(?:\s|$)/,/(?:MARKASI|MARKA)/,validText);
+ const versiyon=extractField(lines,/^\s*\(?D\s*[.]?\s*2\)?(?:\s|$)/,/(?:TİPİ|TIPI)/,validText);
+ const model=extractField(lines,/^\s*\(?D\s*[.]?\s*3\)?(?:\s|$)/,/(?:TİCARİ\s*ADI|TICARI\s*ADI|MODELİ|MODELI|MODEL)/,validText);
+ const modelYili=extractField(lines,/^\s*\(?D\s*[.]?\s*4\)?(?:\s|$)/,/(?:MODEL\s*YILI)/,v=>/\b(19|20)\d{2}\b/.test(v));
+ const tescil=extractField(lines,/^\s*\(?B\)?(?:\s|$)/,/(?:İLK\s*TESCİL|ILK\s*TESCIL)/,v=>!!parseDateTR(v));
+ const yakit=extractField(lines,/^\s*\(?P\s*[.]?\s*3\)?(?:\s|$)/,/(?:YAKIT\s*CİNSİ|YAKIT\s*CINSI)/,v=>!!normalizeFuel(v));
 
  const yearMatch=String(modelYili).match(/\b(19|20)\d{2}\b/);
 
  return {
   plaka:plaka,
   sasi:sasi,
-  motorNo:cleanOcrLine(motorNo),
-  ruhsatSeriNo:cleanOcrLine(ruhsatSeriNo),
+  motorNo:motorNo,
+  ruhsatSeriNo:ruhsatSeriNo,
   marka:cleanOcrLine(marka),
   model:cleanOcrLine(model),
   versiyon:cleanOcrLine(versiyon),
   tescilTarihi:parseDateTR(tescil),
   yil:yearMatch?yearMatch[0]:"",
   yakit:normalizeFuel(yakit),
-  motorBilgi:[cleanOcrLine(motorHacmi),cleanOcrLine(guc)].filter(Boolean).join(" / ")
+
+  // P.1/P.2 alanlarını şimdilik otomatik doldurmuyoruz;
+  // yanlış eşleştirme yerine boş bırakmak daha güvenli.
+  motorBilgi:""
  };
 }
 function fillIf(id,value){
@@ -422,7 +452,7 @@ function onRuhsatScanResult(rawText){
   if(fillIf(k,data[k]))count++;
  });
  if(count){
-  setScanStatus(count+" güvenilir alan ruhsattan dolduruldu. Emin olunmayan alanlar bilerek boş bırakıldı; kaydetmeden önce kontrol edin.",true);
+  setScanStatus(count+" güvenilir alan ruhsattan dolduruldu. Plaka, Motor No ve Şasi No artık ruhsatın A / P.5 / E alan kodlarıyla kontrol ediliyor. Emin olunmayan alanlar boş bırakılır.",true);
  }else{
   setScanStatus("Ruhsat okundu fakat güvenilir alan bulunamadı. Daha net, düz ve ışıklı bir fotoğraf deneyin.",false);
  }
