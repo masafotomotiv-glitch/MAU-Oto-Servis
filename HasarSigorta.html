@@ -245,7 +245,7 @@ function editClaim(id){
 }
 function openExpertise(id){location.href="EkspertizDetay.html?dosyaId="+encodeURIComponent(id)}
 function openInsuranceApproval(id){location.href="SigortaOnayi.html?dosyaId="+encodeURIComponent(id)}
-function openExpertArchive(id){location.href="EksperArsivi.html?dosyaId="+encodeURIComponent(id)}
+function openExpertArchive(id){location.href="EksperArsivi.html?dosyaId="+encodeURIComponent(id)+"&v="+Date.now()}
 function openActiveArchive(){if(editId==null){alert("Önce hasar dosyasını kaydedin.");return}openExpertArchive(editId)}
 function renderList(){
  claims=load(CLAIM_KEY);const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim(),f=document.getElementById("filter").value;
