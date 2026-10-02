@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.content.Context;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -90,6 +94,40 @@ public class MainActivity extends Activity {
         public void scanRuhsat() {
             runOnUiThread(MainActivity.this::openRuhsatPicker);
         }
+
+        @JavascriptInterface
+        public void printPage() {
+            runOnUiThread(MainActivity.this::printCurrentPage);
+        }
+    }
+
+    private void printCurrentPage() {
+        if (webView == null) {
+            return;
+        }
+
+        PrintManager printManager =
+                (PrintManager) getSystemService(Context.PRINT_SERVICE);
+
+        if (printManager == null) {
+            webView.evaluateJavascript(
+                    "window.onMauPrintError && window.onMauPrintError('Android yazdırma servisi kullanılamıyor.');",
+                    null
+            );
+            return;
+        }
+
+        String jobName = "MAU_Oto_Servis_" + System.currentTimeMillis();
+        PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
+
+        printManager.print(
+                jobName,
+                adapter,
+                new PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                        .build()
+        );
     }
 
     private void openRuhsatPicker() {
