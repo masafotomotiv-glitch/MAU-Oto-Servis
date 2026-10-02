@@ -2,6 +2,11 @@ name: Publish MAU Auto Update
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "android-test/app/build.gradle"
 
 permissions:
   contents: write
