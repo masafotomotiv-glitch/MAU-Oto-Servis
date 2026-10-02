@@ -4,7 +4,9 @@
 
     <application
         android:allowBackup="true"
-        android:label="MAU Oto Servis OCR"
+        android:icon="@drawable/mau_app_icon"
+        android:roundIcon="@drawable/mau_app_icon"
+        android:label="MAU Oto Servis"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
