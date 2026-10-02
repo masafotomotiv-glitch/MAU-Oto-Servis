@@ -52,6 +52,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
     <div class="field full"><label>Kayıtlı Araç *</label><select id="aracId" onchange="selectVehicle()"><option value="">Araç seçiniz...</option></select></div>
     <div class="field"><label>Sigorta Hasar Dosya No *</label><input id="sigortaDosyaNo" placeholder="Sigorta şirketinin verdiği dosya numarası"></div>
     <div class="field"><label>Dosya Tarihi</label><input id="tarih" type="date"></div>
+    <div class="field"><label>Dosya Saati</label><input id="dosyaSaati" type="time"></div>
     <div class="field"><label>Durum</label><select id="durum"><option>Açık</option><option>Eksper Bekleniyor</option><option>Sigorta Onayı Bekleniyor</option><option>Evrak Bekleniyor</option><option>Onaylandı</option><option>Tamirde</option><option>Ödeme Bekleniyor</option><option>Tamamlandı</option><option>Kapalı</option></select></div>
     <div class="field"><label>Cari / Müşteri</label><input id="cariAdi" readonly></div>
     <div class="field"><label>Plaka</label><input id="plaka" readonly></div>
@@ -146,6 +147,7 @@ function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Ar
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
 function today(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function timeNow(){const d=new Date(),p=n=>String(n).padStart(2,"0");return p(d.getHours())+":"+p(d.getMinutes())}
 let claims=load(CLAIM_KEY),editId=null,fileNames=[];
 function ensureMasters(){
  if(!load(INS_KEY).length)put(INS_KEY,[{id:"SIG-TEST-001",code:"SIG-00001",name:"TEST SİGORTA",phone:"0312 000 00 00",email:"",city:"Ankara",note:"Test kaydı",active:true,createdAt:new Date().toISOString()}]);
@@ -175,7 +177,7 @@ function selectVehicle(){
 function resetForm(focus){
  editId=null;fileNames=[];populateVehicles();populateMasters();
  document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.type==="checkbox")el.checked=false;else if(el.type==="file")el.value="";else el.value=""});
- document.getElementById("tarih").value=today();document.getElementById("durum").value="Açık";document.getElementById("kdvOrani").value="20";document.getElementById("agirHasarDegerlendirme").checked=false;toggleHeavy();calcFinancials();
+ document.getElementById("tarih").value=today();document.getElementById("dosyaSaati").value=timeNow();document.getElementById("durum").value="Açık";document.getElementById("kdvOrani").value="20";document.getElementById("agirHasarDegerlendirme").checked=false;toggleHeavy();calcFinancials();
  document.getElementById("formTitle").textContent="Yeni Hasar & Sigorta Dosyası";document.getElementById("fileInfo").textContent="Henüz dosya seçilmedi. Bu sürümde dosya adları kayda bağlanır.";
  if(focus)document.getElementById("aracId").focus();
 }
@@ -212,7 +214,7 @@ function saveClaim(){
  const work=load(WORK_KEY).find(x=>String(x.id)===String(document.getElementById("isEmriId").value));
  const expert=load(EXP_KEY).find(x=>String(x.id)===String(document.getElementById("eksperId").value));
  const fin=calcFinancials();
- const x={...(old||{}),id:old?old.id:Date.now(),dosyaNo:v("sigortaDosyaNo"),tarih:v("tarih"),durum:v("durum"),
+ const x={...(old||{}),id:old?old.id:Date.now(),dosyaNo:v("sigortaDosyaNo"),tarih:v("tarih"),dosyaSaati:v("dosyaSaati"),durum:v("durum"),
   aracId:vehicle.id,vehicleId:vehicle.id,plaka:vehicle.plaka||"",marka:vehicle.marka||"",model:vehicle.model||"",
   cariId:vehicle.cariId,cariCode:(cari&&cari.code)||vehicle.cariCode||"",cariAdi:(cari&&cari.name)||vehicle.cariAdi||"",
   isEmriId:work?work.id:"",isEmriNo:work?work.isEmriNo:"",
@@ -229,7 +231,7 @@ function saveClaim(){
 }
 function editClaim(id){
  claims=load(CLAIM_KEY);const x=claims.find(a=>String(a.id)===String(id));if(!x)return;editId=x.id;populateVehicles();populateMasters();document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
- ["tarih","durum","policeNo","sigortaDosyaNo","olayTarihi","olaySaati","olayYeri","hasarAciklama","eksperNotu","servisOnTahmin","parcaToplam","iscilikToplam","sarfToplam","parcaIskonto","iscilikIskonto","sovtaj","kdvOrani","eksperTespitTutar","sigortaOnaylananTutar","musteriPayi","sigortaOdenenTutar","rayicDeger","hasarKarari","maliNot"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[k]??""});
+ ["tarih","dosyaSaati","durum","policeNo","sigortaDosyaNo","olayTarihi","olaySaati","olayYeri","hasarAciklama","eksperNotu","servisOnTahmin","parcaToplam","iscilikToplam","sarfToplam","parcaIskonto","iscilikIskonto","sovtaj","kdvOrani","eksperTespitTutar","sigortaOnaylananTutar","musteriPayi","sigortaOdenenTutar","rayicDeger","hasarKarari","maliNot"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[k]??""});
  if(!document.getElementById("sigortaDosyaNo").value)document.getElementById("sigortaDosyaNo").value=x.dosyaNo||"";
  const insurers=load(INS_KEY),experts=load(EXP_KEY);const ins=insurers.find(v=>String(v.id)===String(x.sigortaId||""))||insurers.find(v=>String(v.name||"")===String(x.sigortaSirketi||x.sigorta||""));const ex=experts.find(v=>String(v.id)===String(x.eksperId||""))||experts.find(v=>String(v.name||"")===String(x.eksper||""));
  document.getElementById("sigortaId").value=ins?String(ins.id):"";applyInsurance();document.getElementById("eksperId").value=ex?String(ex.id):"";applyExpert();
@@ -246,7 +248,7 @@ function renderList(){
 }
 function reportHtml(x){
  const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["Kaza Tespit Tutanağı",ev.kazaTutanagi],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
- return '<h2>MAU OTO SERVİS</h2><h3>Hasar & Sigorta Dosyası</h3><p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+' · '+esc(x.durum||"")+'</p>'+
+ return '<h2>MAU OTO SERVİS</h2><h3>Hasar & Sigorta Dosyası</h3><p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+(x.dosyaSaati?' '+esc(x.dosyaSaati):'')+' · '+esc(x.durum||"")+'</p>'+
  '<table><tr><th>Plaka</th><td>'+esc(x.plaka||"-")+'</td><th>Müşteri</th><td>'+esc(x.cariAdi||"-")+'</td></tr><tr><th>Sigorta</th><td>'+esc(x.sigortaSirketi||x.sigorta||"-")+'</td><th>Poliçe</th><td>'+esc(x.policeNo||"-")+'</td></tr><tr><th>Sigorta Dosya No</th><td>'+esc(x.sigortaDosyaNo||"-")+'</td><th>Eksper</th><td>'+esc([x.eksperFirma,x.eksper].filter(Boolean).join(" / ")||"-")+'</td></tr><tr><th>Olay Tarihi / Saati</th><td>'+esc((x.olayTarihi||"-")+(x.olaySaati?" "+x.olaySaati:""))+'</td><th>Olay Yeri</th><td>'+esc(x.olayYeri||"-")+'</td></tr></table>'+
  '<h4>Hasar Açıklaması</h4><p>'+esc(x.hasarAciklama||"-")+'</p><h4>Eksper / Ön Tespit Notu</h4><p>'+esc(x.eksperNotu||"-")+'</p>'+
  '<h4>Evrak Kontrolü</h4><table><tr><th>Evrak</th><th>Durum</th></tr>'+docs+'</table>'+
