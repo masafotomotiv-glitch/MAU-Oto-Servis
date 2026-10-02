@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Sigorta Onayı</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094;--red:#ad2633}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:1120px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}
+.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1120px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.summary,.totals{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.sum,.tot{border:1px solid #e4eaf0;border-radius:9px;padding:10px;background:#f9fbfd}.sum span,.tot span{display:block;font-size:10px;color:var(--muted)}.sum b,.tot b{font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:75px}
+.tableWrap{overflow-x:auto}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}th,td{border:1px solid #dfe5eb;padding:6px;overflow-wrap:anywhere}th{background:#f2f6fa}
+.badge{display:inline-block;padding:4px 7px;border-radius:9px;background:#eaf3ff;color:#0b5fa8;font-size:10px;font-weight:800}.ok{background:#e8f7ef;color:#087840}.warn{background:#fff2df;color:#9b6200}.bad{background:#ffe8eb;color:#a21c2b}
+.note{font-size:10px;color:var(--muted);line-height:1.5}.actions{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}.btn{border:0;border-radius:8px;padding:11px 12px;font-weight:900;cursor:pointer}.save{background:#1478c9;color:#fff}.transfer{background:var(--g);color:#fff}.backBtn{background:#eef2f6;color:#43536a}
+@media(max-width:850px){.summary,.totals{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.full{grid-column:1/-1}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="goBack()">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Sigorta Onayı · Eksper Mutabakatı · İş Emrine Aktarım</div></div></div></header>
+<div class="wrap">
+
+ <div class="card"><div class="cardHead">Hasar Dosyası</div><div class="body">
+  <div id="claimInfo" class="summary"></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">1. Eksperden Onaylanan Kalemler</div><div class="body">
+  <div id="approvedInfo" class="note" style="margin-bottom:8px"></div>
+  <div class="tableWrap"><table><thead><tr><th>Tür</th><th>Kalem</th><th>Miktar / Saat</th><th>Eksper Kararı</th><th>Onay Tutarı</th></tr></thead><tbody id="approvedRows"></tbody></table></div>
+  <div class="totals" style="margin-top:10px">
+   <div class="tot"><span>Onaylı Parça</span><b id="appParts">0,00 ₺</b></div>
+   <div class="tot"><span>Onaylı İşçilik</span><b id="appLabor">0,00 ₺</b></div>
+   <div class="tot"><span>KDV Oranı</span><b id="vatRate">%20</b></div>
+   <div class="tot"><span>KDV Tutarı</span><b id="vatAmount">0,00 ₺</b></div>
+   <div class="tot"><span>Eksper Onay Genel</span><b id="appGrand">0,00 ₺</b></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. Sigorta Şirketi Onayı</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Sigorta Onay Durumu</label><select id="approvalStatus" onchange="calcApproval()"><option>Bekleniyor</option><option>Onaylandı</option><option>Kısmi Onaylandı</option><option>Reddedildi</option></select></div>
+   <div class="field"><label>Onay Tarihi</label><input id="approvalDate" type="date"></div>
+   <div class="field"><label>Onay Saati</label><input id="approvalTime" type="time"></div>
+   <div class="field"><label>Onay / Referans No</label><input id="approvalNo"></div>
+   <div class="field"><label>Onay Veren / İrtibat</label><input id="approvalPerson"></div>
+   <div class="field"><label>Müşteri Payı / Muafiyet (TL)</label><input id="customerShare" type="number" min="0" step="0.01" oninput="calcApproval()"></div>
+   <div class="field full"><label>Sigorta Onay Notu</label><textarea id="approvalNote"></textarea></div>
+  </div>
+  <div class="totals" style="margin-top:10px">
+   <div class="tot"><span>Eksper Onay Genel</span><b id="sumExpert">0,00 ₺</b></div>
+   <div class="tot"><span>Müşteri Payı</span><b id="sumCustomer">0,00 ₺</b></div>
+   <div class="tot"><span>Sigortadan Net</span><b id="sumInsurer">0,00 ₺</b></div>
+   <div class="tot"><span>Durum</span><b id="sumStatus">Bekleniyor</b></div>
+   <div class="tot"><span>Aktarım</span><b id="sumTransfer">Bekliyor</b></div>
+  </div>
+  <div style="margin-top:10px"><button class="btn save" onclick="saveApproval()">✓ Sigorta Onayını Kaydet</button></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">3. İş Emrine Aktarım</div><div class="body">
+  <div class="grid">
+   <div class="field full"><label>Aynı Araçtaki Açık İş Emri</label><select id="workId" onchange="showWorkInfo()"><option value="">İş emri seçiniz...</option></select></div>
+   <div class="field full"><div id="workInfo" class="note">Açık iş emri seçilmedi.</div></div>
+  </div>
+  <div class="note" style="margin:8px 0">Sadece eksper tarafından Kabul / Kısmi Kabul / Fiyat Revize ile onaylanmış ve onay tutarı bulunan kalemler aktarılır. Stok bu aşamada düşmez; stok çıkışı atölye kullanımında yapılır.</div>
+  <button class="btn transfer" onclick="transferToWork()">Onaylananları İş Emrine Aktar →</button>
+ </div></div>
+
+ <div class="actions">
+  <button class="btn backBtn" onclick="location.href='EkspertizDetay.html?dosyaId='+encodeURIComponent(claimId)">Ekspertiz Detayına Dön</button>
+  <button class="btn backBtn" onclick="goBack()">Hasar Dosyasına Dön</button>
+ </div>
+</div>
+<script>
+const CLAIM_KEY="mau_hasar_dosyalari",WORK_KEY="mau_is_emirleri";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function num(v){const n=Number(v||0);return Number.isFinite(n)?n:0}
+function today(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function timeNow(){const d=new Date(),p=n=>String(n).padStart(2,"0");return p(d.getHours())+":"+p(d.getMinutes())}
+const claimId=new URLSearchParams(location.search).get("dosyaId");
+let claims=load(CLAIM_KEY),claim=claims.find(x=>String(x.id)===String(claimId));
+function goBack(){location.href="HasarSigorta.html"}
+function approvedParts(){const d=(claim&&claim.ekspertizDetay)||{};return (d.parcalar||[]).filter(x=>["Kabul","Kısmi Kabul","Fiyat Revize"].includes(x.karar)&&num(x.onayTutar)>0)}
+function approvedLabors(){const d=(claim&&claim.ekspertizDetay)||{};return (d.iscilikler||[]).filter(x=>["Kabul","Kısmi Kabul","Fiyat Revize"].includes(x.karar)&&num(x.onayTutar)>0)}
+function expertTotals(){const d=(claim&&claim.ekspertizDetay)||{},p=approvedParts().reduce((s,x)=>s+num(x.onayTutar),0),l=approvedLabors().reduce((s,x)=>s+num(x.onayTutar),0),vat=num(d.kdvOrani??claim?.kdvOrani??20),net=p+l,vatAmount=net*vat/100,grand=net+vatAmount;return {p,l,vat,net,vatAmount,grand}}
+function renderClaim(){
+ if(!claim){document.getElementById("claimInfo").innerHTML='<div class="note">Hasar dosyası bulunamadı.</div>';return}
+ document.getElementById("claimInfo").innerHTML='<div class="sum"><span>Dosya No</span><b>'+esc(claim.dosyaNo||"-")+'</b></div><div class="sum"><span>Plaka</span><b>'+esc(claim.plaka||"-")+'</b></div><div class="sum"><span>Müşteri</span><b>'+esc(claim.cariAdi||"-")+'</b></div><div class="sum"><span>Sigorta</span><b>'+esc(claim.sigortaSirketi||claim.sigorta||"-")+'</b></div><div class="sum"><span>Eksper</span><b>'+esc(claim.eksperFirma||claim.eksper||"-")+'</b></div>';
+}
+function renderApproved(){
+ const p=approvedParts(),l=approvedLabors(),t=expertTotals(),rows=[];
+ p.forEach(x=>rows.push('<tr><td>Parça</td><td>'+esc(x.ad||"-")+'</td><td>'+num(x.miktar)+' '+esc(x.birim||"Adet")+'</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>'));
+ l.forEach(x=>rows.push('<tr><td>İşçilik</td><td>'+esc(x.islem||"-")+'</td><td>'+num(x.saat)+' Saat</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>'));
+ document.getElementById("approvedRows").innerHTML=rows.length?rows.join(""):'<tr><td colspan="5">Henüz eksper tarafından onaylanmış kalem yok.</td></tr>';
+ document.getElementById("approvedInfo").innerHTML=rows.length?'<span class="badge ok">'+(p.length+l.length)+' onaylı kalem</span>':'<span class="badge warn">Eksper kararları bekleniyor</span>';
+ document.getElementById("appParts").textContent=money(t.p);document.getElementById("appLabor").textContent=money(t.l);document.getElementById("vatRate").textContent="%"+t.vat;document.getElementById("vatAmount").textContent=money(t.vatAmount);document.getElementById("appGrand").textContent=money(t.grand);
+}
+function fillWorks(){
+ const works=load(WORK_KEY).filter(w=>String(w.aracId||w.vehicleId||"")===String(claim?.aracId||claim?.vehicleId||"")&&!["Teslim Edildi","Kapalı"].includes(w.durum));
+ document.getElementById("workId").innerHTML='<option value="">İş emri seçiniz...</option>'+works.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.isEmriNo||"-")+' · '+esc(w.durum||"")+'</option>').join("");
+ const preferred=works.find(w=>String(w.id)===String(claim?.isEmriId||""));if(preferred)document.getElementById("workId").value=String(preferred.id);
+ showWorkInfo();
+}
+function showWorkInfo(){const id=document.getElementById("workId").value,w=load(WORK_KEY).find(x=>String(x.id)===String(id));document.getElementById("workInfo").innerHTML=w?'<b>'+esc(w.isEmriNo||"-")+' · '+esc(w.plaka||"-")+'</b><br>'+esc(w.cariAdi||"-")+' · '+esc(w.durum||"-"):'Açık iş emri seçilmedi.'}
+function calcApproval(){
+ const t=expertTotals(),share=Math.max(0,num(document.getElementById("customerShare").value)),net=Math.max(0,t.grand-share),status=document.getElementById("approvalStatus").value;
+ document.getElementById("sumExpert").textContent=money(t.grand);document.getElementById("sumCustomer").textContent=money(share);document.getElementById("sumInsurer").textContent=money(net);document.getElementById("sumStatus").textContent=status;document.getElementById("sumTransfer").textContent=claim?.sigortaOnayi?.aktarildi?"Aktarıldı":"Bekliyor";
+ return {expert:t,share,net,status};
+}
+function saveApproval(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const c=calcApproval();claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claim.id));if(i<0)return;
+ claims[i].sigortaOnayi={...(claims[i].sigortaOnayi||{}),durum:c.status,tarih:document.getElementById("approvalDate").value,saat:document.getElementById("approvalTime").value,referansNo:document.getElementById("approvalNo").value.trim(),onayVeren:document.getElementById("approvalPerson").value.trim(),not:document.getElementById("approvalNote").value.trim(),eksperOnayToplam:c.expert.grand,musteriPayi:c.share,netSigortaTutar:c.net,updatedAt:new Date().toISOString()};
+ claims[i].sigortaOnaylananTutar=c.expert.grand;claims[i].musteriPayi=c.share;claims[i].netSigortaTutar=c.net;
+ if(c.status==="Onaylandı"||c.status==="Kısmi Onaylandı")claims[i].durum="Onaylandı";else if(c.status==="Reddedildi")claims[i].durum="Sigorta Red";else claims[i].durum="Sigorta Onayı Bekleniyor";
+ claims[i].updatedAt=new Date().toISOString();put(CLAIM_KEY,claims);claim=claims[i];calcApproval();alert("Sigorta onayı kaydedildi.");
+}
+function transferToWork(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const approval=claim.sigortaOnayi||{},ok=["Onaylandı","Kısmi Onaylandı"].includes(approval.durum);
+ if(!ok){alert("Önce sigorta onay durumunu Onaylandı veya Kısmi Onaylandı olarak kaydedin.");return}
+ const parts=approvedParts(),labors=approvedLabors();if(!parts.length&&!labors.length){alert("Aktarılacak eksper onaylı kalem yok.");return}
+ const wid=document.getElementById("workId").value;if(!wid){alert("Aynı araç için açık iş emri seçiniz.");return}
+ let works=load(WORK_KEY),i=works.findIndex(w=>String(w.id)===String(wid));if(i<0){alert("İş emri bulunamadı.");return}
+ if(["Teslim Edildi","Kapalı"].includes(works[i].durum)){alert("Kapalı iş emrine aktarım yapılamaz.");return}
+ const mappedParts=parts.map(x=>({parcaId:x.parcaId||"",ad:x.ad||"",kod:x.kod||"",adet:num(x.miktar),birim:x.birim||"Adet",birimFiyat:num(x.miktar)>0?num(x.onayTutar)/num(x.miktar):num(x.onayTutar),durum:"Teklif",sigortaOnayli:true,eksperKarari:x.karar||"",eksperOnayTutar:num(x.onayTutar)}));
+ const mappedLabors=labors.map(x=>({hizmetId:x.hizmetId||"",bolum:x.bolum||"Diğer",islem:x.islem||"",ustaId:"",usta:"",saat:num(x.saat),birimFiyat:num(x.saat)>0?num(x.onayTutar)/num(x.saat):num(x.onayTutar),sigortaOnayli:true,eksperKarari:x.karar||"",eksperOnayTutar:num(x.onayTutar)}));
+ const t=expertTotals(),share=num(approval.musteriPayi);
+ works[i]={...works[i],parcalar:mappedParts,iscilikler:mappedLabors,indirim:0,kdv:t.vat,parcaToplam:t.p,iscilikToplam:t.l,araToplam:t.net,kdvTutar:t.vatAmount,genelToplam:t.grand,toplam:t.grand,tutar:t.grand,onayDurumu:"Onaylandı",onayKaynak:"Sigorta",onaylayan:claim.sigortaSirketi||claim.sigorta||"Sigorta",onayTarihi:approval.tarih||today(),sigortaHasarId:claim.id,sigortaDosyaNo:claim.dosyaNo||claim.sigortaDosyaNo||"",sigortaMusteriPayi:share,durum:"Onaylandı · İşleme Hazır",updatedAt:new Date().toISOString()};
+ put(WORK_KEY,works);
+ claims=load(CLAIM_KEY);const ci=claims.findIndex(x=>String(x.id)===String(claim.id));if(ci>=0){claims[ci].isEmriId=works[i].id;claims[ci].isEmriNo=works[i].isEmriNo;claims[ci].durum="Onaylandı";claims[ci].sigortaOnayi={...(claims[ci].sigortaOnayi||{}),aktarildi:true,aktarimTarihi:new Date().toISOString(),isEmriId:works[i].id,isEmriNo:works[i].isEmriNo};claims[ci].updatedAt=new Date().toISOString();put(CLAIM_KEY,claims);claim=claims[ci]}
+ calcApproval();fillWorks();alert("Eksper ve sigorta tarafından onaylanan kalemler "+works[i].isEmriNo+" iş emrine aktarıldı.");
+}
+function loadApproval(){
+ if(!claim){renderClaim();renderApproved();return}
+ renderClaim();renderApproved();const a=claim.sigortaOnayi||{};
+ document.getElementById("approvalStatus").value=a.durum||"Bekleniyor";document.getElementById("approvalDate").value=a.tarih||today();document.getElementById("approvalTime").value=a.saat||timeNow();document.getElementById("approvalNo").value=a.referansNo||"";document.getElementById("approvalPerson").value=a.onayVeren||"";document.getElementById("customerShare").value=a.musteriPayi??claim.musteriPayi??0;document.getElementById("approvalNote").value=a.not||"";fillWorks();calcApproval();
+}
+loadApproval();
+</script>
+</body>
+</html>
