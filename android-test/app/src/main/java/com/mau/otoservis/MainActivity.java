@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     private String pendingBinaryName = "MAU-Dosya.bin";
     private String pendingBinaryMime = "application/octet-stream";
     private ValueCallback<Uri[]> pendingFileChooser;
+    private UpdateManager updateManager;
 
     private static final String START_URL =
             "https://masafotomotiv-glitch.github.io/MAU-Oto-Servis/";
@@ -69,6 +70,7 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(243, 246, 251));
         setContentView(webView);
+        updateManager = new UpdateManager(this);
 
         webView.setOnApplyWindowInsetsListener((v, insets) -> {
             if (android.os.Build.VERSION.SDK_INT >= 30) {
@@ -151,6 +153,15 @@ public class MainActivity extends Activity {
         // Her uygulama açılışında index sayfasını benzersiz sorgu ile iste.
         // Sorgu parametresi origin'i değiştirmez; localStorage verileri aynı yerde kalır.
         webView.loadUrl(START_URL + "?v=" + System.currentTimeMillis());
+        updateManager.checkForUpdates();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (updateManager != null) {
+            updateManager.resumePendingInstallIfAllowed();
+        }
     }
 
     private class AndroidBridge {
