@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Ayarlar</title>
+<style>
+*{box-sizing:border-box}:root{--blue:#0b6db8;--navy:#173a5f;--green:#11834f;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:1050px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:40px;height:40px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1050px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:10px;background:#fff}.field textarea{min-height:72px}
+.note{font-size:10px;color:var(--muted);line-height:1.55}.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.box{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px}
+.actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.save{background:#0b76c5;color:#fff}.green{background:#11834f;color:#fff}.gray{background:#eef2f6;color:#405168}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.quick button{border:1px solid #dce4eb;background:#f8fafc;border-radius:9px;padding:12px;font-weight:800;color:#29435f}
+.logoPreview{display:flex;align-items:center;gap:12px;border:1px dashed #cbd6e2;border-radius:10px;padding:12px;background:#fbfdff}.logoMark{font-size:26px;font-weight:900;color:#0b6db8}
+@media(max-width:720px){.grid,.status,.quick,.actions{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Ayarlar · Firma · Servis · Güvenlik · Yedekleme</div></div></div></header>
+<div class="wrap">
+
+ <div class="card"><div class="cardHead">Firma Bilgileri</div><div class="body">
+  <div class="logoPreview"><div class="logoMark">M••</div><div><b>MAU Oto Servis</b><div class="note">Uygulama logosu sabit kalır; aşağıdaki bilgiler firma başlıklarında ve raporlarda kullanılmak üzere saklanır.</div></div></div>
+  <div class="grid" style="margin-top:12px">
+   <div class="field full"><label>Firma / Ticari Unvan *</label><input id="firmaAdi" placeholder="Örn. Asaf Otomotiv"></div>
+   <div class="field"><label>Telefon</label><input id="telefon" placeholder="0 (312) ..."></div>
+   <div class="field"><label>E-posta</label><input id="eposta"></div>
+   <div class="field"><label>Vergi Dairesi</label><input id="vergiDairesi"></div>
+   <div class="field"><label>Vergi No</label><input id="vergiNo"></div>
+   <div class="field full"><label>Adres</label><textarea id="adres"></textarea></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Servis Varsayılanları</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Varsayılan KDV (%)</label><input id="kdv" type="number" min="0" step="0.01"></div>
+   <div class="field"><label>Para Birimi</label><select id="paraBirimi"><option value="TRY">TL / TRY</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div>
+   <div class="field"><label>Varsayılan Ödeme Yöntemi</label><select id="odemeYontemi"><option>Nakit</option><option>Banka</option><option>Kredi Kartı</option><option>Havale / EFT</option><option>Diğer</option></select></div>
+   <div class="field"><label>Varsayılan Bölüm</label><select id="varsayilanBolum"><option>Mekanik</option><option>Elektrik</option><option>Kaporta</option><option>Boya</option><option>Periyodik Bakım</option><option>Diagnostik</option><option>Diğer</option></select></div>
+   <div class="field"><label>Fatura No Ön Eki</label><input id="faturaPrefix" maxlength="8"></div>
+   <div class="field"><label>Tahsilat Makbuz Ön Eki</label><input id="makbuzPrefix" maxlength="8"></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Güvenlik</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Kapalı İş Emri Güvenlik Şifresi</label><input id="securityPassword" type="password" inputmode="numeric" placeholder="En az 4 karakter"></div>
+   <div class="field"><label>Şifreyi Tekrar Yaz</label><input id="securityPassword2" type="password" inputmode="numeric"></div>
+  </div>
+  <div class="note" style="margin-top:8px">Bu şifre kapatılmış iş emirlerini tekrar düzenlemeye açarken kullanılır. Mevcut yerel test sistemiyle uyumlu olarak cihazda saklanır.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Veri & Sistem</div><div class="body">
+  <div class="status">
+   <div class="box"><span>Veri Çalışma Modu</span><b>Yerel Cihaz</b></div>
+   <div class="box"><span>Ortak Veri Kaynağı</span><b>Planlandı</b></div>
+   <div class="box"><span>Yedekleme</span><b>Aktif</b></div>
+  </div>
+  <div class="note" style="margin:10px 0">Şu anda APK ve Chrome ayrı yerel veri alanı kullanır. Ortak veritabanına geçiş daha sonra yapılacak; bu ayar ekranı o geçişe hazır tutulmuştur.</div>
+  <div class="quick">
+   <button onclick="location.href='Yedekleme.html'">Yedekleme / Geri Yükleme</button>
+   <button onclick="location.href='CariKasa.html'">Kasa / Banka Hesapları</button>
+   <button onclick="location.href='Personel.html'">Personel / Yetkiler</button>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="body">
+  <div class="actions"><button class="btn save" onclick="saveSettings()">✓ Ayarları Kaydet</button><button class="btn gray" onclick="loadSettings()">Değişiklikleri Geri Al</button></div>
+ </div></div>
+
+</div>
+<script>
+const SETTINGS_KEY="mau_ayarlar",SECURITY_KEY="mau_guvenlik_sifresi";
+function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
+function defaults(){return {firmaAdi:"Asaf Otomotiv",telefon:"",eposta:"",vergiDairesi:"",vergiNo:"",adres:"",kdv:20,paraBirimi:"TRY",odemeYontemi:"Nakit",varsayilanBolum:"Mekanik",faturaPrefix:"FAT-",makbuzPrefix:"MKB-"}}
+function loadSettings(){
+ const s={...defaults(),...loadObj(SETTINGS_KEY)};
+ ["firmaAdi","telefon","eposta","vergiDairesi","vergiNo","adres","kdv","paraBirimi","odemeYontemi","varsayilanBolum","faturaPrefix","makbuzPrefix"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=s[id]??""});
+ const p=localStorage.getItem(SECURITY_KEY)||"";document.getElementById("securityPassword").value=p;document.getElementById("securityPassword2").value=p
+}
+function saveSettings(){
+ const firmaAdi=document.getElementById("firmaAdi").value.trim();if(!firmaAdi){alert("Firma adını giriniz.");return}
+ const p1=document.getElementById("securityPassword").value,p2=document.getElementById("securityPassword2").value;
+ if(p1||p2){if(p1.length<4){alert("Güvenlik şifresi en az 4 karakter olmalı.");return}if(p1!==p2){alert("Güvenlik şifreleri aynı değil.");return}}
+ const s={firmaAdi,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),vergiDairesi:document.getElementById("vergiDairesi").value.trim(),vergiNo:document.getElementById("vergiNo").value.trim(),adres:document.getElementById("adres").value.trim(),kdv:Number(document.getElementById("kdv").value||20),paraBirimi:document.getElementById("paraBirimi").value,odemeYontemi:document.getElementById("odemeYontemi").value,varsayilanBolum:document.getElementById("varsayilanBolum").value,faturaPrefix:document.getElementById("faturaPrefix").value.trim()||"FAT-",makbuzPrefix:document.getElementById("makbuzPrefix").value.trim()||"MKB-",updatedAt:new Date().toISOString()};
+ localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));if(p1)localStorage.setItem(SECURITY_KEY,p1);
+ alert("Ayarlar kaydedildi.")
+}
+loadSettings();
+</script>
+</body>
+</html>
