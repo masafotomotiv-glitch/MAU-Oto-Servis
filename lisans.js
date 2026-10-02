@@ -53,17 +53,17 @@ function patchReadonlyStorage(){
  if(readonlyPatched)return;readonlyPatched=true;
  const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem,clear=Storage.prototype.clear;
  Storage.prototype.setItem=function(k,v){
-  if(this===localStorage&&String(k||"").startsWith("mau_")&&!safeLicenseKey(k)){throw new Error("MAU_LICENSE_READONLY")}
+  if(this===localStorage&&String(k||"").startsWith("mau_")&&!safeLicenseKey(k)){showLockNotice();return}
   return set.call(this,k,v)
  };
  Storage.prototype.removeItem=function(k){
-  if(this===localStorage&&String(k||"").startsWith("mau_")&&!safeLicenseKey(k)){throw new Error("MAU_LICENSE_READONLY")}
+  if(this===localStorage&&String(k||"").startsWith("mau_")&&!safeLicenseKey(k)){showLockNotice();return}
   return remove.call(this,k)
  };
- Storage.prototype.clear=function(){throw new Error("MAU_LICENSE_READONLY")};
- window.addEventListener("error",function(e){
-  if(String(e.message||"").includes("MAU_LICENSE_READONLY")){e.preventDefault();showLockNotice()}
- })
+ Storage.prototype.clear=function(){
+  if(this===localStorage){showLockNotice();return}
+  return clear.call(this)
+ }
 }
 
 function banner(text,type){
