@@ -265,16 +265,17 @@ public final class UpdateManager {
 
             int sessionId = installer.createSession(params);
 
-            try (PackageInstaller.Session session = installer.openSession(sessionId);
-                 InputStream in = new BufferedInputStream(new FileInputStream(apk));
-                 OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
+            try (PackageInstaller.Session session = installer.openSession(sessionId)) {
+                try (InputStream in = new BufferedInputStream(new FileInputStream(apk));
+                     OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
 
-                byte[] buffer = new byte[65536];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
+                    byte[] buffer = new byte[65536];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, read);
+                    }
+                    session.fsync(out);
                 }
-                session.fsync(out);
 
                 Intent resultIntent = new Intent(activity, UpdateInstallReceiver.class);
                 resultIntent.setAction("com.mau.otoservis.UPDATE_INSTALL_RESULT");
