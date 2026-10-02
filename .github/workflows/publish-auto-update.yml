@@ -38,18 +38,14 @@ jobs:
         with:
           gradle-version: "8.11.1"
 
-      - name: Stable pilot signing key
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: mau-ocr-debug-keystore-v1
-
-      - name: Create pilot signing key if missing
+      - name: Restore MAU production signing key
+        env:
+          MAU_RELEASE_KEYSTORE_BASE64: ${{ secrets.MAU_RELEASE_KEYSTORE_BASE64 }}
         run: |
-          mkdir -p ~/.android
-          if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
-          fi
+          test -n "$MAU_RELEASE_KEYSTORE_BASE64"
+          printf '%s' "$MAU_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mau-production.p12"
+          chmod 600 "$RUNNER_TEMP/mau-production.p12"
+          test -s "$RUNNER_TEMP/mau-production.p12"
 
       - name: Read version
         id: version
@@ -59,13 +55,27 @@ jobs:
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Build APK
-        run: gradle -p android-test assembleDebug --stacktrace
+      - name: Build production release APK
+        env:
+          MAU_SIGNING_KEYSTORE: ${{ runner.temp }}/mau-production.p12
+          MAU_SIGNING_STORE_PASSWORD: ${{ secrets.MAU_RELEASE_STORE_PASSWORD }}
+          MAU_SIGNING_KEY_ALIAS: ${{ secrets.MAU_RELEASE_KEY_ALIAS }}
+          MAU_SIGNING_KEY_PASSWORD: ${{ secrets.MAU_RELEASE_KEY_PASSWORD }}
+        run: gradle -p android-test assembleRelease --stacktrace
+
+      - name: Verify production signing certificate
+        run: |
+          APK="android-test/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          ACTUAL=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$APK" | awk -F': ' '/SHA-256 digest/ {print tolower($2); exit}' | tr -d ':')
+          EXPECTED="a28982bd4d43e2daaf2fe0f1e9356fbdf2513dfb7a87a43afb62b18a153d324e"
+          echo "Production signing certificate: $ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
 
       - name: Prepare APK and SHA-256
         id: apk
         run: |
-          cp android-test/app/build/outputs/apk/debug/app-debug.apk MAU-Oto-Servis-latest.apk
+          cp android-test/app/build/outputs/apk/release/app-release.apk MAU-Oto-Servis-latest.apk
           SHA=$(sha256sum MAU-Oto-Servis-latest.apk | awk '{print $1}')
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
