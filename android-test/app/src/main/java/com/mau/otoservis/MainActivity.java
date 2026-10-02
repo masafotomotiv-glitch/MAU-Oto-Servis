@@ -24,18 +24,19 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import org.json.JSONObject;
 
-import androidx.core.content.FileProvider;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private static final int PICK_RUHSAT_IMAGE = 4021;
+    private static final int CREATE_CSV_FILE = 4022;
 
     private WebView webView;
     private TextRecognizer textRecognizer;
+    private String pendingCsvContent = "";
+    private String pendingCsvName = "MAU-Rapor.csv";
 
     private static final String START_URL =
             "https://masafotomotiv-glitch.github.io/MAU-Oto-Servis/";
@@ -129,44 +130,20 @@ public class MainActivity extends Activity {
     }
 
     private void shareCsvFile(String fileName, String csvContent) {
-        try {
-            File exportDir = new File(getCacheDir(), "exports");
-            if (!exportDir.exists() && !exportDir.mkdirs()) {
-                throw new IOException("Dışa aktarma klasörü oluşturulamadı.");
-            }
+        pendingCsvContent = csvContent == null ? "" : csvContent;
+        pendingCsvName = fileName == null || fileName.trim().isEmpty()
+                ? "MAU-Rapor.csv"
+                : fileName.trim();
 
-            String safeName = fileName == null ? "MAU-Rapor.csv" : fileName;
-            safeName = safeName.replaceAll("[^a-zA-Z0-9._-]", "_");
-            if (!safeName.toLowerCase().endsWith(".csv")) {
-                safeName += ".csv";
-            }
-
-            File file = new File(exportDir, safeName);
-            try (FileOutputStream out = new FileOutputStream(file)) {
-                out.write((csvContent == null ? "" : csvContent)
-                        .getBytes(StandardCharsets.UTF_8));
-            }
-
-            Uri uri = FileProvider.getUriForFile(
-                    this,
-                    getPackageName() + ".fileprovider",
-                    file
-            );
-
-            Intent sendIntent = new Intent(Intent.ACTION_SEND);
-            sendIntent.setType("text/csv");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            startActivity(Intent.createChooser(sendIntent, "CSV raporunu paylaş"));
-        } catch (Exception e) {
-            Toast.makeText(
-                    this,
-                    "CSV raporu oluşturulamadı: "
-                            + (e.getMessage() == null ? "dosya hatası" : e.getMessage()),
-                    Toast.LENGTH_LONG
-            ).show();
+        if (!pendingCsvName.toLowerCase().endsWith(".csv")) {
+            pendingCsvName += ".csv";
         }
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/csv");
+        intent.putExtra(Intent.EXTRA_TITLE, pendingCsvName);
+        startActivityForResult(intent, CREATE_CSV_FILE);
     }
 
     private void printCurrentPage() {
@@ -208,6 +185,28 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CREATE_CSV_FILE) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(data.getData())) {
+                    if (out == null) {
+                        throw new IOException("Dosya açılamadı.");
+                    }
+                    out.write(pendingCsvContent.getBytes(StandardCharsets.UTF_8));
+                    out.flush();
+                    Toast.makeText(this, "CSV raporu kaydedildi.", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(
+                            this,
+                            "CSV kaydedilemedi: "
+                                    + (e.getMessage() == null ? "dosya hatası" : e.getMessage()),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+            pendingCsvContent = "";
+            return;
+        }
 
         if (requestCode != PICK_RUHSAT_IMAGE) {
             return;
