@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Sigorta & Eksper Tanımları</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px}
+.head{max-width:1050px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}.title{font-weight:900;font-size:22px}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1050px;margin:14px auto;padding:0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;overflow:hidden}.head2{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900;display:flex;justify-content:space-between;align-items:center}.body{padding:14px}
+.field{margin-bottom:9px}.field label{display:block;font-size:11px;font-weight:800;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:70px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:7px}.btn{border:0;border-radius:8px;padding:10px 12px;font-weight:800}.save{background:#159957;color:#fff}.new{background:#1478c9;color:#fff}.cancel{background:#eef2f6;color:#445}
+.list{margin-top:12px}.item{border:1px solid #e3e9ef;border-radius:9px;padding:10px;margin-bottom:7px;display:grid;grid-template-columns:1fr auto;gap:8px}.item b{font-size:13px}.meta{font-size:10px;color:#718096;line-height:1.5;margin-top:3px}.edit{border:0;border-radius:7px;padding:7px 9px;background:#eaf2ff;color:#0756a5;font-weight:800}
+.badge{display:inline-block;padding:3px 6px;border-radius:9px;font-size:9px;background:#edf7ef;color:#187443;margin-left:5px}.passive{background:#fff0f0;color:#aa2430}
+.note{font-size:10px;color:#718096;line-height:1.5;margin-bottom:10px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.row2{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='HasarSigorta.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Sigorta Şirketleri · Eksper Firma / Kişi Tanımları</div></div></div></header>
+<div class="wrap">
+ <div class="note">Bu ekrandaki kayıtlar Hasar & Sigorta dosyasında seçim listesine otomatik gelir. TEST SİGORTA ve TEST EKSPER ilk kurulumda hazır oluşturulur.</div>
+ <div class="grid">
+  <div class="card"><div class="head2"><span>Sigorta Şirketleri</span><button class="btn new" onclick="newInsurance()">+ Yeni</button></div><div class="body">
+   <div class="row2"><div class="field"><label>Kod</label><input id="iCode" readonly></div><div class="field"><label>Durum</label><select id="iActive"><option value="true">Aktif</option><option value="false">Pasif</option></select></div></div>
+   <div class="field"><label>Sigorta Şirketi *</label><input id="iName"></div>
+   <div class="row2"><div class="field"><label>Telefon</label><input id="iPhone"></div><div class="field"><label>E-posta</label><input id="iEmail"></div></div>
+   <div class="field"><label>Şehir</label><input id="iCity"></div>
+   <div class="field"><label>Not</label><textarea id="iNote"></textarea></div>
+   <div class="actions"><button class="btn save" onclick="saveInsurance()">✓ Kaydet</button><button class="btn cancel" onclick="newInsurance()">Temizle</button></div>
+   <div id="insuranceList" class="list"></div>
+  </div></div>
+
+  <div class="card"><div class="head2"><span>Eksper Firma / Kişi</span><button class="btn new" onclick="newExpert()">+ Yeni</button></div><div class="body">
+   <div class="row2"><div class="field"><label>Kod</label><input id="eCode" readonly></div><div class="field"><label>Durum</label><select id="eActive"><option value="true">Aktif</option><option value="false">Pasif</option></select></div></div>
+   <div class="field"><label>Eksper Firma *</label><input id="eCompany"></div>
+   <div class="field"><label>Eksper Adı *</label><input id="eName"></div>
+   <div class="row2"><div class="field"><label>Telefon</label><input id="ePhone"></div><div class="field"><label>E-posta</label><input id="eEmail"></div></div>
+   <div class="field"><label>Şehir</label><input id="eCity"></div>
+   <div class="field"><label>Not</label><textarea id="eNote"></textarea></div>
+   <div class="actions"><button class="btn save" onclick="saveExpert()">✓ Kaydet</button><button class="btn cancel" onclick="newExpert()">Temizle</button></div>
+   <div id="expertList" class="list"></div>
+  </div></div>
+ </div>
+</div>
+<script>
+const INS_KEY="mau_sigorta_sirketleri",EXP_KEY="mau_eksper_kayitlari";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function seed(){
+ if(!load(INS_KEY).length)put(INS_KEY,[{id:"SIG-TEST-001",code:"SIG-00001",name:"TEST SİGORTA",phone:"0312 000 00 00",email:"",city:"Ankara",note:"Test kaydı",active:true,createdAt:new Date().toISOString()}]);
+ if(!load(EXP_KEY).length)put(EXP_KEY,[{id:"EXP-TEST-001",code:"EXP-00001",company:"TEST EKSPER FİRMASI",name:"TEST EKSPER",phone:"0500 000 00 00",email:"",city:"Ankara",note:"Test kaydı",active:true,createdAt:new Date().toISOString()}]);
+}
+function nextCode(k,prefix){let m=0;load(k).forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return prefix+String(m+1).padStart(5,"0")}
+let iEdit=null,eEdit=null;
+function newInsurance(){iEdit=null;["iName","iPhone","iEmail","iCity","iNote"].forEach(id=>document.getElementById(id).value="");document.getElementById("iCode").value=nextCode(INS_KEY,"SIG-");document.getElementById("iActive").value="true"}
+function newExpert(){eEdit=null;["eCompany","eName","ePhone","eEmail","eCity","eNote"].forEach(id=>document.getElementById(id).value="");document.getElementById("eCode").value=nextCode(EXP_KEY,"EXP-");document.getElementById("eActive").value="true"}
+function saveInsurance(){const name=document.getElementById("iName").value.trim();if(!name){alert("Sigorta şirketi adını yazın.");return}let a=load(INS_KEY),old=iEdit!=null?a.find(x=>String(x.id)===String(iEdit)):null;const x={...(old||{}),id:old?old.id:Date.now(),code:old?old.code:document.getElementById("iCode").value,name,phone:document.getElementById("iPhone").value.trim(),email:document.getElementById("iEmail").value.trim(),city:document.getElementById("iCity").value.trim(),note:document.getElementById("iNote").value.trim(),active:document.getElementById("iActive").value==="true",createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};const i=a.findIndex(v=>String(v.id)===String(x.id));if(i>=0)a[i]=x;else a.unshift(x);put(INS_KEY,a);render();newInsurance();alert("Sigorta şirketi kaydedildi.")}
+function saveExpert(){const company=document.getElementById("eCompany").value.trim(),name=document.getElementById("eName").value.trim();if(!company||!name){alert("Eksper firma ve eksper adını yazın.");return}let a=load(EXP_KEY),old=eEdit!=null?a.find(x=>String(x.id)===String(eEdit)):null;const x={...(old||{}),id:old?old.id:Date.now(),code:old?old.code:document.getElementById("eCode").value,company,name,phone:document.getElementById("ePhone").value.trim(),email:document.getElementById("eEmail").value.trim(),city:document.getElementById("eCity").value.trim(),note:document.getElementById("eNote").value.trim(),active:document.getElementById("eActive").value==="true",createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};const i=a.findIndex(v=>String(v.id)===String(x.id));if(i>=0)a[i]=x;else a.unshift(x);put(EXP_KEY,a);render();newExpert();alert("Eksper kaydı kaydedildi.")}
+function editInsurance(id){const x=load(INS_KEY).find(v=>String(v.id)===String(id));if(!x)return;iEdit=x.id;document.getElementById("iCode").value=x.code||"";document.getElementById("iName").value=x.name||"";document.getElementById("iPhone").value=x.phone||"";document.getElementById("iEmail").value=x.email||"";document.getElementById("iCity").value=x.city||"";document.getElementById("iNote").value=x.note||"";document.getElementById("iActive").value=String(x.active!==false)}
+function editExpert(id){const x=load(EXP_KEY).find(v=>String(v.id)===String(id));if(!x)return;eEdit=x.id;document.getElementById("eCode").value=x.code||"";document.getElementById("eCompany").value=x.company||"";document.getElementById("eName").value=x.name||"";document.getElementById("ePhone").value=x.phone||"";document.getElementById("eEmail").value=x.email||"";document.getElementById("eCity").value=x.city||"";document.getElementById("eNote").value=x.note||"";document.getElementById("eActive").value=String(x.active!==false)}
+function render(){document.getElementById("insuranceList").innerHTML=load(INS_KEY).map(x=>'<div class="item"><div><b>'+esc(x.code)+' · '+esc(x.name)+' <span class="badge '+(x.active===false?'passive':'')+'">'+(x.active===false?'Pasif':'Aktif')+'</span></b><div class="meta">'+esc(x.city||"-")+' · '+esc(x.phone||"-")+'</div></div><button class="edit" onclick="editInsurance(&quot;'+x.id+'&quot;)">Düzenle</button></div>').join("");document.getElementById("expertList").innerHTML=load(EXP_KEY).map(x=>'<div class="item"><div><b>'+esc(x.code)+' · '+esc(x.name)+' <span class="badge '+(x.active===false?'passive':'')+'">'+(x.active===false?'Pasif':'Aktif')+'</span></b><div class="meta">'+esc(x.company||"-")+' · '+esc(x.city||"-")+' · '+esc(x.phone||"-")+'</div></div><button class="edit" onclick="editExpert(&quot;'+x.id+'&quot;)">Düzenle</button></div>').join("")}
+seed();newInsurance();newExpert();render();
+</script>
+</body>
+</html>
