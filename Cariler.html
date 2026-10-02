@@ -476,7 +476,7 @@ function panelOzet(){
   '<br><small>'+esc(h.tarih||"")+' • '+esc(h.aciklama||"")+' • '+(h.borc?money(h.borc):h.alacak?money(h.alacak):"Bilgi")+'</small></div>').join(""):"Henüz otomatik cari hareketi yok.";
  document.getElementById("panel").innerHTML=
   '<div class="panelTitle">Cari Genel Bakış</div>'+
-  '<div class="quick"><button onclick="showPanel(&quot;hareket&quot;)">Cari Ekstre</button><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div>'+
+  '<div class="quick"><button onclick="showPanel(&quot;hareket&quot;)">Cari Ekstre</button><button class="pdf" onclick="printSection(&quot;cari&quot;)">📄 Cari Kartı / PDF</button></div>'+
   '<div class="note"><b>Bu ekran merkez görünümüdür.</b> Araçlar Araç Kayıt bölümünden; iş emirleri İş Emirleri bölümünden; faturalar Faturalar bölümünden; tahsilat ve ödemeler Cari & Kasa bölümünden; hasar, sigorta ve belgeler kendi kaynak bölümlerinden otomatik gelir. Buradan yalnızca cari kartı ve notlar düzenlenir.</div>'+
   '<div class="overviewGrid"><div class="overCard"><h3>Cari Bilgileri</h3><b>'+esc(activeCari.name)+'</b><br><br>'+
   'Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>E-posta: '+esc(activeCari.mail||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+
@@ -488,6 +488,7 @@ function panelAraclar(){
   '</td><td>'+esc(pick(v,["sasi","vin","sasiNo"],"-"))+'</td><td>'+esc(pick(v,["motorNo"],"-"))+'</td><td>'+esc(pick(v,["km","kilometre"],"-"))+'</td><td>'+esc(pick(v,["durum"],"Aktif"))+'</td></tr>').join(""):
   '<tr><td colspan="6">Bu cariye bağlı araç yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Araçlar</div><div class="note"><b>Salt okunur.</b> Araç ekleme ve düzenleme ana ekrandaki <b>Araç Kayıt</b> bölümünden yapılır. Orada cari seçildiğinde araç bu listede otomatik görünür.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;araclar&quot;)">📄 Araçlar / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>Motor No</th><th>KM</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelHareket(){
@@ -495,7 +496,7 @@ function panelHareket(){
  document.getElementById("panel").innerHTML='<div class="panelTitle">Cari Hareketler / Otomatik Ekstre</div>'+
  '<div class="note"><b>Salt okunur.</b> Burada elle hareket eklenmez, silinmez veya değiştirilmez. İş emri, fatura, tahsilat ve ödeme kendi kaynak bölümünde yapıldığında ekstre otomatik oluşur.</div>'+
  '<div class="filters"><input type="date" id="fromDate"><input type="date" id="toDate"><button onclick="renderMovementTable()">Filtrele</button></div>'+
- '<div class="quick"><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div><div id="movementTable"></div>';
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;hareket&quot;)">📄 Cari Ekstre / PDF</button></div><div id="movementTable"></div>';
  window._allMoves=all;renderMovementTable();
 }
 function renderMovementTable(){
@@ -511,6 +512,7 @@ function panelIsEmri(){
  const rows=a.length?a.map(w=>'<tr><td>'+esc(pick(w,["isEmriNo","no","workOrderNo"],"-"))+'</td><td>'+esc(dateVal(w)||"-")+'</td><td>'+esc(pick(w,["plaka"],"-"))+'</td><td>'+esc(pick(w,["durum","status"],"-"))+'</td><td>'+money(num(w,["genelToplam","toplam","tutar"]))+'</td><td>'+esc(pick(w,["aciklama","islemOzeti"],"-"))+'</td></tr>').join(""):
   '<tr><td colspan="6">Bu cariye bağlı iş emri yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">İş Emirleri</div><div class="note"><b>Salt okunur.</b> İş emri kayıtları İş Emirleri bölümünden otomatik gelir.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;isemri&quot;)">📄 İş Emirleri / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>İş Emri No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelFatura(){
@@ -518,6 +520,7 @@ function panelFatura(){
  const rows=a.length?a.map(f=>'<tr><td>'+esc(pick(f,["faturaNo","no","belgeNo"],"-"))+'</td><td>'+esc(dateVal(f)||"-")+'</td><td>'+esc(pick(f,["tip","tur","faturaTipi"],"-"))+'</td><td>'+esc(pick(f,["isEmriNo"],"-"))+'</td><td>'+money(num(f,["genelToplam","toplam","tutar"]))+'</td><td>'+esc(pick(f,["durum","status"],"Aktif"))+'</td></tr>').join(""):
   '<tr><td colspan="6">Bu cariye bağlı fatura yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Faturalar</div><div class="note"><b>Salt okunur.</b> Alış ve satış faturaları Faturalar bölümünden otomatik gelir.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;fatura&quot;)">📄 Faturalar / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>Fatura No</th><th>Tarih</th><th>Tip</th><th>İş Emri</th><th>Tutar</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelHasar(){
@@ -525,6 +528,7 @@ function panelHasar(){
  const rows=a.length?a.map(h=>'<tr><td>'+esc(pick(h,["dosyaNo","no"],"-"))+'</td><td>'+esc(dateVal(h)||"-")+'</td><td>'+esc(pick(h,["plaka"],"-"))+'</td><td>'+esc(pick(h,["sigorta","sigortaSirketi"],"-"))+'</td><td>'+esc(pick(h,["eksper","eksperFirma"],"-"))+'</td><td>'+esc(pick(h,["durum","status"],"-"))+'</td></tr>').join(""):
   '<tr><td colspan="6">Bu cariye bağlı hasar / sigorta dosyası yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Hasar & Sigorta</div><div class="note"><b>Salt okunur.</b> Hasar, sigorta ve eksper dosyaları Hasar & Sigorta bölümünden otomatik gelir.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;hasar&quot;)">📄 Hasar & Sigorta / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>Dosya No</th><th>Tarih</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelBelge(){
@@ -532,11 +536,13 @@ function panelBelge(){
  const rows=a.length?a.map(d=>'<tr><td>'+esc(dateVal(d)||"-")+'</td><td>'+esc(pick(d,["tur","tip"],"-"))+'</td><td>'+esc(pick(d,["belgeAdi","ad","name"],"-"))+'</td><td>'+esc(pick(d,["belgeNo","no"],"-"))+'</td><td>'+esc(pick(d,["kaynak","source"],"-"))+'</td></tr>').join(""):
   '<tr><td colspan="5">Bu cariye bağlı belge yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Belgeler</div><div class="note"><b>Salt okunur.</b> Fatura, iş emri, hasar, ruhsat ve diğer evraklar oluşturuldukları kaynak bölümden otomatik gelir.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;belge&quot;)">📄 Belge Listesi / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>Belge No</th><th>Kaynak</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelNot(){
  document.getElementById("panel").innerHTML='<div class="panelTitle">Cari Notları</div><div class="note"><b>Bu bölüm cariye özel serbest not alanıdır.</b> Notlar sadece burada düzenlenir.</div>'+
- '<textarea id="detailNot" style="min-height:180px">'+esc(activeCari.notlar||"")+'</textarea><br><br><button class="save" onclick="saveDetailNote()">Notları Kaydet</button>';
+ '<textarea id="detailNot" style="min-height:180px">'+esc(activeCari.notlar||"")+'</textarea><br><br><button class="save" onclick="saveDetailNote()">Notları Kaydet</button>'+
+ '<div class="quick" style="margin-top:12px"><button class="pdf" onclick="printSection(&quot;not&quot;)">📄 Notlar / PDF</button></div>';
 }
 function saveDetailNote(){
  activeCari.notlar=document.getElementById("detailNot").value;
@@ -544,32 +550,141 @@ function saveDetailNote(){
  saveCariler();alert("Not kaydedildi.");
 }
 
-/* CARİ DOSYASI / PDF */
-function printCari(){
- const moves=movementsWithBalance(buildMovements());
- const etkili=moves.filter(h=>h.etki!==false);
- const borc=etkili.reduce((a,h)=>a+Number(h.borc||0),0),alacak=etkili.reduce((a,h)=>a+Number(h.alacak||0),0);
- const vehicles=activeVehicles(),orders=activeWorkOrders(),invoices=activeInvoices(),claims=activeClaims(),docs=activeDocs();
+/* BÖLÜM BAZLI PDF RAPORLARI */
+function printSection(type){
+ if(!activeCari){alert("Cari seçili değil.");return;}
 
- function trMoves(){
-  return moves.map(h=>'<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.kaynak||"")+'</td><td>'+esc(h.belgeNo||"-")+'</td><td>'+esc(h.isEmriNo||"-")+'</td><td>'+esc(h.plaka||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td>'+(h.borc?money(h.borc):"-")+'</td><td>'+(h.alacak?money(h.alacak):"-")+'</td><td>'+money(h.bakiye)+'</td></tr>').join("")||'<tr><td colspan="9">Hareket yok.</td></tr>';
+ const titleMap={
+  cari:"Cari Kartı",
+  araclar:"Araçlar",
+  hareket:"Cari Hesap Ekstresi",
+  isemri:"İş Emirleri",
+  fatura:"Faturalar",
+  hasar:"Hasar & Sigorta",
+  belge:"Belgeler",
+  not:"Notlar"
+ };
+ const title=titleMap[type]||"Cari Raporu";
+
+ function table(headers,rows){
+  return '<table><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+
+   (rows||'<tr><td colspan="'+headers.length+'">Kayıt yok.</td></tr>')+'</tbody></table>';
  }
- function simpleRows(list,cols){
-  if(!list.length)return '<tr><td colspan="'+cols.length+'">Kayıt yok.</td></tr>';
-  return list.map(x=>'<tr>'+cols.map(c=>'<td>'+esc(c(x))+'</td>').join("")+'</tr>').join("");
+ function rowsFrom(list,cols){
+  if(!list.length)return '';
+  return list.map(x=>'<tr>'+cols.map(fn=>'<td>'+esc(fn(x))+'</td>').join('')+'</tr>').join('');
  }
- const html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Cari Dosyası</title><style>'+
- 'body{font-family:Arial;padding:24px;color:#222}h1{color:#075ca8;margin-bottom:4px}h2{font-size:16px;margin-top:24px;border-bottom:2px solid #075ca8;padding-bottom:5px}.box{margin:15px 0;padding:12px;background:#f5f7fa}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ddd;padding:6px;font-size:10px}th{background:#eee}.tot{line-height:1.8}</style></head><body>'+
- '<h1>MAU OTO SERVİS</h1><b>Cari Dosyası</b><div class="box"><b>'+esc(activeCari.name)+'</b><br>Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+'</div>'+
- '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b></div>'+
- '<h2>Cari Ekstre</h2><table><tr><th>Tarih</th><th>Kaynak</th><th>Belge</th><th>İş Emri</th><th>Plaka</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Bakiye</th></tr>'+trMoves()+'</table>'+
- '<h2>Araçlar</h2><table><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi</th><th>KM</th></tr>'+simpleRows(vehicles,[v=>pick(v,["plaka"],"-"),v=>[pick(v,["marka"],""),pick(v,["model"],"")].filter(Boolean).join(" ")||"-",v=>pick(v,["sasi","vin"],"-"),v=>pick(v,["km"],"-")])+'</table>'+
- '<h2>İş Emirleri</h2><table><tr><th>No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th></tr>'+simpleRows(orders,[w=>pick(w,["isEmriNo","no"],"-"),w=>dateVal(w)||"-",w=>pick(w,["plaka"],"-"),w=>pick(w,["durum"],"-"),w=>money(num(w,["genelToplam","toplam","tutar"]))])+'</table>'+
- '<h2>Faturalar</h2><table><tr><th>No</th><th>Tarih</th><th>Tip</th><th>Tutar</th></tr>'+simpleRows(invoices,[f=>pick(f,["faturaNo","no"],"-"),f=>dateVal(f)||"-",f=>pick(f,["tip","tur"],"-"),f=>money(num(f,["genelToplam","toplam","tutar"]))])+'</table>'+
- '<h2>Hasar & Sigorta</h2><table><tr><th>Dosya No</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr>'+simpleRows(claims,[h=>pick(h,["dosyaNo","no"],"-"),h=>pick(h,["plaka"],"-"),h=>pick(h,["sigorta","sigortaSirketi"],"-"),h=>pick(h,["eksper","eksperFirma"],"-"),h=>pick(h,["durum"],"-")])+'</table>'+
- '<h2>Belgeler</h2><table><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>No</th></tr>'+simpleRows(docs,[d=>dateVal(d)||"-",d=>pick(d,["tur","tip"],"-"),d=>pick(d,["belgeAdi","ad"],"-"),d=>pick(d,["belgeNo","no"],"-")])+'</table>'+
- '<h2>Notlar</h2><div class="box">'+esc(activeCari.notlar||"Not yok.")+'</div><script>window.onload=function(){window.print();};<\/script></body></html>';
- const w=window.open("","_blank");if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
+
+ const movesAll=movementsWithBalance(buildMovements());
+ const effective=movesAll.filter(h=>h.etki!==false);
+ const borc=effective.reduce((a,h)=>a+Number(h.borc||0),0);
+ const alacak=effective.reduce((a,h)=>a+Number(h.alacak||0),0);
+
+ let body='';
+
+ if(type==="cari"){
+  body=
+   '<div class="box"><b>'+esc(activeCari.name)+'</b><br>'+
+   'Cari Kodu: '+esc(activeCari.code||"-")+'<br>'+
+   'Cari Tipi: '+esc(activeCari.type||"-")+'<br>'+
+   'Roller: '+esc((activeCari.roles||[]).join(" / ")||"-")+'<br>'+
+   'Telefon: '+esc(activeCari.tel||"-")+'<br>'+
+   'E-posta: '+esc(activeCari.mail||"-")+'<br>'+
+   'T.C. / Vergi No: '+esc(activeCari.tc||activeCari.vn||"-")+'<br>'+
+   'Vergi Dairesi: '+esc(activeCari.vd||"-")+'<br>'+
+   'Yetkili: '+esc(activeCari.yet||"-")+'<br>'+
+   'Adres: '+esc(activeCari.adres||"-")+'</div>'+
+   '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b><br>Araç Sayısı: <b>'+activeVehicles().length+'</b></div>';
+ }
+
+ if(type==="araclar"){
+  const list=activeVehicles();
+  const rows=rowsFrom(list,[
+   v=>pick(v,["plaka"],"-"),
+   v=>[pick(v,["marka"],""),pick(v,["model"],"")].filter(Boolean).join(" ")||"-",
+   v=>pick(v,["sasi","vin","sasiNo"],"-"),
+   v=>pick(v,["motorNo"],"-"),
+   v=>pick(v,["km","kilometre"],"-"),
+   v=>pick(v,["durum"],"Aktif")
+  ]);
+  body=table(["Plaka","Marka / Model","Şasi / VIN","Motor No","KM","Durum"],rows);
+ }
+
+ if(type==="hareket"){
+  const from=document.getElementById("fromDate")?.value||"";
+  const to=document.getElementById("toDate")?.value||"";
+  const list=movesAll.filter(h=>(!from||String(h.tarih)>=from)&&(!to||String(h.tarih)<=to));
+  const rows=list.length?list.map(h=>'<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.kaynak||"")+'</td><td>'+esc(h.belgeNo||"-")+'</td><td>'+esc(h.isEmriNo||"-")+'</td><td>'+esc(h.plaka||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td>'+(h.borc?money(h.borc):"-")+'</td><td>'+(h.alacak?money(h.alacak):"-")+'</td><td>'+money(h.bakiye)+'</td></tr>').join(""):'';
+  body=(from||to?'<div class="box">Tarih Aralığı: '+esc(from||"Başlangıç")+' - '+esc(to||"Bugün")+'</div>':'')+
+   table(["Tarih","Kaynak","Belge No","İş Emri","Plaka","Açıklama","Borç","Alacak","Bakiye"],rows)+
+   '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b></div>';
+ }
+
+ if(type==="isemri"){
+  const list=activeWorkOrders();
+  const rows=rowsFrom(list,[
+   w=>pick(w,["isEmriNo","no","workOrderNo"],"-"),
+   w=>dateVal(w)||"-",
+   w=>pick(w,["plaka"],"-"),
+   w=>pick(w,["durum","status"],"-"),
+   w=>money(num(w,["genelToplam","toplam","tutar"])),
+   w=>pick(w,["aciklama","islemOzeti"],"-")
+  ]);
+  body=table(["İş Emri No","Tarih","Plaka","Durum","Tutar","Açıklama"],rows);
+ }
+
+ if(type==="fatura"){
+  const list=activeInvoices();
+  const rows=rowsFrom(list,[
+   f=>pick(f,["faturaNo","no","belgeNo"],"-"),
+   f=>dateVal(f)||"-",
+   f=>pick(f,["tip","tur","faturaTipi"],"-"),
+   f=>pick(f,["isEmriNo"],"-"),
+   f=>money(num(f,["genelToplam","toplam","tutar"])),
+   f=>pick(f,["durum","status"],"Aktif")
+  ]);
+  body=table(["Fatura No","Tarih","Tip","İş Emri","Tutar","Durum"],rows);
+ }
+
+ if(type==="hasar"){
+  const list=activeClaims();
+  const rows=rowsFrom(list,[
+   h=>pick(h,["dosyaNo","no"],"-"),
+   h=>dateVal(h)||"-",
+   h=>pick(h,["plaka"],"-"),
+   h=>pick(h,["sigorta","sigortaSirketi"],"-"),
+   h=>pick(h,["eksper","eksperFirma"],"-"),
+   h=>pick(h,["durum","status"],"-")
+  ]);
+  body=table(["Dosya No","Tarih","Plaka","Sigorta","Eksper","Durum"],rows);
+ }
+
+ if(type==="belge"){
+  const list=activeDocs();
+  const rows=rowsFrom(list,[
+   d=>dateVal(d)||"-",
+   d=>pick(d,["tur","tip"],"-"),
+   d=>pick(d,["belgeAdi","ad","name"],"-"),
+   d=>pick(d,["belgeNo","no"],"-"),
+   d=>pick(d,["kaynak","source"],"-")
+  ]);
+  body=table(["Tarih","Tür","Belge","Belge No","Kaynak"],rows);
+ }
+
+ if(type==="not"){
+  const text=document.getElementById("detailNot")?.value ?? activeCari.notlar ?? "";
+  body='<div class="box notes">'+esc(text||"Not yok.").replace(/\n/g,"<br>")+'</div>';
+ }
+
+ const html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>'+esc(activeCari.name)+' - '+esc(title)+'</title>'+
+ '<style>@page{size:A4;margin:12mm}body{font-family:Arial;color:#222;font-size:12px}h1{color:#075ca8;margin:0 0 4px}h2{margin:0 0 14px;font-size:16px}.meta{margin:0 0 16px;color:#555}.box{padding:12px;background:#f5f7fa;border:1px solid #e4e7eb;border-radius:6px;line-height:1.6}.notes{min-height:100px}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #d8dde3;padding:6px;font-size:10px;text-align:left;vertical-align:top}th{background:#eef2f6}.tot{margin-top:14px;line-height:1.8}.foot{margin-top:18px;color:#777;font-size:9px}</style></head><body>'+
+ '<h1>MAU OTO SERVİS</h1><h2>'+esc(title)+'</h2>'+
+ '<div class="meta"><b>'+esc(activeCari.name)+'</b> · '+esc(activeCari.code||"-")+'</div>'+
+ body+'<div class="foot">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</div>'+
+ '<script>window.onload=function(){window.print();};<\/script></body></html>';
+
+ const w=window.open("","_blank");
+ if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
  w.document.open();w.document.write(html);w.document.close();
 }
 
