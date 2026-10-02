@@ -81,7 +81,7 @@ function expire(){MAULicense.setConfig({mode:"production"});MAULicense.expireTes
 function addDays(n){const s=MAULicense.state(),base=Math.max(Date.now(),Date.parse(s.validUntil||"")||0),d=new Date(base+n*86400000);MAULicense.setTestState({status:s.status==="demo"?"demo":"active",days:Math.ceil((d-Date.now())/86400000),plan:s.plan||"Manuel Uzatma",paymentStatus:s.paymentStatus||"manual"});refresh()}
 function resetAll(){if(!confirm("Lisans test durumu ve test tahsilatları sıfırlansın mı?"))return;MAULicense.resetTestLicense();localStorage.removeItem(PKEY);refresh()}
 function logPayment(status){const p=arr(),amount=Number(document.getElementById("amount").value||0),method=document.getElementById("method").value,ref=document.getElementById("ref").value.trim()||("TEST-"+Date.now());p.push({date:new Date().toISOString(),status,amount,method,ref});save(p)}
-function recordPayment(){logPayment("Başarılı");paid(30,"Aylık Lisans");}
+function recordPayment(){paid(30,"Aylık Lisans");}
 function failedPayment(){logPayment("Başarısız");refresh()}
 function clearPayments(){if(confirm("Test tahsilatları temizlensin mi?")){localStorage.removeItem(PKEY);refresh()}}
 refresh();
