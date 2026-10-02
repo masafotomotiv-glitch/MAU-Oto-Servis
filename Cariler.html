@@ -96,6 +96,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 }
 </style>
 <script src="lisans.js"></script>
+<script src="firma.js"></script>
 </head>
 <body>
 
@@ -896,11 +897,11 @@ function openReportViewer(title,bodyHtml){
  viewer.classList.toggle("rvInvoices",title==="Faturalar");
  viewer.classList.toggle("rvClaims",title==="Hasar & Sigorta");
  viewer.classList.toggle("rvDocs",title==="Belgeler");
+ const _meta=[cariName,cariCode||""].filter(Boolean).join(" · ");
  document.getElementById("rvContent").innerHTML=
-  '<h1>MAU OTO SERVİS</h1><h2>'+esc(title)+'</h2>'+
-  '<div class="meta"><b>'+esc(cariName)+'</b> · '+esc(cariCode||"-")+'</div>'+
+  (window.MAUFirma?MAUFirma.header(title,_meta):'<h2>'+esc(title)+'</h2><div class="meta">'+esc(_meta)+'</div>')+
   bodyHtml+
-  '<div class="foot">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</div>';
+  (window.MAUFirma?MAUFirma.footer():'');
  viewer.style.display="block";
  viewer.scrollTop=0;
 }
@@ -932,7 +933,7 @@ window.onMauPrintError=function(message){
 };
 
 window.addEventListener("storage",function(e){
- const watched=[KEYS.cariler].concat(KEYS.araclar,KEYS.isEmirleri,KEYS.faturalar,KEYS.tahsilatlar,KEYS.odemeler,KEYS.hasarlar,KEYS.belgeler,KEYS.legacyHareket);
+ const watched=[KEYS.cariler].concat(KEYS.araclar,KEYS.isEmirleri,KEYS.faturalar,KEYS.tahsilatlar,KEYS.odemeler,KEYS.hasarlar,KEYS.belgeler,KEYS.legacyHareket,["mau_ayarlar"]);
  if(!watched.includes(e.key))return;
  cariler=loadArray(KEYS.cariler);
  render();
