@@ -24,7 +24,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 <header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">İş Emri Planlama · Araç Kabulden Atölyeye Geçiş</div></div></div></header>
 <div class="wrap">
  <div class="flow"><div class="step done">1 Araç Kabul</div><div class="step active">2 İş Emri Planla</div><div class="step">3 İşlemler / Tespit</div><div class="step">4 Teklif / Onay</div><div class="step">5 İşleme Başla</div></div>
- <div class="toolbar"><input id="search" class="search" placeholder="İş emri no, plaka, müşteri ara..." oninput="renderList()"><button class="new" onclick="resetForm(true)">+ Yeni İş Emri</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="İş emri no, plaka, müşteri ara..." oninput="renderList()"><select id="statusFilter" onchange="renderList()" style="max-width:180px"><option value="open">Açık İş Emirleri</option><option value="closed">Kapalı İş Emirleri</option><option value="all">Tüm İş Emirleri</option></select><button class="new" onclick="resetForm(true)">+ Yeni İş Emri</button></div>
  <div class="stats"><div class="stat"><b id="sTotal">0</b><span>Toplam İş Emri</span></div><div class="stat"><b id="sPlan">0</b><span>Planlandı</span></div><div class="stat"><b id="sQuote">0</b><span>Teklif / Onay</span></div><div class="stat"><b id="sWork">0</b><span>İşlemde</span></div></div>
 
  <div class="card"><div id="formTitle" class="cardHead">Yeni İş Emri Planlama</div><div class="body">
@@ -133,7 +133,16 @@ function renderList(){
  });
  if(migrated)saveArray(WORK_KEY,works);
  const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();
- const list=works.filter(w=>!q||[w.isEmriNo,w.plaka,w.cariAdi,w.durum,w.musteriSikayeti].join(" ").toLocaleLowerCase("tr-TR").includes(q));
+ const filter=(document.getElementById("statusFilter")&&document.getElementById("statusFilter").value)||"open";
+ const list=works.filter(w=>{
+  const matches=!q||[w.isEmriNo,w.plaka,w.cariAdi,w.durum,w.musteriSikayeti,w.kabulNo].join(" ").toLocaleLowerCase("tr-TR").includes(q);
+  if(!matches)return false;
+  if(q)return true;
+  const closed=isClosedWork(w);
+  if(filter==="closed")return closed;
+  if(filter==="all")return true;
+  return !closed;
+ });
  document.getElementById("sTotal").innerText=works.length;
  document.getElementById("sPlan").innerText=works.filter(w=>["Planlandı","İnceleme Bekliyor","Beklemede"].includes(w.durum)).length;
  document.getElementById("sQuote").innerText=works.filter(w=>String(w.onayDurumu||"").includes("Onay")||w.durum==="Onay Bekliyor").length;
