@@ -94,7 +94,8 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
     <label class="check"><input id="evTamir" type="checkbox"> Tamir Aşama Fotoğrafları</label>
     <label class="check"><input id="evDiger" type="checkbox"> Diğer Evraklar</label>
    </div>
-   <div class="field" style="margin-top:10px"><label>Dosya / Fotoğraf Seç</label><input id="files" type="file" multiple accept="image/*,.pdf" onchange="fileChanged()"><div id="fileInfo" class="note">Henüz dosya seçilmedi. Bu sürümde dosya adları kayda bağlanır.</div></div>
+   <div class="field" style="margin-top:10px"><label>Hızlı Dosya Adı Kaydı</label><input id="files" type="file" multiple accept="image/*,.pdf" onchange="fileChanged()"><div id="fileInfo" class="note">Bu alan yalnız eski hızlı dosya adı kaydı içindir. Gerçek fotoğraf ve belgeleri aşağıdaki Eksper Arşivi'ne ekleyin.</div></div>
+   <button type="button" class="print" style="margin-top:9px" onclick="openActiveArchive()">📁 Eksper Arşivi · Gerçek Fotoğraf / Belge / ZIP Paket</button>
   </div>
 
   <div class="section"><div class="sectionTitle">5. Ekspertiz / Tutarlar</div>
@@ -242,13 +243,15 @@ function editClaim(id){
 }
 function openExpertise(id){location.href="EkspertizDetay.html?dosyaId="+encodeURIComponent(id)}
 function openInsuranceApproval(id){location.href="SigortaOnayi.html?dosyaId="+encodeURIComponent(id)}
+function openExpertArchive(id){location.href="EksperArsivi.html?dosyaId="+encodeURIComponent(id)}
+function openActiveArchive(){if(editId==null){alert("Önce hasar dosyasını kaydedin.");return}openExpertArchive(editId)}
 function renderList(){
  claims=load(CLAIM_KEY);const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim(),f=document.getElementById("filter").value;
  const list=claims.filter(x=>{const match=!q||[x.dosyaNo,x.plaka,x.cariAdi,x.sigortaSirketi,x.eksperFirma,x.eksper,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q);if(!match)return false;if(q)return true;if(f==="closed")return isClosed(x);if(f==="all")return true;return !isClosed(x)});
  document.getElementById("sOpen").textContent=claims.filter(x=>!isClosed(x)).length;document.getElementById("sClosed").textContent=claims.filter(isClosed).length;
  document.getElementById("sExpert").textContent=claims.filter(x=>/bekle|onay/i.test(x.durum||"")).length;document.getElementById("sPay").textContent=money(claims.filter(x=>!isClosed(x)).reduce((s,x)=>s+Number(x.beklenenTutar||0),0));
  const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="empty">Bu görünümde hasar / sigorta dosyası yok.</div>';return}
- el.innerHTML=list.map(x=>'<div class="row"><div><div class="rowTitle">'+esc(x.dosyaNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"")+'</span></div><div class="meta">'+esc(x.cariAdi||"-")+' · '+esc(x.sigortaSirketi||x.sigorta||"-")+' · Eksper: '+esc(x.eksperFirma||x.eksper||"-")+'<br>Kalan Sigorta: '+money(x.kalanSigortaAlacagi??x.beklenenTutar??0)+' · '+esc(x.hasarAciklama||"-")+'</div></div><div class="rowBtns"><button class="edit" onclick="editClaim(&quot;'+x.id+'&quot;)">Düzenle</button><button class="print" onclick="openExpertise(&quot;'+x.id+'&quot;)">Ekspertiz Detayı</button><button class="print" onclick="openInsuranceApproval(&quot;'+x.id+'&quot;)">Sigorta Onayı</button><button class="print" onclick="printClaim(&quot;'+x.id+'&quot;)">PDF / Yazdır</button></div></div>').join("")
+ el.innerHTML=list.map(x=>'<div class="row"><div><div class="rowTitle">'+esc(x.dosyaNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"")+'</span></div><div class="meta">'+esc(x.cariAdi||"-")+' · '+esc(x.sigortaSirketi||x.sigorta||"-")+' · Eksper: '+esc(x.eksperFirma||x.eksper||"-")+'<br>Kalan Sigorta: '+money(x.kalanSigortaAlacagi??x.beklenenTutar??0)+' · '+esc(x.hasarAciklama||"-")+'</div></div><div class="rowBtns"><button class="edit" onclick="editClaim(&quot;'+x.id+'&quot;)">Düzenle</button><button class="print" onclick="openExpertise(&quot;'+x.id+'&quot;)">Ekspertiz Detayı</button><button class="print" onclick="openInsuranceApproval(&quot;'+x.id+'&quot;)">Sigorta Onayı</button><button class="print" onclick="openExpertArchive(&quot;'+x.id+'&quot;)">Eksper Arşivi</button><button class="print" onclick="printClaim(&quot;'+x.id+'&quot;)">PDF / Yazdır</button></div></div>').join("")
 }
 function reportHtml(x){
  const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["Kaza Tespit Tutanağı",ev.kazaTutanagi],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
