@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Hasar & Sigorta</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px}
+.head{max-width:1100px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}
+.title{font-weight:900;font-size:22px}.sub{font-size:11px;opacity:.9;margin-top:3px}
+.wrap{max-width:1100px;margin:14px auto;padding:0 12px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input,.toolbar select{height:44px;border:1px solid #d8e0e8;border-radius:9px;padding:0 11px;background:#fff}.toolbar input{flex:1;min-width:220px}
+.new{border:0;background:#159957;color:#fff;border-radius:9px;padding:0 16px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.stat{background:#fff;border:1px solid #e1e7ee;border-radius:11px;padding:13px}.stat b{font-size:20px;display:block}.stat span{font-size:11px;color:#708196}
+.card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;margin-bottom:12px;overflow:hidden}.cardHead{padding:14px 16px;font-weight:900;border-bottom:1px solid #edf1f5}.body{padding:14px}
+.section{border:1px solid #e8edf2;border-radius:11px;padding:12px;margin-bottom:12px}.sectionTitle{font-weight:900;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.full{grid-column:1/-1}
+.field label{display:block;font-size:11px;font-weight:800;margin:0 0 5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:82px;resize:vertical}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}.check{border:1px solid #e3e9ef;border-radius:8px;padding:9px;font-size:11px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.save,.pdf{border:0;border-radius:9px;padding:13px;font-weight:900}.save{background:#159957;color:#fff}.pdf{background:#1478c9;color:#fff}
+.list{padding:10px}.row{border:1px solid #e3e9ef;border-radius:10px;padding:11px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px}.rowTitle{font-weight:900}.meta{font-size:11px;color:#6f8094;line-height:1.5;margin-top:4px}.badge{display:inline-block;padding:4px 7px;border-radius:10px;background:#eaf3ff;color:#0b5fa8;font-size:10px;font-weight:800}
+.rowBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rowBtns button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.print{background:#edf7ef;color:#187443}.close{background:#fff0f0;color:#aa2430}
+.note{font-size:10px;color:#7b8794;line-height:1.5}.empty{text-align:center;color:#7b8794;padding:25px}
+#report{display:none;position:fixed;inset:0;background:#fff;z-index:99;overflow:auto;padding:12px}.reportTop{display:flex;gap:8px;margin-bottom:12px;position:sticky;top:0;background:#fff;padding:4px 0}.reportTop button{border:0;border-radius:7px;padding:9px 12px;font-weight:800}.reportWrap{max-width:850px;margin:auto;font-size:11px}.reportWrap table{width:100%;border-collapse:collapse;table-layout:fixed}.reportWrap th,.reportWrap td{border:1px solid #dfe5eb;padding:5px;overflow-wrap:anywhere}.reportWrap th{background:#f2f6fa}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.grid,.grid3,.actions{grid-template-columns:1fr}.full{grid-column:auto}.row{grid-template-columns:1fr}.checks{grid-template-columns:1fr}}
+@media print{body>*:not(#report){display:none!important}#report{display:block!important;position:static;padding:0}.reportTop{display:none}.reportWrap{max-width:none}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Hasar · Sigorta · Eksper Dosya Takibi</div></div></div></header>
+
+<div class="wrap">
+ <div class="toolbar">
+  <input id="search" placeholder="Dosya no, plaka, müşteri, sigorta veya eksper ara..." oninput="renderList()">
+  <select id="filter" onchange="renderList()"><option value="open">Açık Dosyalar</option><option value="closed">Kapalı Dosyalar</option><option value="all">Tüm Dosyalar</option></select>
+  <button class="new" onclick="resetForm(true)">+ Yeni Hasar Dosyası</button>
+ </div>
+
+ <div class="stats">
+  <div class="stat"><b id="sOpen">0</b><span>Açık Dosya</span></div>
+  <div class="stat"><b id="sExpert">0</b><span>Eksper / Onay Bekleyen</span></div>
+  <div class="stat"><b id="sPay">₺0</b><span>Sigortadan Beklenen</span></div>
+  <div class="stat"><b id="sClosed">0</b><span>Kapalı Dosya</span></div>
+ </div>
+
+ <div class="card"><div class="cardHead" id="formTitle">Yeni Hasar & Sigorta Dosyası</div><div class="body">
+  <div class="section"><div class="sectionTitle">1. Araç ve Dosya Bilgileri</div>
+   <div class="grid3">
+    <div class="field full"><label>Kayıtlı Araç *</label><select id="aracId" onchange="selectVehicle()"><option value="">Araç seçiniz...</option></select></div>
+    <div class="field"><label>Dosya No</label><input id="dosyaNo" readonly></div>
+    <div class="field"><label>Dosya Tarihi</label><input id="tarih" type="date"></div>
+    <div class="field"><label>Durum</label><select id="durum"><option>Açık</option><option>Eksper Bekleniyor</option><option>Sigorta Onayı Bekleniyor</option><option>Evrak Bekleniyor</option><option>Onaylandı</option><option>Tamirde</option><option>Ödeme Bekleniyor</option><option>Tamamlandı</option><option>Kapalı</option></select></div>
+    <div class="field"><label>Cari / Müşteri</label><input id="cariAdi" readonly></div>
+    <div class="field"><label>Plaka</label><input id="plaka" readonly></div>
+    <div class="field"><label>İş Emri</label><select id="isEmriId"><option value="">İş emri yok / seçiniz</option></select></div>
+   </div>
+  </div>
+
+  <div class="section"><div class="sectionTitle">2. Sigorta ve Eksper</div>
+   <div class="grid">
+    <div class="field"><label>Sigorta Şirketi *</label><input id="sigortaSirketi" placeholder="Örn. Anadolu Sigorta"></div>
+    <div class="field"><label>Poliçe No</label><input id="policeNo"></div>
+    <div class="field"><label>Sigorta Hasar Dosya No</label><input id="sigortaDosyaNo"></div>
+    <div class="field"><label>Eksper Firma</label><input id="eksperFirma"></div>
+    <div class="field"><label>Eksper Adı</label><input id="eksper"></div>
+    <div class="field"><label>Eksper Telefon</label><input id="eksperTel"></div>
+   </div>
+  </div>
+
+  <div class="section"><div class="sectionTitle">3. Hasar / Olay Bilgileri</div>
+   <div class="grid">
+    <div class="field"><label>Olay Tarihi</label><input id="olayTarihi" type="date"></div>
+    <div class="field"><label>Olay Yeri</label><input id="olayYeri"></div>
+    <div class="field full"><label>Hasar Açıklaması *</label><textarea id="hasarAciklama" placeholder="Hasarın yeri, şekli ve müşterinin beyanı..."></textarea></div>
+    <div class="field full"><label>Ön Tespit / Eksper Notu</label><textarea id="eksperNotu"></textarea></div>
+   </div>
+  </div>
+
+  <div class="section"><div class="sectionTitle">4. Evrak ve Fotoğraf Kontrolü</div>
+   <div class="checks">
+    <label class="check"><input id="evRuhsat" type="checkbox"> Ruhsat</label>
+    <label class="check"><input id="evKimlik" type="checkbox"> Kimlik</label>
+    <label class="check"><input id="evIban" type="checkbox"> IBAN</label>
+    <label class="check"><input id="evOrtaklik" type="checkbox"> Ortaklık / Yetki Belgesi</label>
+    <label class="check"><input id="evSasiKm" type="checkbox"> Şasi / KM Fotoğrafı</label>
+    <label class="check"><input id="evOlay" type="checkbox"> Olay Yeri Fotoğrafları</label>
+    <label class="check"><input id="evTamir" type="checkbox"> Tamir Aşama Fotoğrafları</label>
+    <label class="check"><input id="evDiger" type="checkbox"> Diğer Evraklar</label>
+   </div>
+   <div class="field" style="margin-top:10px"><label>Dosya / Fotoğraf Seç</label><input id="files" type="file" multiple accept="image/*,.pdf" onchange="fileChanged()"><div id="fileInfo" class="note">Henüz dosya seçilmedi. Bu sürümde dosya adları kayda bağlanır.</div></div>
+  </div>
+
+  <div class="section"><div class="sectionTitle">5. Tutarlar</div>
+   <div class="grid3">
+    <div class="field"><label>Tahmini Hasar (TL)</label><input id="tahminiTutar" type="number" min="0" step="0.01"></div>
+    <div class="field"><label>Onaylanan Tutar (TL)</label><input id="onaylananTutar" type="number" min="0" step="0.01"></div>
+    <div class="field"><label>Sigortadan Beklenen (TL)</label><input id="beklenenTutar" type="number" min="0" step="0.01"></div>
+    <div class="field"><label>Müşteri Payı / Muafiyet (TL)</label><input id="musteriPayi" type="number" min="0" step="0.01"></div>
+    <div class="field full"><label>Açıklama</label><textarea id="maliNot"></textarea></div>
+   </div>
+  </div>
+
+  <div class="actions"><button class="save" onclick="saveClaim()">✓ Dosyayı Kaydet</button><button class="pdf" onclick="printActive()">PDF / Yazdır</button></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Hasar & Sigorta Dosyaları</div><div id="list" class="list"></div></div>
+</div>
+
+<div id="report"><div class="reportTop"><button onclick="closeReport()">← Uygulamaya Dön</button><button onclick="window.print()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
+
+<script>
+const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function today(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+let claims=load(CLAIM_KEY),editId=null,fileNames=[];
+function isClosed(x){return ["Tamamlandı","Kapalı"].includes(x.durum)}
+function nextNo(){let m=0;load(CLAIM_KEY).forEach(x=>{const n=parseInt(String(x.dosyaNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "HSR-"+String(m+1).padStart(5,"0")}
+function populateVehicles(){
+ const vehicles=load(VEH_KEY);
+ document.getElementById("aracId").innerHTML='<option value="">Araç seçiniz...</option>'+vehicles.filter(v=>v.durum!=="Pasif").map(v=>'<option value="'+esc(v.id)+'">'+esc(v.plaka||"-")+' · '+esc([v.marka,v.model].filter(Boolean).join(" "))+'</option>').join("");
+}
+function selectVehicle(){
+ const v=load(VEH_KEY).find(x=>String(x.id)===String(document.getElementById("aracId").value));
+ if(!v){document.getElementById("cariAdi").value="";document.getElementById("plaka").value="";document.getElementById("isEmriId").innerHTML='<option value="">İş emri yok / seçiniz</option>';return}
+ const c=load(CARI_KEY).find(x=>String(x.id)===String(v.cariId));
+ document.getElementById("cariAdi").value=(c&&c.name)||v.cariAdi||"";
+ document.getElementById("plaka").value=v.plaka||"";
+ const works=load(WORK_KEY).filter(w=>String(w.aracId||w.vehicleId)===String(v.id)||String(w.plaka||"")===String(v.plaka||""));
+ document.getElementById("isEmriId").innerHTML='<option value="">İş emri yok / seçiniz</option>'+works.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.isEmriNo||"-")+' · '+esc(w.durum||"")+'</option>').join("");
+}
+function resetForm(focus){
+ editId=null;fileNames=[];populateVehicles();
+ document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.type==="checkbox")el.checked=false;else if(el.type==="file")el.value="";else el.value=""});
+ document.getElementById("dosyaNo").value=nextNo();document.getElementById("tarih").value=today();document.getElementById("durum").value="Açık";
+ document.getElementById("formTitle").textContent="Yeni Hasar & Sigorta Dosyası";document.getElementById("fileInfo").textContent="Henüz dosya seçilmedi. Bu sürümde dosya adları kayda bağlanır.";
+ if(focus)document.getElementById("aracId").focus();
+}
+function fileChanged(){fileNames=Array.from(document.getElementById("files").files||[]).map(f=>f.name);document.getElementById("fileInfo").textContent=fileNames.length?fileNames.length+" dosya seçildi: "+fileNames.join(", "):"Henüz dosya seçilmedi."}
+function v(id){return document.getElementById(id).value.trim()}function ck(id){return document.getElementById(id).checked}
+function saveClaim(){
+ const vehicle=load(VEH_KEY).find(x=>String(x.id)===String(document.getElementById("aracId").value));
+ if(!vehicle){alert("Araç seçiniz.");return}
+ if(!v("sigortaSirketi")){alert("Sigorta şirketini yazın.");return}
+ if(!v("hasarAciklama")){alert("Hasar açıklamasını yazın.");return}
+ claims=load(CLAIM_KEY);const old=editId!=null?claims.find(x=>String(x.id)===String(editId)):null;
+ const cari=load(CARI_KEY).find(x=>String(x.id)===String(vehicle.cariId));
+ const work=load(WORK_KEY).find(x=>String(x.id)===String(document.getElementById("isEmriId").value));
+ const x={...(old||{}),id:old?old.id:Date.now(),dosyaNo:old?old.dosyaNo:v("dosyaNo"),tarih:v("tarih"),durum:v("durum"),
+  aracId:vehicle.id,vehicleId:vehicle.id,plaka:vehicle.plaka||"",marka:vehicle.marka||"",model:vehicle.model||"",
+  cariId:vehicle.cariId,cariCode:(cari&&cari.code)||vehicle.cariCode||"",cariAdi:(cari&&cari.name)||vehicle.cariAdi||"",
+  isEmriId:work?work.id:"",isEmriNo:work?work.isEmriNo:"",
+  sigorta:v("sigortaSirketi"),sigortaSirketi:v("sigortaSirketi"),policeNo:v("policeNo"),sigortaDosyaNo:v("sigortaDosyaNo"),
+  eksperFirma:v("eksperFirma"),eksper:v("eksper"),eksperTel:v("eksperTel"),olayTarihi:v("olayTarihi"),olayYeri:v("olayYeri"),
+  hasarAciklama:v("hasarAciklama"),eksperNotu:v("eksperNotu"),
+  evrak:{ruhsat:ck("evRuhsat"),kimlik:ck("evKimlik"),iban:ck("evIban"),ortaklik:ck("evOrtaklik"),sasiKm:ck("evSasiKm"),olay:ck("evOlay"),tamir:ck("evTamir"),diger:ck("evDiger")},
+  dosyaAdlari:fileNames.slice(),tahminiTutar:Number(v("tahminiTutar")||0),onaylananTutar:Number(v("onaylananTutar")||0),beklenenTutar:Number(v("beklenenTutar")||0),musteriPayi:Number(v("musteriPayi")||0),maliNot:v("maliNot"),
+  createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+ const i=claims.findIndex(a=>String(a.id)===String(x.id));if(i>=0)claims[i]=x;else claims.unshift(x);put(CLAIM_KEY,claims);renderList();alert(x.dosyaNo+" hasar dosyası kaydedildi.");resetForm(false)
+}
+function editClaim(id){
+ claims=load(CLAIM_KEY);const x=claims.find(a=>String(a.id)===String(id));if(!x)return;editId=x.id;populateVehicles();document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
+ ["dosyaNo","tarih","durum","sigortaSirketi","policeNo","sigortaDosyaNo","eksperFirma","eksper","eksperTel","olayTarihi","olayYeri","hasarAciklama","eksperNotu","tahminiTutar","onaylananTutar","beklenenTutar","musteriPayi","maliNot"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[k]??(k==="sigortaSirketi"?x.sigorta||"":"")});
+ document.getElementById("isEmriId").value=String(x.isEmriId||"");const ev=x.evrak||{};document.getElementById("evRuhsat").checked=!!ev.ruhsat;document.getElementById("evKimlik").checked=!!ev.kimlik;document.getElementById("evIban").checked=!!ev.iban;document.getElementById("evOrtaklik").checked=!!ev.ortaklik;document.getElementById("evSasiKm").checked=!!ev.sasiKm;document.getElementById("evOlay").checked=!!ev.olay;document.getElementById("evTamir").checked=!!ev.tamir;document.getElementById("evDiger").checked=!!ev.diger;
+ fileNames=(x.dosyaAdlari||[]).slice();document.getElementById("fileInfo").textContent=fileNames.length?fileNames.length+" kayıtlı dosya adı: "+fileNames.join(", "):"Henüz dosya seçilmedi.";document.getElementById("formTitle").textContent=x.dosyaNo+" · Dosyayı Düzenle";window.scrollTo({top:0,behavior:"smooth"})
+}
+function renderList(){
+ claims=load(CLAIM_KEY);const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim(),f=document.getElementById("filter").value;
+ const list=claims.filter(x=>{const match=!q||[x.dosyaNo,x.plaka,x.cariAdi,x.sigortaSirketi,x.eksperFirma,x.eksper,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q);if(!match)return false;if(q)return true;if(f==="closed")return isClosed(x);if(f==="all")return true;return !isClosed(x)});
+ document.getElementById("sOpen").textContent=claims.filter(x=>!isClosed(x)).length;document.getElementById("sClosed").textContent=claims.filter(isClosed).length;
+ document.getElementById("sExpert").textContent=claims.filter(x=>/bekle|onay/i.test(x.durum||"")).length;document.getElementById("sPay").textContent=money(claims.filter(x=>!isClosed(x)).reduce((s,x)=>s+Number(x.beklenenTutar||0),0));
+ const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="empty">Bu görünümde hasar / sigorta dosyası yok.</div>';return}
+ el.innerHTML=list.map(x=>'<div class="row"><div><div class="rowTitle">'+esc(x.dosyaNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"")+'</span></div><div class="meta">'+esc(x.cariAdi||"-")+' · '+esc(x.sigortaSirketi||x.sigorta||"-")+' · Eksper: '+esc(x.eksperFirma||x.eksper||"-")+'<br>Beklenen: '+money(x.beklenenTutar||0)+' · '+esc(x.hasarAciklama||"-")+'</div></div><div class="rowBtns"><button class="edit" onclick="editClaim(&quot;'+x.id+'&quot;)">Düzenle</button><button class="print" onclick="printClaim(&quot;'+x.id+'&quot;)">PDF / Yazdır</button></div></div>').join("")
+}
+function reportHtml(x){
+ const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
+ return '<h2>MAU OTO SERVİS</h2><h3>Hasar & Sigorta Dosyası</h3><p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+' · '+esc(x.durum||"")+'</p>'+
+ '<table><tr><th>Plaka</th><td>'+esc(x.plaka||"-")+'</td><th>Müşteri</th><td>'+esc(x.cariAdi||"-")+'</td></tr><tr><th>Sigorta</th><td>'+esc(x.sigortaSirketi||x.sigorta||"-")+'</td><th>Poliçe</th><td>'+esc(x.policeNo||"-")+'</td></tr><tr><th>Sigorta Dosya No</th><td>'+esc(x.sigortaDosyaNo||"-")+'</td><th>Eksper</th><td>'+esc([x.eksperFirma,x.eksper].filter(Boolean).join(" / ")||"-")+'</td></tr><tr><th>Olay Tarihi</th><td>'+esc(x.olayTarihi||"-")+'</td><th>Olay Yeri</th><td>'+esc(x.olayYeri||"-")+'</td></tr></table>'+
+ '<h4>Hasar Açıklaması</h4><p>'+esc(x.hasarAciklama||"-")+'</p><h4>Eksper / Ön Tespit Notu</h4><p>'+esc(x.eksperNotu||"-")+'</p>'+
+ '<h4>Evrak Kontrolü</h4><table><tr><th>Evrak</th><th>Durum</th></tr>'+docs+'</table>'+
+ '<h4>Mali Özet</h4><table><tr><th>Tahmini Hasar</th><th>Onaylanan</th><th>Sigortadan Beklenen</th><th>Müşteri Payı</th></tr><tr><td>'+money(x.tahminiTutar)+'</td><td>'+money(x.onaylananTutar)+'</td><td>'+money(x.beklenenTutar)+'</td><td>'+money(x.musteriPayi)+'</td></tr></table>'+
+ '<p class="note">Dosya adları: '+esc((x.dosyaAdlari||[]).join(", ")||"-")+'</p><p class="note">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</p>'
+}
+function printClaim(id){const x=load(CLAIM_KEY).find(a=>String(a.id)===String(id));if(!x)return;document.getElementById("reportBody").innerHTML=reportHtml(x);document.getElementById("report").style.display="block";window.scrollTo(0,0)}
+function printActive(){if(editId!=null){printClaim(editId);return}alert("Önce dosyayı kaydedin veya listeden PDF / Yazdır seçin.")}
+function closeReport(){document.getElementById("report").style.display="none"}
+populateVehicles();resetForm(false);renderList();window.addEventListener("storage",renderList);
+</script>
+</body>
+</html>
