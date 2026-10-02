@@ -59,6 +59,11 @@ textarea{min-height:82px;resize:vertical}
 <div class="container">
  <div class="topbar">
   <input id="search" class="search" placeholder="Kabul no, plaka veya müşteri ara..." oninput="renderList()">
+  <select id="statusFilter" onchange="renderList()" style="max-width:180px">
+   <option value="open">Açık Kabuller</option>
+   <option value="closed">Kapalı Kabuller</option>
+   <option value="all">Tüm Kabuller</option>
+  </select>
   <button class="newBtn" onclick="resetForm(true)">+ Yeni Araç Kabul</button>
  </div>
 
@@ -390,22 +395,43 @@ function deleteAcceptance(id){
  if(linked){alert("Bu kabul kaydına bağlı iş emri var. Silinemez.");return;}
  if(confirm(x.kabulNo+" araç kabul kaydı silinsin mi?")){accepts=accepts.filter(function(a){return String(a.id)!==String(id);});saveArray(ACCEPT_KEY,accepts);renderList();}
 }
+function acceptanceWork(x,workList){
+ return (workList||[]).find(function(w){return String(w.kabulId||"")===String(x.id)||String(w.kabulNo||"")===String(x.kabulNo||"");});
+}
+function acceptanceClosed(x,workList){
+ const w=acceptanceWork(x,workList);
+ return !!x.kapali||["Kapalı","Teslim Edildi","Kapalı · Teslim Edildi"].includes(x.durum)||!!(w&&["Teslim Edildi","Kapalı"].includes(w.durum));
+}
 function renderList(){
  accepts=loadArray(ACCEPT_KEY);
+ const workList=loadArray(WORK_KEY);
  const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();
- const list=accepts.filter(function(x){return !q||[x.kabulNo,x.plaka,x.cariAdi,x.marka,x.model,x.musteriSikayeti].join(" ").toLocaleLowerCase("tr-TR").includes(q);});
+ const filter=(document.getElementById("statusFilter")&&document.getElementById("statusFilter").value)||"open";
+ const list=accepts.filter(function(x){
+  const matches=!q||[x.kabulNo,x.plaka,x.cariAdi,x.marka,x.model,x.musteriSikayeti,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q);
+  if(!matches)return false;
+  if(q)return true;
+  const closed=acceptanceClosed(x,workList);
+  if(filter==="closed")return closed;
+  if(filter==="all")return true;
+  return !closed;
+ });
+ const openCount=accepts.filter(function(x){return !acceptanceClosed(x,workList);}).length;
  document.getElementById("statTotal").innerText=accepts.length;
  document.getElementById("statToday").innerText=accepts.filter(function(x){return x.kabulTarihi===today();}).length;
- document.getElementById("statOpen").innerText=accepts.filter(function(x){return x.durum==="İş Emrine Hazır";}).length;
+ document.getElementById("statOpen").innerText=openCount;
  document.getElementById("statPhoto").innerText=accepts.filter(function(x){return Number(x.fotoSayisi||0)>0;}).length;
  document.getElementById("listCount").innerText=list.length+" kayıt";
  const el=document.getElementById("list");
- if(!list.length){el.innerHTML='<div class="empty">Henüz araç kabul kaydı yok.</div>';return;}
+ if(!list.length){el.innerHTML='<div class="empty">Bu görünümde araç kabul kaydı yok.</div>';return;}
  el.innerHTML=list.map(function(x){
-  return '<div class="row"><div><div class="rowTitle">'+esc(x.kabulNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"Kabul Edildi")+'</span></div>'+
+  const closed=acceptanceClosed(x,workList),linked=acceptanceWork(x,workList);
+  const shownStatus=closed?"Kapalı · Teslim Edildi":(x.durum||"Kabul Edildi");
+  return '<div class="row"><div><div class="rowTitle">'+esc(x.kabulNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(shownStatus)+'</span></div>'+
    '<div class="rowSub">'+esc(x.cariAdi||"-")+' · '+esc([x.marka,x.model].filter(Boolean).join(" ")||"-")+' · '+esc(x.kabulTarihi||"")+' '+esc(x.kabulSaati||"")+
-   '<br>'+esc(x.musteriSikayeti||"-")+'</div></div>'+
-   '<div class="rowActions"><button class="edit" onclick="editAcceptance(&quot;'+String(x.id)+'&quot;)">Düzenle</button><button class="del" onclick="deleteAcceptance(&quot;'+String(x.id)+'&quot;)">Sil</button></div></div>';
+   '<br>'+esc(x.musteriSikayeti||"-")+(linked?'<br>İş Emri: '+esc(linked.isEmriNo||"-")+' · '+esc(linked.durum||"-"):'')+'</div></div>'+
+   '<div class="rowActions"><button class="edit" onclick="editAcceptance(&quot;'+String(x.id)+'&quot;)">'+(closed?'Görüntüle / Düzenle':'Düzenle')+'</button>'+
+   (!closed?'<button class="del" onclick="deleteAcceptance(&quot;'+String(x.id)+'&quot;)">Sil</button>':'')+'</div></div>';
  }).join("");
 }
 
