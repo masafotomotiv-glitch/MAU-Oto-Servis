@@ -106,7 +106,7 @@ function renderList(){
   '<div class="meta">'+esc(w.cariAdi||"-")+' · '+esc(w.planBolum||"-")+' · '+esc(w.danisman||"-")+'<br>'+esc(w.musteriSikayeti||"-")+'</div></div>'+
   '<div class="actions"><button class="edit" onclick="editWork(&quot;'+String(w.id)+'&quot;)">Planı Düzenle</button>'+
   '<a class="ops" href="Islemler.html?isEmriId='+encodeURIComponent(w.id)+'">İşlemler</a>'+
-  '<a class="quote" href="Teklifler.html?isEmriId='+encodeURIComponent(w.id)+'">Teklif / Onay</a></div></div>'
+  '<a class="quote" href="Teklifler.html?isEmriId='+encodeURIComponent(w.id)+'">Teklif / Onay</a>'+((w.durum==="İşlemde"||w.durum==="Kalite Kontrol Bekliyor")?'<a class="ops" href="AtolyeTakip.html?isEmriId='+encodeURIComponent(w.id)+'">Atölye Takip</a>':'')+'</div></div>'
  ).join("");
 }
 function preload(){const p=new URLSearchParams(location.search),kid=p.get("kabulId");if(!kid)return;const a=accepts.find(x=>String(x.id)===String(kid));if(!a)return;const sel=document.getElementById("kabulId");if(!Array.from(sel.options).some(o=>String(o.value)===String(kid))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=kid;selectAcceptance()}
