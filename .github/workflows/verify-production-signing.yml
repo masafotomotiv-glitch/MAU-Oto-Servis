@@ -1,0 +1,67 @@
+name: Verify MAU Production Signing
+
+on:
+  pull_request:
+    paths:
+      - "android-test/**"
+      - ".github/workflows/verify-production-signing.yml"
+      - ".github/workflows/publish-auto-update.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android 16 SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Restore MAU production signing key
+        env:
+          MAU_RELEASE_KEYSTORE_BASE64: ${{ secrets.MAU_RELEASE_KEYSTORE_BASE_64 }}
+        run: |
+          test -n "$MAU_RELEASE_KEYSTORE_BASE64"
+          printf '%s' "$MAU_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mau-production.p12"
+          chmod 600 "$RUNNER_TEMP/mau-production.p12"
+          test -s "$RUNNER_TEMP/mau-production.p12"
+
+      - name: Build signed release APK
+        env:
+          MAU_SIGNING_KEYSTORE: ${{ runner.temp }}/mau-production.p12
+          MAU_SIGNING_STORE_PASSWORD: ${{ secrets.MAU_RELEASE_STORE_PASSWORD }}
+          MAU_SIGNING_KEY_ALIAS: ${{ secrets.MAU_RELEASE_KEY_ALIAS }}
+          MAU_SIGNING_KEY_PASSWORD: ${{ secrets.MAU_RELEASE_KEY_PASSWORD }}
+        run: gradle -p android-test assembleRelease --stacktrace
+
+      - name: Verify production certificate
+        run: |
+          APK="android-test/app/build/outputs/apk/release/app-release.apk"
+          ACTUAL=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$APK" | awk -F': ' '/SHA-256 digest/ {print tolower($2); exit}' | tr -d ':')
+          EXPECTED="a28982bd4d43e2daaf2fe0f1e9356fbdf2513dfb7a87a43afb62b18a153d324e"
+          echo "Certificate SHA-256: $ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
+
+      - name: Upload signed release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: MAU-Oto-Servis-Production-Signed-RC
+          path: android-test/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
