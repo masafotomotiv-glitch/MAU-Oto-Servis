@@ -19,6 +19,51 @@ body{
   color:#172943;
 }
 
+/* MAU AÇILIŞ ANİMASYONU */
+.mau-splash{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(43,212,230,.18),transparent 34%),
+    linear-gradient(145deg,#061f3b 0%,#073a70 52%,#005298 100%);
+  color:#fff;
+  overflow:hidden;
+  transition:opacity .45s ease,visibility .45s ease;
+}
+.mau-splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+.mau-splash-card{text-align:center;position:relative;padding:28px 22px;min-width:280px}
+.mau-splash-ring{
+  width:142px;height:142px;border-radius:50%;margin:0 auto 18px;
+  border:2px solid rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;animation:mauRing 1.35s ease-out both;
+}
+.mau-splash-ring:before,.mau-splash-ring:after{
+  content:"";position:absolute;border-radius:50%;border:1px solid rgba(43,212,230,.34);
+  inset:-12px;animation:mauPulse 1.6s ease-out infinite;
+}
+.mau-splash-ring:after{inset:-26px;animation-delay:.28s;opacity:.55}
+.mau-splash-logo{max-width:116px;max-height:86px;object-fit:contain;display:none;animation:mauLogo .9s cubic-bezier(.2,.8,.2,1) both}
+.mau-splash-mark{font-size:58px;line-height:1;font-weight:900;letter-spacing:-4px;color:#2bd4e6;text-shadow:0 0 24px rgba(43,212,230,.35);animation:mauLogo .9s cubic-bezier(.2,.8,.2,1) both}
+.mau-splash-title{font-size:28px;font-weight:900;letter-spacing:2px;animation:mauUp .7s .35s both}
+.mau-splash-sub{font-size:12px;letter-spacing:4px;opacity:.82;margin-top:7px;animation:mauUp .7s .48s both}
+.mau-splash-line{width:0;height:3px;border-radius:3px;background:#2bd4e6;margin:17px auto 0;animation:mauLine 1.15s .42s ease-out forwards;box-shadow:0 0 18px rgba(43,212,230,.55)}
+.mau-splash-tools{margin-top:14px;font-size:17px;letter-spacing:9px;opacity:0;animation:mauTools .75s .8s forwards}
+@keyframes mauLogo{0%{opacity:0;transform:scale(.55) rotate(-8deg)}65%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes mauRing{0%{opacity:0;transform:scale(.65)}100%{opacity:1;transform:scale(1)}}
+@keyframes mauPulse{0%{transform:scale(.78);opacity:.65}100%{transform:scale(1.12);opacity:0}}
+@keyframes mauUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mauLine{to{width:164px}}
+@keyframes mauTools{from{opacity:0;transform:translateY(8px)}to{opacity:.8;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){
+  .mau-splash *{animation:none!important}
+  .mau-splash-line{width:164px}
+}
+
 .app{
   width:100%;
   max-width:1200px;
@@ -352,6 +397,18 @@ body{
 </head>
 
 <body>
+<div id="mauSplash" class="mau-splash" aria-label="MAU Oto Servis açılıyor">
+  <div class="mau-splash-card">
+    <div class="mau-splash-ring">
+      <img id="mauSplashLogo" class="mau-splash-logo" alt="MAU Logosu">
+      <div id="mauSplashMark" class="mau-splash-mark">M••</div>
+    </div>
+    <div class="mau-splash-title">MAU</div>
+    <div class="mau-splash-sub">OTO SERVİS</div>
+    <div class="mau-splash-line"></div>
+    <div class="mau-splash-tools">⚙ 🔧</div>
+  </div>
+</div>
 <div class="app">
 
   <header class="header">
@@ -643,7 +700,18 @@ window.addEventListener("pageshow",renderDashboard);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
 renderDashboard();
 const _topItems=document.querySelectorAll(".top-item");if(_topItems[2]){_topItems[2].style.cursor="pointer";_topItems[2].addEventListener("click",function(){location.href="Kapali.html"})}
-try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi;if(_mauSettings.logoData){const _logo=document.getElementById("companyLogo"),_mark=document.getElementById("defaultLogoMark");if(_logo){_logo.src=_mauSettings.logoData;_logo.style.display="block"}if(_mark)_mark.style.display="none"}}catch(e){}
+try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi;if(_mauSettings.logoData){const _logo=document.getElementById("companyLogo"),_mark=document.getElementById("defaultLogoMark");if(_logo){_logo.src=_mauSettings.logoData;_logo.style.display="block"}if(_mark)_mark.style.display="none";const _sLogo=document.getElementById("mauSplashLogo"),_sMark=document.getElementById("mauSplashMark");if(_sLogo){_sLogo.src=_mauSettings.logoData;_sLogo.style.display="block"}if(_sMark)_sMark.style.display="none"}}catch(e){}
+
+(function(){
+ const splash=document.getElementById("mauSplash");
+ if(!splash)return;
+ const seen=sessionStorage.getItem("mau_splash_seen")==="1";
+ if(seen){splash.remove();return}
+ sessionStorage.setItem("mau_splash_seen","1");
+ const closeSplash=()=>{splash.classList.add("hide");setTimeout(()=>splash.remove(),500)};
+ setTimeout(closeSplash,2300);
+ splash.addEventListener("click",closeSplash,{once:true});
+})();
 </script>
 </body>
 </html>
