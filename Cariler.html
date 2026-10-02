@@ -153,6 +153,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 <script>
 const KEYS={
  cariler:"mau_cariler",
+ legacyCariler:["mau_oto_servis_cariler"],
  araclar:["mau_araclar","mau_cari_araclar"],
  isEmirleri:["mau_is_emirleri"],
  faturalar:["mau_faturalar"],
@@ -183,6 +184,37 @@ function loadMany(keys){
  return out;
 }
 function saveCariler(){localStorage.setItem(KEYS.cariler,JSON.stringify(cariler));}
+function loadCarilerWithMigration(){
+ const current=loadArray(KEYS.cariler);
+ const legacy=loadMany(KEYS.legacyCariler||[]);
+ const out=[],seen=new Set();
+
+ current.concat(legacy).forEach(function(c){
+  if(!c)return;
+  const token=String(c.id??c.code??((c.name||"")+"|"+((c.roles||[]).join(","))));
+  if(!seen.has(token)){seen.add(token);out.push(c);}
+ });
+
+ // Test aşamasında liste tamamen boş kalırsa temel test carilerini geri getir.
+ if(!out.length){
+  out.push(
+   {
+    id:"TEST-MUSTERI-001",code:"CR-00002",type:"Bireysel",roles:["Müşteri"],
+    name:"TEST MÜŞTERİ",tc:"",vd:"",vn:"",yet:"",tel:"",mail:"",adres:"",
+    notlar:"Araç kayıt ve servis akışı için test carisi",active:true,created:new Date().toISOString()
+   },
+   {
+    id:"TEST-TEDARIKCI-001",code:"CR-00001",type:"Kurumsal",roles:["Tedarikçi"],
+    name:"TEST TEDARİKÇİ",tc:"",vd:"",vn:"",yet:"",tel:"",mail:"",adres:"",
+    notlar:"Cari modülü test kaydı",active:true,created:new Date().toISOString()
+   }
+  );
+ }
+
+ // Eski sürümdeki mau_oto_servis_cariler anahtarından gelen kayıtları yeni anahtara taşır.
+ localStorage.setItem(KEYS.cariler,JSON.stringify(out));
+ return out;
+}
 function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function pick(o,names,def=""){
@@ -198,14 +230,14 @@ function dateVal(o){return String(pick(o,["tarih","date","createdAt","created","
 function codeCreate(){
  let max=0;
  cariler.forEach(function(c){
-  const n=parseInt((c.code||"").replace(/D/g,""),10);
+  const n=parseInt((c.code||"").replace(/\D/g,""),10);
   if(Number.isFinite(n)&&n>max)max=n;
  });
  return "CR-"+String(max+1).padStart(5,"0");
 }
 function findCari(id){return cariler.find(function(x){return String(x.id)===String(id);});}
 
-let cariler=loadArray(KEYS.cariler);
+let cariler=loadCarilerWithMigration();
 let currentFilter="Tümü";
 let currentType="Bireysel";
 let editId=null;
