@@ -134,7 +134,7 @@ jobs:
         run: |
           mkdir -p android-test/.android-user
           if [ ! -f android-test/.android-user/debug.keystore ]; then
-            keytool -genkeypair -keystore android-test/.signing/mau-pilot.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=MAU Pilot,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
+            keytool -genkeypair -keystore android-test/.android-user/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=MAU Pilot,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
           fi
 
       - name: Build debug APK
