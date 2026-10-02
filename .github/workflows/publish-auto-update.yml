@@ -40,7 +40,7 @@ jobs:
 
       - name: Restore MAU production signing key
         env:
-          MAU_RELEASE_KEYSTORE_BASE64: ${{ secrets.MAU_RELEASE_KEYSTORE_BASE64 }}
+          MAU_RELEASE_KEYSTORE_BASE64: ${{ secrets.MAU_RELEASE_KEYSTORE_BASE_64 }}
         run: |
           test -n "$MAU_RELEASE_KEYSTORE_BASE64"
           printf '%s' "$MAU_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mau-production.p12"
