@@ -87,7 +87,7 @@ function activateDevelopment(days){
 function setConfig(next){const c=Object.assign({},config(),next||{});saveObj(CONFIG_KEY,c);return c}
 function touch(){
  const a=assess(),s=a.state;s.lastSeenAt=new Date().toISOString();try{persist(s)}catch(e){}
- if(a.mode==="development"){banner("Geliştirme modu · Ticari lisans sunucusu henüz etkin değil.","ok");return}
+ if(a.mode==="development")return
  if(!a.active){
    patchReadonlyStorage();banner("Lisans pasif · Veriler silinmedi · Sistem salt okunur modda","stop");
    if(!isLicensePage()&&!isBackupPage())setTimeout(showLockNotice,250)
