@@ -115,8 +115,12 @@ function fillCats(){
 }
 function resetAddForm(){document.getElementById("label").value="";document.getElementById("note").value="";document.getElementById("files").value="";document.getElementById("sendFlag").checked=true}
 async function blobFingerprint(blob){
- const bytes=await blob.arrayBuffer(),hash=await crypto.subtle.digest("SHA-256",bytes);
- return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("")
+ const bytes=await blob.arrayBuffer(),arr=new Uint8Array(bytes);
+ if(window.crypto&&window.crypto.subtle){
+  const hash=await window.crypto.subtle.digest("SHA-256",bytes);
+  return "sha256-"+Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("")
+ }
+ return "crc32-"+crc32(arr).toString(16).padStart(8,"0")+"-"+arr.length
 }
 async function existingFingerprints(all){
  const set=new Set(),claimRows=all.filter(x=>String(x.claimId)===String(claimId));let changed=false;
