@@ -15,7 +15,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 .note{font-size:10px;color:var(--muted);line-height:1.55}.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.box{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px}
 .actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.save{background:#0b76c5;color:#fff}.green{background:#11834f;color:#fff}.gray{background:#eef2f6;color:#405168}
 .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.quick button{border:1px solid #dce4eb;background:#f8fafc;border-radius:9px;padding:12px;font-weight:800;color:#29435f}
-.logoPreview{display:flex;align-items:center;gap:12px;border:1px dashed #cbd6e2;border-radius:10px;padding:12px;background:#fbfdff}.logoMark{font-size:26px;font-weight:900;color:#0b6db8}
+.logoPreview{display:flex;align-items:center;gap:12px;border:1px dashed #cbd6e2;border-radius:10px;padding:12px;background:#fbfdff}.logoMark{font-size:26px;font-weight:900;color:#0b6db8}.logoImage{max-width:180px;max-height:72px;object-fit:contain;display:none}.logoUploadBox{border:1px solid #dfe6ee;border-radius:10px;padding:12px;background:#f9fbfd}.logoUploadActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 @media(max-width:720px){.grid,.status,.quick,.actions{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
@@ -24,7 +24,19 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <div class="wrap">
 
  <div class="card"><div class="cardHead">Firma Bilgileri</div><div class="body">
-  <div class="logoPreview"><div class="logoMark">M••</div><div><b>MAU Oto Servis</b><div class="note">Uygulama logosu sabit kalır; aşağıdaki bilgiler firma başlıklarında ve raporlarda kullanılmak üzere saklanır.</div></div></div>
+  <div class="logoPreview">
+   <div id="defaultLogoMark" class="logoMark">M••</div>
+   <img id="logoPreviewImg" class="logoImage" alt="Firma Logosu">
+   <div><b id="logoPreviewTitle">MAU Oto Servis</b><div class="note">İsterseniz firma logosu ekleyebilirsiniz. Logo ana ekranda gösterilir; logo yoksa M•• MAU logosu görünmeye devam eder.</div></div>
+  </div>
+  <div class="logoUploadBox" style="margin-top:10px">
+   <div class="field"><label>Firma Logosu</label><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp" onchange="selectLogo()"></div>
+   <div class="note">PNG, JPG veya WEBP kullanabilirsiniz. Büyük görseller otomatik küçültülerek cihazda saklanır.</div>
+   <div class="logoUploadActions">
+    <button class="btn gray" onclick="chooseLogo()">Logo Seç</button>
+    <button class="btn gray" onclick="removeLogo()">Logoyu Kaldır</button>
+   </div>
+  </div>
   <div class="grid" style="margin-top:12px">
    <div class="field full"><label>Firma / Ticari Unvan *</label><input id="firmaAdi" placeholder="Örn. Asaf Otomotiv"></div>
    <div class="field"><label>Telefon</label><input id="telefon" placeholder="0 (312) ..."></div>
@@ -76,18 +88,43 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <script>
 const SETTINGS_KEY="mau_ayarlar",SECURITY_KEY="mau_guvenlik_sifresi";
 function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
-function defaults(){return {firmaAdi:"Asaf Otomotiv",telefon:"",eposta:"",vergiDairesi:"",vergiNo:"",adres:"",kdv:20,paraBirimi:"TRY",odemeYontemi:"Nakit",varsayilanBolum:"Mekanik",faturaPrefix:"FAT-",makbuzPrefix:"MKB-"}}
+function defaults(){return {firmaAdi:"Asaf Otomotiv",telefon:"",eposta:"",vergiDairesi:"",vergiNo:"",adres:"",kdv:20,paraBirimi:"TRY",odemeYontemi:"Nakit",varsayilanBolum:"Mekanik",faturaPrefix:"FAT-",makbuzPrefix:"MKB-",logoData:""}}
+let pendingLogoData="";
+function renderLogo(data){
+ const img=document.getElementById("logoPreviewImg"),mark=document.getElementById("defaultLogoMark");
+ if(data){img.src=data;img.style.display="block";mark.style.display="none"}else{img.removeAttribute("src");img.style.display="none";mark.style.display="block"}
+}
+function chooseLogo(){document.getElementById("logoFile").click()}
+function selectLogo(){
+ const file=document.getElementById("logoFile").files[0];if(!file)return;
+ if(!file.type.startsWith("image/")){alert("Lütfen bir resim dosyası seçin.");return}
+ if(file.size>8*1024*1024){alert("Logo dosyası çok büyük. 8 MB altında bir görsel seçin.");return}
+ const reader=new FileReader();
+ reader.onload=function(){
+  const image=new Image();
+  image.onload=function(){
+   const maxW=700,maxH=280,scale=Math.min(1,maxW/image.width,maxH/image.height),canvas=document.createElement("canvas");
+   canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));
+   const ctx=canvas.getContext("2d");ctx.drawImage(image,0,0,canvas.width,canvas.height);
+   pendingLogoData=canvas.toDataURL("image/webp",0.88);renderLogo(pendingLogoData)
+  };
+  image.src=reader.result
+ };
+ reader.readAsDataURL(file)
+}
+function removeLogo(){pendingLogoData="";document.getElementById("logoFile").value="";renderLogo("")}
 function loadSettings(){
- const s={...defaults(),...loadObj(SETTINGS_KEY)};
+ const s={...defaults(),...loadObj(SETTINGS_KEY)};pendingLogoData=s.logoData||"";
  ["firmaAdi","telefon","eposta","vergiDairesi","vergiNo","adres","kdv","paraBirimi","odemeYontemi","varsayilanBolum","faturaPrefix","makbuzPrefix"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=s[id]??""});
+ renderLogo(pendingLogoData);document.getElementById("logoPreviewTitle").textContent=s.firmaAdi||"MAU Oto Servis";
  const p=localStorage.getItem(SECURITY_KEY)||"";document.getElementById("securityPassword").value=p;document.getElementById("securityPassword2").value=p
 }
 function saveSettings(){
  const firmaAdi=document.getElementById("firmaAdi").value.trim();if(!firmaAdi){alert("Firma adını giriniz.");return}
  const p1=document.getElementById("securityPassword").value,p2=document.getElementById("securityPassword2").value;
  if(p1||p2){if(p1.length<4){alert("Güvenlik şifresi en az 4 karakter olmalı.");return}if(p1!==p2){alert("Güvenlik şifreleri aynı değil.");return}}
- const s={firmaAdi,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),vergiDairesi:document.getElementById("vergiDairesi").value.trim(),vergiNo:document.getElementById("vergiNo").value.trim(),adres:document.getElementById("adres").value.trim(),kdv:Number(document.getElementById("kdv").value||20),paraBirimi:document.getElementById("paraBirimi").value,odemeYontemi:document.getElementById("odemeYontemi").value,varsayilanBolum:document.getElementById("varsayilanBolum").value,faturaPrefix:document.getElementById("faturaPrefix").value.trim()||"FAT-",makbuzPrefix:document.getElementById("makbuzPrefix").value.trim()||"MKB-",updatedAt:new Date().toISOString()};
- localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));if(p1)localStorage.setItem(SECURITY_KEY,p1);
+ const s={firmaAdi,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),vergiDairesi:document.getElementById("vergiDairesi").value.trim(),vergiNo:document.getElementById("vergiNo").value.trim(),adres:document.getElementById("adres").value.trim(),kdv:Number(document.getElementById("kdv").value||20),paraBirimi:document.getElementById("paraBirimi").value,odemeYontemi:document.getElementById("odemeYontemi").value,varsayilanBolum:document.getElementById("varsayilanBolum").value,faturaPrefix:document.getElementById("faturaPrefix").value.trim()||"FAT-",makbuzPrefix:document.getElementById("makbuzPrefix").value.trim()||"MKB-",logoData:pendingLogoData,updatedAt:new Date().toISOString()};
+ localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));if(p1)localStorage.setItem(SECURITY_KEY,p1);document.getElementById("logoPreviewTitle").textContent=firmaAdi;
  alert("Ayarlar kaydedildi.")
 }
 loadSettings();
