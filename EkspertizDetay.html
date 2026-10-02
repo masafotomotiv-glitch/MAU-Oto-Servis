@@ -18,7 +18,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:9px;background:#fff;font:inherit}.field textarea{min-height:68px}
 .btn{border:0;border-radius:8px;padding:9px 11px;font-weight:800;cursor:pointer}.add{background:#eaf2ff;color:#0756a5}.remove{background:#ffe8eb;color:#a21c2b}.save{background:var(--g);color:#fff}.pdf{background:#1478c9;color:#fff}.backBtn{background:#eef2f6;color:#43536a}
 .actions{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
-.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tot{border:1px solid #dfe7ef;border-radius:9px;padding:10px;background:#f8fbfe}.tot span{display:block;font-size:10px;color:#718096}.tot b{font-size:15px}
+.totals{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.tot{border:1px solid #dfe7ef;border-radius:9px;padding:10px;background:#f8fbfe}.tot span{display:block;font-size:10px;color:#718096}.tot b{font-size:15px}.summaryGroup{margin-top:12px}.summaryGroupTitle{font-size:12px;font-weight:900;margin-bottom:7px;color:#29435f}
 .badge{display:inline-block;padding:4px 7px;border-radius:9px;background:#eaf3ff;color:#0b5fa8;font-size:10px;font-weight:800}
 #report{display:none;position:fixed;inset:0;background:#fff;z-index:99;overflow:auto;padding:12px}.reportTop{display:flex;gap:8px;position:sticky;top:0;background:#fff;padding-bottom:8px}.reportWrap{max-width:850px;margin:auto;font-size:10px}.reportWrap table{width:100%;border-collapse:collapse;table-layout:fixed}.reportWrap th,.reportWrap td{border:1px solid #dfe5eb;padding:5px;overflow-wrap:anywhere}.reportWrap th{background:#f2f6fa}
 @media(max-width:850px){.summary,.totals{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.full{grid-column:1/-1}}
@@ -50,11 +50,25 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
    <div class="field"><label>Ekspertiz Durumu</label><select id="ekspertizDurumu"><option>Hazırlanıyor</option><option>Eksper İncelemesinde</option><option>Mutabakat Bekliyor</option><option>Mutabık Kalındı</option><option>Red / İtiraz</option></select></div>
    <div class="field full"><label>Ekspertiz Notu</label><textarea id="genelNot"></textarea></div>
   </div>
-  <div class="totals">
-   <div class="tot"><span>Servis Parça Talebi</span><b id="tReqParts">0,00 ₺</b></div>
-   <div class="tot"><span>Servis İşçilik Talebi</span><b id="tReqLabor">0,00 ₺</b></div>
-   <div class="tot"><span>Servis Genel Talebi</span><b id="tReqGrand">0,00 ₺</b></div>
-   <div class="tot"><span>Eksper Onaylanan Genel</span><b id="tAppGrand">0,00 ₺</b></div>
+  <div class="summaryGroup">
+   <div class="summaryGroupTitle">Servis Talebi</div>
+   <div class="totals">
+    <div class="tot"><span>Parça</span><b id="tReqParts">0,00 ₺</b></div>
+    <div class="tot"><span>İşçilik</span><b id="tReqLabor">0,00 ₺</b></div>
+    <div class="tot"><span>KDV Oranı</span><b id="tReqVatRate">%20</b></div>
+    <div class="tot"><span>KDV Tutarı</span><b id="tReqVat">0,00 ₺</b></div>
+    <div class="tot"><span>Genel Toplam</span><b id="tReqGrand">0,00 ₺</b></div>
+   </div>
+  </div>
+  <div class="summaryGroup">
+   <div class="summaryGroupTitle">Eksperden Onaylanan</div>
+   <div class="totals">
+    <div class="tot"><span>Onaylı Parça</span><b id="tAppParts">0,00 ₺</b></div>
+    <div class="tot"><span>Onaylı İşçilik</span><b id="tAppLabor">0,00 ₺</b></div>
+    <div class="tot"><span>KDV Oranı</span><b id="tAppVatRate">%20</b></div>
+    <div class="tot"><span>KDV Tutarı</span><b id="tAppVat">0,00 ₺</b></div>
+    <div class="tot"><span>Onaylanan Genel Toplam</span><b id="tAppGrand">0,00 ₺</b></div>
+   </div>
   </div>
  </div></div>
 
@@ -129,16 +143,27 @@ function calc(){
  let reqP=0,appP=0;document.querySelectorAll("#partLines .lineCard").forEach(box=>{const t=num(box.querySelector(".pQty").value)*num(box.querySelector(".pPrice").value);box.querySelector(".pReq").value=t.toFixed(2);reqP+=t;appP+=num(box.querySelector(".pApproved").value)});
  let reqL=0,appL=0;document.querySelectorAll("#laborLines .lineCard").forEach(box=>{const t=num(box.querySelector(".lHours").value)*num(box.querySelector(".lPrice").value);box.querySelector(".lReq").value=t.toFixed(2);reqL+=t;appL+=num(box.querySelector(".lApproved").value)});
  const reqS=0,appS=0,kdv=num(document.getElementById("kdv").value);
- const reqNet=reqP+reqL,appNet=appP+appL,reqGrand=reqNet*(1+kdv/100),appGrand=appNet*(1+kdv/100);
- document.getElementById("tReqParts").textContent=money(reqP);document.getElementById("tReqLabor").textContent=money(reqL);document.getElementById("tReqGrand").textContent=money(reqGrand);document.getElementById("tAppGrand").textContent=money(appGrand);
- return {reqP,appP,reqL,appL,reqS,appS,kdv,reqNet,appNet,reqGrand,appGrand};
+ const reqNet=reqP+reqL,appNet=appP+appL;
+ const reqVat=reqNet*kdv/100,appVat=appNet*kdv/100;
+ const reqGrand=reqNet+reqVat,appGrand=appNet+appVat;
+ document.getElementById("tReqParts").textContent=money(reqP);
+ document.getElementById("tReqLabor").textContent=money(reqL);
+ document.getElementById("tReqVatRate").textContent="%"+Number(kdv).toLocaleString("tr-TR",{maximumFractionDigits:2});
+ document.getElementById("tReqVat").textContent=money(reqVat);
+ document.getElementById("tReqGrand").textContent=money(reqGrand);
+ document.getElementById("tAppParts").textContent=money(appP);
+ document.getElementById("tAppLabor").textContent=money(appL);
+ document.getElementById("tAppVatRate").textContent="%"+Number(kdv).toLocaleString("tr-TR",{maximumFractionDigits:2});
+ document.getElementById("tAppVat").textContent=money(appVat);
+ document.getElementById("tAppGrand").textContent=money(appGrand);
+ return {reqP,appP,reqL,appL,reqS,appS,kdv,reqNet,appNet,reqVat,appVat,reqGrand,appGrand};
 }
 function saveDetail(){
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
  const partsData=collectParts(),laborData=collectLabors(),t=calc();
  claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claim.id));if(i<0)return;
- claims[i].ekspertizDetay={parcalar:partsData,iscilikler:laborData,sarfTalep:0,sarfOnay:0,sarfNot:"",kdvOrani:t.kdv,durum:document.getElementById("ekspertizDurumu").value,not:document.getElementById("genelNot").value.trim(),servisTalepToplam:t.reqGrand,eksperOnayToplam:t.appGrand,updatedAt:new Date().toISOString()};
- claims[i].parcaToplam=t.reqP;claims[i].iscilikToplam=t.reqL;claims[i].sarfToplam=0;claims[i].kdvOrani=t.kdv;claims[i].kdvTutar=t.reqNet*t.kdv/100;claims[i].genelHasarToplam=t.reqGrand;claims[i].eksperTespitTutar=t.appGrand;
+ claims[i].ekspertizDetay={parcalar:partsData,iscilikler:laborData,sarfTalep:0,sarfOnay:0,sarfNot:"",kdvOrani:t.kdv,durum:document.getElementById("ekspertizDurumu").value,not:document.getElementById("genelNot").value.trim(),servisParcaToplam:t.reqP,servisIscilikToplam:t.reqL,servisKdvTutar:t.reqVat,servisTalepToplam:t.reqGrand,eksperParcaToplam:t.appP,eksperIscilikToplam:t.appL,eksperKdvTutar:t.appVat,eksperOnayToplam:t.appGrand,updatedAt:new Date().toISOString()};
+ claims[i].parcaToplam=t.reqP;claims[i].iscilikToplam=t.reqL;claims[i].sarfToplam=0;claims[i].kdvOrani=t.kdv;claims[i].kdvTutar=t.reqVat;claims[i].genelHasarToplam=t.reqGrand;claims[i].eksperParcaToplam=t.appP;claims[i].eksperIscilikToplam=t.appL;claims[i].eksperKdvTutar=t.appVat;claims[i].eksperTespitTutar=t.appGrand;
  if(document.getElementById("ekspertizDurumu").value==="Mutabık Kalındı"&&claims[i].durum==="Açık")claims[i].durum="Sigorta Onayı Bekleniyor";
  claims[i].updatedAt=new Date().toISOString();put(CLAIM_KEY,claims);claim=claims[i];renderClaim();alert("Ekspertiz detayı kaydedildi.");
 }
@@ -157,7 +182,7 @@ function openReport(){
  const p=collectParts(),l=collectLabors(),t=calc();
  const pr=p.length?p.map(x=>'<tr><td>'+esc(x.islemTuru)+'</td><td>'+esc(x.ad)+'</td><td>'+esc(x.kod||"-")+'</td><td>'+x.miktar+' '+esc(x.birim)+'</td><td>'+money(x.talepTutar)+'</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>').join(""):'<tr><td colspan="7">Parça kalemi yok.</td></tr>';
  const lr=l.length?l.map(x=>'<tr><td>'+esc(x.bolum||"-")+'</td><td>'+esc(x.islem)+'</td><td>'+x.saat+'</td><td>'+money(x.talepTutar)+'</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>').join(""):'<tr><td colspan="6">İşçilik kalemi yok.</td></tr>';
- document.getElementById("reportBody").innerHTML='<h2>MAU OTO SERVİS</h2><h3>Ekspertiz Detay Raporu</h3><p><b>'+esc(claim.dosyaNo||"-")+'</b> · '+esc(claim.plaka||"-")+' · '+esc(claim.cariAdi||"-")+'<br>'+esc(claim.sigortaSirketi||"-")+' · '+esc(claim.eksperFirma||claim.eksper||"-")+'</p><h4>Parça / Hasar Kalemleri</h4>'+reportTable(["İşlem","Parça","Kod/OEM","Miktar","Servis Talep","Eksper Kararı","Onay"],pr)+'<h4>İşçilik</h4>'+reportTable(["Bölüm","İşlem","Saat","Servis Talep","Eksper Kararı","Onay"],lr)+'<h4>Özet</h4><p>Servis Genel Talebi: <b>'+money(t.reqGrand)+'</b><br>Eksper Onaylanan Genel: <b>'+money(t.appGrand)+'</b><br>KDV: %'+t.kdv+'</p><p>Not: '+esc(document.getElementById("genelNot").value||"-")+'</p>';
+ document.getElementById("reportBody").innerHTML='<h2>MAU OTO SERVİS</h2><h3>Ekspertiz Detay Raporu</h3><p><b>'+esc(claim.dosyaNo||"-")+'</b> · '+esc(claim.plaka||"-")+' · '+esc(claim.cariAdi||"-")+'<br>'+esc(claim.sigortaSirketi||"-")+' · '+esc(claim.eksperFirma||claim.eksper||"-")+'</p><h4>Parça / Hasar Kalemleri</h4>'+reportTable(["İşlem","Parça","Kod/OEM","Miktar","Servis Talep","Eksper Kararı","Onay"],pr)+'<h4>İşçilik</h4>'+reportTable(["Bölüm","İşlem","Saat","Servis Talep","Eksper Kararı","Onay"],lr)+'<h4>Servis Talebi Özeti</h4>'+reportTable(["Parça","İşçilik","KDV Oranı","KDV Tutarı","Genel Toplam"],'<tr><td>'+money(t.reqP)+'</td><td>'+money(t.reqL)+'</td><td>%'+Number(t.kdv).toLocaleString("tr-TR",{maximumFractionDigits:2})+'</td><td>'+money(t.reqVat)+'</td><td><b>'+money(t.reqGrand)+'</b></td></tr>')+'<h4>Eksperden Onaylanan</h4>'+reportTable(["Onaylı Parça","Onaylı İşçilik","KDV Oranı","KDV Tutarı","Onaylanan Genel"],'<tr><td>'+money(t.appP)+'</td><td>'+money(t.appL)+'</td><td>%'+Number(t.kdv).toLocaleString("tr-TR",{maximumFractionDigits:2})+'</td><td>'+money(t.appVat)+'</td><td><b>'+money(t.appGrand)+'</b></td></tr>')+'<p>Not: '+esc(document.getElementById("genelNot").value||"-")+'</p>';
  document.getElementById("report").style.display="block";window.scrollTo(0,0);
 }
 function closeReport(){document.getElementById("report").style.display="none"}
