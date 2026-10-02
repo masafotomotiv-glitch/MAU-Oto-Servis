@@ -295,8 +295,12 @@ public class MainActivity extends Activity {
             return;
         }
         pendingBinaryStream = null;
-        if (pendingBinaryFile == null || !pendingBinaryFile.exists()) {
-            runOnUiThread(() -> Toast.makeText(this, "Kaydedilecek dosya hazırlanamadı.", Toast.LENGTH_LONG).show());
+        if (pendingBinaryFile == null || !pendingBinaryFile.exists() || pendingBinaryFile.length() <= 0) {
+            runOnUiThread(() -> Toast.makeText(this, "Kaydedilecek dosya boş veya hazırlanamadı.", Toast.LENGTH_LONG).show());
+            if (pendingBinaryFile != null) {
+                try { pendingBinaryFile.delete(); } catch (Exception ignored) {}
+            }
+            pendingBinaryFile = null;
             return;
         }
         runOnUiThread(() -> {
