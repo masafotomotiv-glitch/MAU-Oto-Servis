@@ -72,7 +72,9 @@ public class MainActivity extends Activity {
         s.setDisplayZoomControls(false);
         s.setTextZoom(100);
         s.setSupportZoom(false);
-        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        // Çevrimdışı yeniden açılış için son başarılı MAU sayfalarını WebView önbelleğinde tut.
+        // İnternet varsa güncel içerik yüklenir, yoksa önbellekteki sürüm kullanılabilir.
+        s.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -84,9 +86,9 @@ public class MainActivity extends Activity {
         // ruhsat fotoğrafı seçer ve OCR sonucunu sayfaya geri verir.
         webView.addJavascriptInterface(new AndroidBridge(), "MAUAndroid");
 
-        webView.clearCache(true);
-        webView.clearHistory();
-        webView.loadUrl(START_URL + "?refresh=" + System.currentTimeMillis());
+        // Her açılışta önbelleği silme: tablet yeniden başlatıldığında internet yoksa
+        // daha önce yüklenmiş MAU arayüzünün açılabilmesi için önbelleği koru.
+        webView.loadUrl(START_URL);
     }
 
     private class AndroidBridge {
