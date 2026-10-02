@@ -709,11 +709,12 @@ function printSection(type){
  }
 
  const html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>'+esc(activeCari.name)+' - '+esc(title)+'</title>'+
- '<style>@page{size:A4;margin:12mm}body{font-family:Arial;color:#222;font-size:12px}h1{color:#075ca8;margin:0 0 4px}h2{margin:0 0 14px;font-size:16px}.meta{margin:0 0 16px;color:#555}.box{padding:12px;background:#f5f7fa;border:1px solid #e4e7eb;border-radius:6px;line-height:1.6}.notes{min-height:100px}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #d8dde3;padding:6px;font-size:10px;text-align:left;vertical-align:top}th{background:#eef2f6}.tot{margin-top:14px;line-height:1.8}.foot{margin-top:18px;color:#777;font-size:9px}</style></head><body>'+
+ '<style>@page{size:A4;margin:12mm}body{font-family:Arial;color:#222;font-size:12px;margin:0}.reportWrap{padding:18px}.reportToolbar{position:sticky;top:0;z-index:5;display:flex;gap:8px;padding:10px;background:#eef3f8;border-bottom:1px solid #d9e1ea}.reportToolbar button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}.backBtn{background:#e2e8f0;color:#1f2937}.printBtn{background:#0874d1;color:#fff}h1{color:#075ca8;margin:0 0 4px}h2{margin:0 0 14px;font-size:16px}.meta{margin:0 0 16px;color:#555}.box{padding:12px;background:#f5f7fa;border:1px solid #e4e7eb;border-radius:6px;line-height:1.6}.notes{min-height:100px}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #d8dde3;padding:6px;font-size:10px;text-align:left;vertical-align:top}th{background:#eef2f6}.tot{margin-top:14px;line-height:1.8}.foot{margin-top:18px;color:#777;font-size:9px}@media print{.reportToolbar{display:none}.reportWrap{padding:0}}</style></head><body>'+
+ '<div class="reportToolbar"><button class="backBtn" onclick="goBackToApp()">← Uygulamaya Dön</button><button class="printBtn" onclick="window.print()">Yazdır / PDF</button></div><div class="reportWrap">'+
  '<h1>MAU OTO SERVİS</h1><h2>'+esc(title)+'</h2>'+
  '<div class="meta"><b>'+esc(activeCari.name)+'</b> · '+esc(activeCari.code||"-")+'</div>'+
- body+'<div class="foot">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</div>'+
- '<script>window.onload=function(){window.print();};<\/script></body></html>';
+ body+'<div class="foot">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</div></div>'+
+ '<script>function goBackToApp(){try{if(window.opener&&!window.opener.closed){window.close();return;}}catch(e){} if(history.length>1){history.back();return;} location.href="Cariler.html";}<\/script></body></html>';
 
  const w=window.open("","_blank");
  if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
