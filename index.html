@@ -588,9 +588,11 @@ function renderDashboard(){
  });
  const expertWaiting=hasar.filter(h=>/bekle|onay/i.test(String(h.durum||h.status||"")));
  const insWaiting=hasar.filter(h=>!/kapal|ödendi|tamam/i.test(String(h.durum||h.status||""))).reduce((s,h)=>s+itemAmount(h),0);
- const invoiced=invoices.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
- const collected=cols.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
- const paid=pays.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
+ const financeActive=x=>!/(iptal|pasif|taslak)/i.test(String(x.durum||"Aktif"));
+ const moneyActive=x=>!/(iptal|pasif)/i.test(String(x.durum||"Aktif"));
+ const invoiced=invoices.filter(financeActive).reduce((s,x)=>s+itemAmount(x),0);
+ const collected=cols.filter(moneyActive).reduce((s,x)=>s+itemAmount(x),0);
+ const paid=pays.filter(moneyActive).reduce((s,x)=>s+itemAmount(x),0);
  const receivable=Math.max(0,invoiced-collected);
  document.getElementById("statService").textContent=openWorks.length+" Araç";
  document.getElementById("statExpert").textContent=expertWaiting.length+" Araç";
