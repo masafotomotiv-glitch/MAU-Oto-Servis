@@ -69,7 +69,7 @@ function pickByAliases(row,aliases){
  for(let i=0;i<aliases.length;i++){const v=map[fold(aliases[i])];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}
  return "";
 }
-function num(v){if(typeof v==="number")return isFinite(v)?v:0;let s=String(v==null?"":v).trim().replace(/s/g,"").replace(/₺|TL|TRY/gi,"");if(s.indexOf(",")>=0&&s.indexOf(".")>=0)s=s.replace(/./g,"").replace(",",".");else if(s.indexOf(",")>=0)s=s.replace(",",".");const n=Number(s);return isFinite(n)?n:0}
+function num(v){if(typeof v==="number")return isFinite(v)?v:0;let s=String(v==null?"":v).trim().replace(/\s/g,"").replace(/₺|TL|TRY/gi,"");if(s.indexOf(",")>=0&&s.indexOf(".")>=0)s=s.replace(/\./g,"").replace(",",".");else if(s.indexOf(",")>=0)s=s.replace(",",".");const n=Number(s);return isFinite(n)?n:0}
 function excelDate(v){if(typeof v==="number"&&v>20000&&v<80000){const d=new Date(Math.round((v-25569)*86400*1000));return d.toISOString().slice(0,10)}const s=String(v||"").trim();const m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);if(m){let y=m[3];if(y.length===2)y="20"+y;return y+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0")}return s}
 function loadArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
 function saveArray(k,v){localStorage.setItem(k,JSON.stringify(v))}
