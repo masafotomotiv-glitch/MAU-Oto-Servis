@@ -34,7 +34,7 @@ header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:1
    <input id="fromDate" type="date" onchange="renderAll()">
    <input id="toDate" type="date" onchange="renderAll()">
    <button class="btn blue wide" onclick="renderAll()">Raporu Yenile</button>
-   <button class="btn gray" onclick="window.print()">PDF / Yazdır</button>
+   <button class="btn gray" onclick="printReport()">PDF / Yazdır</button>
    <button class="btn green" onclick="exportCsv()">Excel / CSV</button>
   </div>
   <div class="quickDate">
@@ -64,7 +64,7 @@ header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:1
 
  <div class="card noPrint"><div class="body">
   <div class="actions">
-   <button class="btn gray" onclick="window.print()">PDF / Yazdır</button>
+   <button class="btn gray" onclick="printReport()">PDF / Yazdır</button>
    <button class="btn green" onclick="exportCsv()">Excel / CSV</button>
    <button class="btn blue" onclick="shareReport()">Paylaş</button>
   </div>
@@ -220,17 +220,33 @@ function renderAll(){
  if(window.MAUFirma)MAUFirma.apply("firmaRaporBaslik",titles[activeTab]||"Rapor",from+" - "+to);
  document.getElementById("report").innerHTML=renderers[activeTab](d)
 }
+function printReport(){
+ if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){
+  try{window.MAUAndroid.printPage();return}catch(e){}
+ }
+ window.print()
+}
 function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function csvText(){return "\ufeff"+lastRows.map(r=>r.map(csvCell).join(";")).join("\r\n")}
 function exportCsv(){
  if(!lastRows.length){alert("Dışa aktarılacak rapor yok.");return}
- const csv="\ufeff"+lastRows.map(r=>r.map(csvCell).join(";")).join("\r\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
- a.href=URL.createObjectURL(blob);a.download="MAU-Rapor-"+activeTab+"-"+today()+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+ const csv=csvText(),fileName="MAU-Rapor-"+activeTab+"-"+today()+".csv";
+ if(window.MAUAndroid&&typeof window.MAUAndroid.shareCsv==="function"){
+  try{window.MAUAndroid.shareCsv(fileName,csv);return}catch(e){}
+ }
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+ const url=URL.createObjectURL(blob);a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)
 }
 async function shareReport(){
  const _fs=window.MAUFirma?MAUFirma.get():{};const title=(_fs.firmaAdi||"Firma")+" · "+document.querySelector('.tab.on').textContent.trim();
- const text=title+"\nTarih: "+(document.getElementById("fromDate").value||"Başlangıç")+" - "+(document.getElementById("toDate").value||"Bugün");
+ const head=title+"\nTarih: "+(document.getElementById("fromDate").value||"Başlangıç")+" - "+(document.getElementById("toDate").value||"Bugün");
+ const rows=lastRows.slice(0,80).map(r=>r.join(" | ")).join("\n");
+ const text=head+(rows?"\n\n"+rows:"");
+ if(window.MAUAndroid&&typeof window.MAUAndroid.shareText==="function"){
+  try{window.MAUAndroid.shareText(text);return}catch(e){}
+ }
  if(navigator.share){try{await navigator.share({title,text});return}catch(e){}}
- try{await navigator.clipboard.writeText(text);alert("Rapor özeti panoya kopyalandı.")}catch(e){alert(text)}
+ try{await navigator.clipboard.writeText(text);alert("Rapor panoya kopyalandı.")}catch(e){alert(text)}
 }
 window.addEventListener("storage",function(e){if(e.key==="mau_ayarlar")renderAll()});
 setRange("month");
