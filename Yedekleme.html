@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Yedekleme</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}
+.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:980px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid #e3e9ef;border-radius:9px;padding:11px;background:#f9fbfd}.stat span{display:block;font-size:10px;color:var(--muted)}.stat b{font-size:18px}
+.note{font-size:11px;color:var(--muted);line-height:1.55}.good{background:#eaf8ef;color:#167341;border:1px solid #ccebd6;border-radius:9px;padding:10px;margin-bottom:10px}.warn{background:#fff7e7;color:#8d5f08;border:1px solid #f2ddb1;border-radius:9px;padding:10px;margin-bottom:10px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;border-radius:9px;padding:12px 13px;font-weight:900;cursor:pointer}.primary{background:#1478c9;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.red{background:#ffe8eb;color:#a21c2b}
+textarea{width:100%;min-height:170px;border:1px solid #d8e0e8;border-radius:9px;padding:10px;font:11px monospace;resize:vertical}
+input[type=file]{width:100%;padding:10px;border:1px solid #d8e0e8;border-radius:9px;background:#fff}
+.mode{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.mode label{border:1px solid #dfe5eb;border-radius:9px;padding:9px 10px;font-size:11px}
+.log{margin-top:10px;padding:10px;border:1px solid #dfe5eb;border-radius:9px;background:#f8fafc;font-size:11px;line-height:1.5;min-height:45px}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Yedekleme · APK ↔ Chrome Veri Taşıma</div></div></div></header>
+<div class="wrap">
+
+ <div class="card"><div class="cardHead">Mevcut Veri</div><div class="body">
+  <div id="envNote" class="good"></div>
+  <div class="stats">
+   <div class="stat"><span>MAU Veri Anahtarı</span><b id="sKeys">0</b></div>
+   <div class="stat"><span>Yaklaşık Kayıt</span><b id="sRecords">0</b></div>
+   <div class="stat"><span>Veri Boyutu</span><b id="sSize">0 KB</b></div>
+   <div class="stat"><span>Son İşlem</span><b id="sLast">-</b></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">1. APK'dan / Bu Tarayıcıdan Yedek Al</div><div class="body">
+  <div class="note">Bu yedek yalnız MAU Oto Servis'e ait <b>mau_</b> ile başlayan verileri içerir. Müşteriler, araçlar, iş emirleri, faturalar, tahsilatlar, stok, hasar dosyaları, ekspertiz ve sigorta onayları birlikte taşınır.</div>
+  <div class="actions" style="margin-top:10px">
+   <button class="btn primary" onclick="generateBackup()">Yedek Metnini Oluştur</button>
+   <button class="btn green" onclick="copyBackup()">Yedek Kodunu Kopyala</button>
+   <button class="btn gray" onclick="downloadBackup()">JSON Dosyası İndir</button>
+  </div>
+  <textarea id="backupText" placeholder="Yedek burada oluşacak..." readonly></textarea>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. Chrome'a / Bu Tarayıcıya Geri Yükle</div><div class="body">
+  <div class="warn"><b>APK ile Chrome ayrı depolama kullanır.</b> APK'da yedeği kopyalayıp Chrome'da bu sayfayı açın, aşağıdaki alana yapıştırın ve geri yükleyin.</div>
+  <div class="note">İsterseniz yedek JSON dosyasını da seçebilirsiniz.</div>
+  <input id="backupFile" type="file" accept=".json,application/json" onchange="readBackupFile()">
+  <textarea id="restoreText" placeholder="APK'dan kopyaladığınız yedek kodunu buraya yapıştırın..."></textarea>
+  <div class="mode">
+   <label><input type="radio" name="restoreMode" value="replace" checked> Tam geri yükle — mevcut MAU verilerini temizleyip yedeği yükle</label>
+   <label><input type="radio" name="restoreMode" value="merge"> Birleştir — mevcutları koru, yedektekileri ekle/güncelle</label>
+  </div>
+  <div class="actions">
+   <button class="btn green" onclick="restoreBackup()">Yedeği Geri Yükle</button>
+   <button class="btn red" onclick="clearMauData()">Bu Tarayıcıdaki MAU Verilerini Temizle</button>
+  </div>
+  <div id="log" class="log">Hazır.</div>
+ </div></div>
+
+</div>
+<script>
+const PREFIX="mau_";
+function mauKeys(){const a=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(PREFIX))a.push(k)}return a.sort()}
+function parseAny(v){try{return JSON.parse(v)}catch(e){return null}}
+function sizeText(bytes){if(bytes<1024)return bytes+" B";return (bytes/1024).toLocaleString("tr-TR",{maximumFractionDigits:1})+" KB"}
+function backupObject(){
+ const data={};mauKeys().forEach(k=>data[k]=localStorage.getItem(k));
+ return {app:"MAU Oto Servis",format:"MAU-BACKUP-1",version:1,exportedAt:new Date().toISOString(),data};
+}
+function recordCount(){
+ let n=0;mauKeys().forEach(k=>{const v=parseAny(localStorage.getItem(k));if(Array.isArray(v))n+=v.length;else if(v&&typeof v==="object")n+=1});return n
+}
+function refreshStats(){
+ const keys=mauKeys(),raw=JSON.stringify(backupObject());
+ document.getElementById("sKeys").textContent=keys.length;
+ document.getElementById("sRecords").textContent=recordCount();
+ document.getElementById("sSize").textContent=sizeText(new Blob([raw]).size);
+ document.getElementById("envNote").innerHTML='<b>Bu ekranın kendi veri alanı:</b> '+location.origin+'<br>APK WebView ve Chrome aynı adresi açsa bile verileri ayrı tutabilir.';
+}
+function generateBackup(){
+ const raw=JSON.stringify(backupObject());
+ document.getElementById("backupText").value=raw;
+ document.getElementById("sLast").textContent="Yedek";
+ document.getElementById("log").textContent=mauKeys().length+" veri anahtarı yedeğe hazırlandı.";
+ return raw;
+}
+async function copyBackup(){
+ const raw=generateBackup();
+ let ok=false;
+ try{await navigator.clipboard.writeText(raw);ok=true}catch(e){}
+ if(!ok){const ta=document.getElementById("backupText");ta.removeAttribute("readonly");ta.select();ta.setSelectionRange(0,ta.value.length);try{ok=document.execCommand("copy")}catch(e){}ta.setAttribute("readonly","readonly")}
+ document.getElementById("log").textContent=ok?"Yedek kodu panoya kopyalandı. Şimdi Chrome'da bu sayfayı açıp Geri Yükle alanına yapıştırın.":"Otomatik kopyalama olmadı. Yedek metnini seçip manuel kopyalayın.";
+}
+function downloadBackup(){
+ const raw=generateBackup(),blob=new Blob([raw],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ const d=new Date(),p=n=>String(n).padStart(2,"0");a.href=url;a.download="MAU-Oto-Servis-Yedek-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+".json";
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ document.getElementById("log").textContent="JSON yedek dosyası indirme işlemi başlatıldı.";
+}
+function readBackupFile(){
+ const f=document.getElementById("backupFile").files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{document.getElementById("restoreText").value=String(r.result||"");document.getElementById("log").textContent=f.name+" okundu. Geri Yükle butonuna basabilirsiniz."};r.onerror=()=>document.getElementById("log").textContent="Dosya okunamadı.";r.readAsText(f,"utf-8")
+}
+function itemToken(x){
+ if(x==null)return "";
+ if(typeof x!=="object")return String(x);
+ return String(x.id??x.uuid??x.code??x.plaka??x.dosyaNo??x.isEmriNo??x.faturaNo??x.makbuzNo??JSON.stringify(x));
+}
+function mergeValues(oldRaw,newRaw){
+ const oldV=parseAny(oldRaw),newV=parseAny(newRaw);
+ if(Array.isArray(oldV)&&Array.isArray(newV)){
+  const map=new Map();oldV.forEach(x=>map.set(itemToken(x),x));newV.forEach(x=>map.set(itemToken(x),x));return JSON.stringify(Array.from(map.values()))
+ }
+ if(oldV&&typeof oldV==="object"&&newV&&typeof newV==="object"&&!Array.isArray(oldV)&&!Array.isArray(newV))return JSON.stringify({...oldV,...newV});
+ return newRaw;
+}
+function restoreBackup(){
+ const raw=document.getElementById("restoreText").value.trim();if(!raw){alert("Yedek metnini yapıştırın veya JSON dosyası seçin.");return}
+ let obj;try{obj=JSON.parse(raw)}catch(e){alert("Yedek metni geçerli JSON değil.");return}
+ if(!obj||obj.format!=="MAU-BACKUP-1"||!obj.data||typeof obj.data!=="object"){alert("Bu dosya geçerli MAU Oto Servis yedeği değil.");return}
+ const entries=Object.entries(obj.data).filter(([k])=>k.startsWith(PREFIX));
+ const mode=document.querySelector('input[name="restoreMode"]:checked').value;
+ if(mode==="replace"){
+  if(!confirm("Bu tarayıcıdaki mevcut MAU verileri silinip yedek tamamen yüklenecek. Devam edilsin mi?"))return;
+  mauKeys().forEach(k=>localStorage.removeItem(k));
+  entries.forEach(([k,v])=>localStorage.setItem(k,String(v)));
+ }else{
+  if(!confirm("Yedek mevcut verilerle birleştirilecek. Devam edilsin mi?"))return;
+  entries.forEach(([k,v])=>{const old=localStorage.getItem(k);localStorage.setItem(k,old==null?String(v):mergeValues(old,String(v)))});
+ }
+ localStorage.setItem("mau_yedek_son_geri_yukleme",new Date().toISOString());
+ refreshStats();document.getElementById("sLast").textContent="Geri Yükleme";
+ document.getElementById("log").innerHTML='<b>'+entries.length+' veri anahtarı geri yüklendi.</b><br>Ana menüye dönüp müşteri, araç, iş emri ve hasar kayıtlarını kontrol edin.';
+ alert("MAU verileri geri yüklendi.");
+}
+function clearMauData(){
+ if(!confirm("Bu tarayıcıdaki bütün MAU Oto Servis verileri silinsin mi? Bu işlem geri alınamaz."))return;
+ mauKeys().forEach(k=>localStorage.removeItem(k));refreshStats();document.getElementById("log").textContent="Bu tarayıcıdaki MAU verileri temizlendi.";
+}
+refreshStats();
+</script>
+</body>
+</html>
