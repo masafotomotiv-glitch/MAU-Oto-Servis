@@ -142,7 +142,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
  <div class="card"><div class="cardHead">Hasar & Sigorta Dosyaları</div><div id="list" class="list"></div></div>
 </div>
 
-<div id="report"><div class="reportTop"><button onclick="closeReport()">← Uygulamaya Dön</button><button onclick="window.print()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
+<div id="report"><div class="reportTop"><button onclick="closeReport()">← Uygulamaya Dön</button><button onclick="printReportNative()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
 
 <script>
 const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri",INS_KEY="mau_sigorta_sirketleri",EXP_KEY="mau_eksper_kayitlari";
@@ -267,6 +267,10 @@ function reportHtml(x){
 }
 function printClaim(id){const x=load(CLAIM_KEY).find(a=>String(a.id)===String(id));if(!x)return;document.getElementById("reportBody").innerHTML=reportHtml(x);document.getElementById("report").style.display="block";window.scrollTo(0,0)}
 function printActive(){if(editId!=null){printClaim(editId);return}alert("Önce dosyayı kaydedin veya listeden PDF / Yazdır seçin.")}
+function printReportNative(){
+ if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}
+ window.print()
+}
 function closeReport(){document.getElementById("report").style.display="none"}
 ensureMasters();populateVehicles();populateMasters();resetForm(false);renderList();window.addEventListener("storage",function(e){if([CLAIM_KEY,INS_KEY,EXP_KEY,VEH_KEY,WORK_KEY].includes(e.key)){populateMasters();renderList()}});
 </script>
