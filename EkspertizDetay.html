@@ -31,7 +31,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <div class="wrap">
  <div class="card"><div class="cardHead">Hasar Dosyası</div><div class="body">
   <div id="claimInfo" class="summary"></div>
-  <div class="note" style="margin-top:8px">Bu ekran servis ön tespitinin ikinci aşamasıdır. Burada hangi parça değişecek/onarıma girecek ve hangi işçilik yapılacak satır satır kaydedilir. Bu aşamada stoktan fiziksel düşüm yapılmaz.</div>
+  <div class="note" style="margin-top:8px">Bu ekran servis ön tespitinin ikinci aşamasıdır. Burada hangi parça değişecek/onarıma girecek ve hangi işçilik yapılacak satır satır kaydedilir. Boya, sarf ve diğer malzemeler ihtiyaç halinde Parça / Hasar Kalemleri veya İşçilik Kalemleri içine eklenir. Bu aşamada stoktan fiziksel düşüm yapılmaz.</div>
  </div></div>
 
  <div class="card"><div class="cardHead">1. Parça / Hasar Kalemleri</div><div class="body">
@@ -44,15 +44,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
   <button class="btn add" onclick="addLabor()">+ İşçilik Ekle</button>
  </div></div>
 
- <div class="card"><div class="cardHead">3. Boya / Malzeme / Sarf</div><div class="body">
-  <div class="grid">
-   <div class="field"><label>Servis Talep Tutarı (TL)</label><input id="sarfTalep" type="number" min="0" step="0.01" oninput="calc()"></div>
-   <div class="field"><label>Eksper Onay Tutarı (TL)</label><input id="sarfOnay" type="number" min="0" step="0.01" oninput="calc()"></div>
-   <div class="field full"><label>Açıklama</label><textarea id="sarfNot" placeholder="Boya, macun, sarf, klips vb. açıklama..."></textarea></div>
-  </div>
- </div></div>
-
- <div class="card"><div class="cardHead">4. Ekspertiz Özeti</div><div class="body">
+ <div class="card"><div class="cardHead">3. Ekspertiz Özeti</div><div class="body">
   <div class="grid" style="margin-bottom:10px">
    <div class="field"><label>KDV (%)</label><input id="kdv" type="number" min="0" step="0.01" value="20" oninput="calc()"></div>
    <div class="field"><label>Ekspertiz Durumu</label><select id="ekspertizDurumu"><option>Hazırlanıyor</option><option>Eksper İncelemesinde</option><option>Mutabakat Bekliyor</option><option>Mutabık Kalındı</option><option>Red / İtiraz</option></select></div>
@@ -136,8 +128,8 @@ function collectLabors(){return Array.from(document.querySelectorAll("#laborLine
 function calc(){
  let reqP=0,appP=0;document.querySelectorAll("#partLines .lineCard").forEach(box=>{const t=num(box.querySelector(".pQty").value)*num(box.querySelector(".pPrice").value);box.querySelector(".pReq").value=t.toFixed(2);reqP+=t;appP+=num(box.querySelector(".pApproved").value)});
  let reqL=0,appL=0;document.querySelectorAll("#laborLines .lineCard").forEach(box=>{const t=num(box.querySelector(".lHours").value)*num(box.querySelector(".lPrice").value);box.querySelector(".lReq").value=t.toFixed(2);reqL+=t;appL+=num(box.querySelector(".lApproved").value)});
- const reqS=num(document.getElementById("sarfTalep").value),appS=num(document.getElementById("sarfOnay").value),kdv=num(document.getElementById("kdv").value);
- const reqNet=reqP+reqL+reqS,appNet=appP+appL+appS,reqGrand=reqNet*(1+kdv/100),appGrand=appNet*(1+kdv/100);
+ const reqS=0,appS=0,kdv=num(document.getElementById("kdv").value);
+ const reqNet=reqP+reqL,appNet=appP+appL,reqGrand=reqNet*(1+kdv/100),appGrand=appNet*(1+kdv/100);
  document.getElementById("tReqParts").textContent=money(reqP);document.getElementById("tReqLabor").textContent=money(reqL);document.getElementById("tReqGrand").textContent=money(reqGrand);document.getElementById("tAppGrand").textContent=money(appGrand);
  return {reqP,appP,reqL,appL,reqS,appS,kdv,reqNet,appNet,reqGrand,appGrand};
 }
@@ -145,8 +137,8 @@ function saveDetail(){
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
  const partsData=collectParts(),laborData=collectLabors(),t=calc();
  claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claim.id));if(i<0)return;
- claims[i].ekspertizDetay={parcalar:partsData,iscilikler:laborData,sarfTalep:t.reqS,sarfOnay:t.appS,sarfNot:document.getElementById("sarfNot").value.trim(),kdvOrani:t.kdv,durum:document.getElementById("ekspertizDurumu").value,not:document.getElementById("genelNot").value.trim(),servisTalepToplam:t.reqGrand,eksperOnayToplam:t.appGrand,updatedAt:new Date().toISOString()};
- claims[i].parcaToplam=t.reqP;claims[i].iscilikToplam=t.reqL;claims[i].sarfToplam=t.reqS;claims[i].kdvOrani=t.kdv;claims[i].kdvTutar=t.reqNet*t.kdv/100;claims[i].genelHasarToplam=t.reqGrand;claims[i].eksperTespitTutar=t.appGrand;
+ claims[i].ekspertizDetay={parcalar:partsData,iscilikler:laborData,sarfTalep:0,sarfOnay:0,sarfNot:"",kdvOrani:t.kdv,durum:document.getElementById("ekspertizDurumu").value,not:document.getElementById("genelNot").value.trim(),servisTalepToplam:t.reqGrand,eksperOnayToplam:t.appGrand,updatedAt:new Date().toISOString()};
+ claims[i].parcaToplam=t.reqP;claims[i].iscilikToplam=t.reqL;claims[i].sarfToplam=0;claims[i].kdvOrani=t.kdv;claims[i].kdvTutar=t.reqNet*t.kdv/100;claims[i].genelHasarToplam=t.reqGrand;claims[i].eksperTespitTutar=t.appGrand;
  if(document.getElementById("ekspertizDurumu").value==="Mutabık Kalındı"&&claims[i].durum==="Açık")claims[i].durum="Sigorta Onayı Bekleniyor";
  claims[i].updatedAt=new Date().toISOString();put(CLAIM_KEY,claims);claim=claims[i];renderClaim();alert("Ekspertiz detayı kaydedildi.");
 }
@@ -157,7 +149,7 @@ function renderClaim(){
 function loadDetail(){
  if(!claim){renderClaim();return}
  renderClaim();const d=claim.ekspertizDetay||{};(d.parcalar||[]).forEach(addPart);if(!(d.parcalar||[]).length)addPart();(d.iscilikler||[]).forEach(addLabor);if(!(d.iscilikler||[]).length)addLabor();
- document.getElementById("sarfTalep").value=d.sarfTalep??claim.sarfToplam??0;document.getElementById("sarfOnay").value=d.sarfOnay??0;document.getElementById("sarfNot").value=d.sarfNot||"";document.getElementById("kdv").value=d.kdvOrani??claim.kdvOrani??20;document.getElementById("ekspertizDurumu").value=d.durum||"Hazırlanıyor";document.getElementById("genelNot").value=d.not||"";calc();
+ document.getElementById("kdv").value=d.kdvOrani??claim.kdvOrani??20;document.getElementById("ekspertizDurumu").value=d.durum||"Hazırlanıyor";document.getElementById("genelNot").value=d.not||"";calc();
 }
 function reportTable(headers,rows){return '<table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'}
 function openReport(){
