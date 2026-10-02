@@ -16,7 +16,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 .info{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;font-size:12px;line-height:1.6}.badge{display:inline-block;padding:4px 8px;border-radius:10px;background:#eaf3ff;color:#075ba8;font-size:10px;font-weight:800}
 .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}.step{padding:9px;border-radius:9px;background:#eef2f6;color:#64748b;text-align:center;font-size:11px;font-weight:800}.step.active{background:#ddecff;color:#075ba8}.step.done{background:#e8f7ef;color:#087840}
 .saveRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.saveRow button{border:0;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48;color:#fff}.next{background:#0874d1;color:#fff}
-.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.meta{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.actions button,.actions a{border:0;border-radius:8px;padding:8px 10px;font-weight:800;text-decoration:none;display:inline-block}.edit{background:#eaf2ff;color:#0756a5}.ops{background:#e8f7ef;color:#087840}.quote{background:#fff2df;color:#9b6200}.empty{text-align:center;color:var(--muted);padding:30px}
+.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.meta{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.actions button,.actions a{border:0;border-radius:8px;padding:8px 10px;font-weight:800;text-decoration:none;display:inline-block}.edit{background:#eaf2ff;color:#0756a5}.ops{background:#e8f7ef;color:#087840}.quote{background:#fff2df;color:#9b6200}.unlock{background:#173b62!important;color:#fff!important}.relock{background:#eef2f6!important;color:#475569!important}.lockNote{font-size:10px;color:#9b6200;font-weight:800;margin-top:5px}.empty{text-align:center;color:var(--muted);padding:30px}
 @media(max-width:750px){.stats{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}}
 @media(max-width:580px){.grid,.grid3,.saveRow{grid-template-columns:1fr}.full{grid-column:auto}.toolbar{flex-wrap:wrap}.search{flex-basis:100%}.row{grid-template-columns:1fr}}
 </style>
@@ -69,7 +69,46 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
  <div class="card"><div class="cardHead">İş Emirleri</div><div id="list" class="list"></div></div>
 </div>
 <script>
-const ACCEPT_KEY="mau_arac_kabulleri",WORK_KEY="mau_is_emirleri",PERSON_KEY="mau_personel";
+const ACCEPT_KEY="mau_arac_kabulleri",WORK_KEY="mau_is_emirleri",PERSON_KEY="mau_personel",SECURITY_KEY="mau_guvenlik_sifresi";
+const CLOSED_STATUSES=["Teslim Edildi","Kapalı"];
+function isClosedWork(w){return !!w&&CLOSED_STATUSES.includes(w.durum)}
+function unlockKey(id){return "mau_isemri_unlock_"+String(id)}
+function isUnlocked(id){return sessionStorage.getItem(unlockKey(id))==="1"}
+function verifySecurityPassword(){
+ let saved=localStorage.getItem(SECURITY_KEY)||"";
+ if(!saved){
+  const first=prompt("Kapalı iş emrini açmak için yeni bir güvenlik şifresi belirleyin. En az 4 karakter:");
+  if(first===null)return false;
+  const p=String(first).trim();
+  if(p.length<4){alert("Güvenlik şifresi en az 4 karakter olmalı.");return false}
+  const again=prompt("Güvenlik şifresini tekrar yazın:");
+  if(again===null||String(again).trim()!==p){alert("Şifreler eşleşmedi.");return false}
+  localStorage.setItem(SECURITY_KEY,p);
+  alert("Güvenlik şifresi oluşturuldu.");
+  return true;
+ }
+ const entered=prompt("Güvenlik şifresini yazın:");
+ if(entered===null)return false;
+ if(String(entered)!==saved){alert("Güvenlik şifresi yanlış.");return false}
+ return true;
+}
+function unlockWork(id){
+ works=loadArray(WORK_KEY);
+ const w=works.find(x=>String(x.id)===String(id));
+ if(!w)return;
+ if(!isClosedWork(w)){return}
+ if(!verifySecurityPassword())return;
+ sessionStorage.setItem(unlockKey(id),"1");
+ renderList();
+ alert(w.isEmriNo+" düzenleme için açıldı. Bu oturum kapandığında tekrar kilitlenecek.");
+}
+function relockWork(id){sessionStorage.removeItem(unlockKey(id));renderList()}
+function protectedNavigate(id,url){
+ works=loadArray(WORK_KEY);
+ const w=works.find(x=>String(x.id)===String(id));
+ if(isClosedWork(w)&&!isUnlocked(id)){alert("Bu iş emri kapalı. Önce Güvenlik Şifresiyle Aç butonunu kullanın.");return}
+ location.href=url;
+}
 function loadArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
 function saveArray(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -82,8 +121,8 @@ function populateAccepts(){accepts=loadArray(ACCEPT_KEY);works=loadArray(WORK_KE
 function selectAcceptance(){activeAcceptance=accepts.find(x=>String(x.id)===String(document.getElementById("kabulId").value));if(!activeAcceptance){document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";return}const a=activeAcceptance;document.getElementById("musteriSikayeti").value=a.musteriSikayeti||"";document.getElementById("sorunKosulu").value=a.sorunKosulu||"";document.getElementById("uyariLambalari").value=a.uyariLambalari||"";document.getElementById("talepEdilenIslemler").value=a.talepEdilenIslemler||"";if(a.tahminiTeslimTarihi)document.getElementById("tahminiTeslim").value=a.tahminiTeslimTarihi+"T"+(a.tahminiTeslimSaati||"17:00");if((a.departmanlar||[]).length===1)document.getElementById("planBolum").value=a.departmanlar[0];else if((a.departmanlar||[]).length>1)document.getElementById("planBolum").value="Birden Fazla Bölüm";document.getElementById("sourceInfo").innerHTML='<b>'+esc(a.kabulNo)+' · '+esc(a.plaka)+'</b> <span class="badge">'+esc(a.durum||"")+'</span><br>'+esc(a.cariAdi||"-")+' · '+esc([a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+'<br>Giriş KM: '+esc(a.km||"-")+' · Kabul: '+esc(a.kabulTarihi||"")+' '+esc(a.kabulSaati||"")}
 function resetForm(focus){editId=null;activeAcceptance=null;populateAccepts();fillPersonnel();document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.id==="kabulId")return;el.value=""});document.getElementById("kabulId").value="";document.getElementById("isEmriNo").value=nextNo();document.getElementById("tarih").value=today();document.getElementById("saat").value=timeNow();document.getElementById("oncelik").value="Normal";document.getElementById("planBolum").value="Mekanik";document.getElementById("durum").value="Planlandı";document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";document.getElementById("formTitle").innerText="Yeni İş Emri Planlama";if(focus)document.getElementById("kabulId").focus()}
 function val(id){return document.getElementById(id).value.trim()}
-function savePlan(goOps){const a=accepts.find(x=>String(x.id)===String(document.getElementById("kabulId").value));if(!a){alert("Araç kabul kaydı seçiniz.");return}const old=editId!=null?works.find(w=>String(w.id)===String(editId)):null;const id=old?old.id:Date.now();const data={...(old||{}),id,isEmriNo:old?old.isEmriNo:val("isEmriNo"),kabulId:a.id,kabulNo:a.kabulNo,aracId:a.aracId||a.vehicleId,vehicleId:a.aracId||a.vehicleId,cariId:a.cariId,cariCode:a.cariCode,cariAdi:a.cariAdi,plaka:a.plaka,marka:a.marka,model:a.model,versiyon:a.versiyon,sasi:a.sasi,motorNo:a.motorNo,km:a.km,tarih:val("tarih"),saat:val("saat"),oncelik:val("oncelik"),danismanId:document.getElementById("danismanId").value,danisman:pName(document.getElementById("danismanId").value),sorumluId:document.getElementById("sorumluId").value,sorumlu:pName(document.getElementById("sorumluId").value),tahminiTeslim:val("tahminiTeslim"),planBolum:val("planBolum"),durum:old&&["Onay Bekliyor","Onaylandı · İşleme Hazır","Kısmi Onay","Reddedildi","İşlemde","Tamamlandı","Kalite Kontrol Bekliyor","Teslime Hazır","Teslim Edildi","Kapalı"].includes(old.durum)?old.durum:val("durum"),musteriSikayeti:a.musteriSikayeti||"",sorunKosulu:a.sorunKosulu||"",uyariLambalari:a.uyariLambalari||"",talepEdilenIslemler:a.talepEdilenIslemler||"",departmanlar:a.departmanlar||[],servisNotu:val("servisNotu"),musteriNotu:val("musteriNotu"),createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};works=loadArray(WORK_KEY);const wi=works.findIndex(w=>String(w.id)===String(id));if(wi>=0)works[wi]=data;else works.unshift(data);saveArray(WORK_KEY,works);accepts=loadArray(ACCEPT_KEY);const ai=accepts.findIndex(x=>String(x.id)===String(a.id));if(ai>=0){accepts[ai].durum="İş Emri Oluşturuldu";accepts[ai].isEmriId=id;accepts[ai].isEmriNo=data.isEmriNo;accepts[ai].updatedAt=new Date().toISOString();saveArray(ACCEPT_KEY,accepts)}renderList();if(goOps){location.href="Islemler.html?isEmriId="+encodeURIComponent(id);return}alert("İş emri planı kaydedildi.");resetForm(false)}
-function editWork(id){works=loadArray(WORK_KEY);const w=works.find(x=>String(x.id)===String(id));if(!w)return;editId=w.id;populateAccepts();const a=accepts.find(x=>String(x.id)===String(w.kabulId));const sel=document.getElementById("kabulId");if(a&&!Array.from(sel.options).some(o=>String(o.value)===String(a.id))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=String(w.kabulId||"");selectAcceptance();fillPersonnel(w.danismanId,w.sorumluId);["isEmriNo","tarih","saat","oncelik","tahminiTeslim","planBolum","durum","servisNotu","musteriNotu"].forEach(k=>{if(document.getElementById(k)&&w[k]!=null)document.getElementById(k).value=w[k]});document.getElementById("formTitle").innerText=w.isEmriNo+" · İş Emri Planını Düzenle";window.scrollTo({top:0,behavior:"smooth"})}
+function savePlan(goOps){if(editId!=null){const current=loadArray(WORK_KEY).find(w=>String(w.id)===String(editId));if(isClosedWork(current)&&!isUnlocked(editId)){alert("Kapalı iş emri kilitli. Düzenleme kaydedilemedi.");return}}const a=accepts.find(x=>String(x.id)===String(document.getElementById("kabulId").value));if(!a){alert("Araç kabul kaydı seçiniz.");return}const old=editId!=null?works.find(w=>String(w.id)===String(editId)):null;const id=old?old.id:Date.now();const data={...(old||{}),id,isEmriNo:old?old.isEmriNo:val("isEmriNo"),kabulId:a.id,kabulNo:a.kabulNo,aracId:a.aracId||a.vehicleId,vehicleId:a.aracId||a.vehicleId,cariId:a.cariId,cariCode:a.cariCode,cariAdi:a.cariAdi,plaka:a.plaka,marka:a.marka,model:a.model,versiyon:a.versiyon,sasi:a.sasi,motorNo:a.motorNo,km:a.km,tarih:val("tarih"),saat:val("saat"),oncelik:val("oncelik"),danismanId:document.getElementById("danismanId").value,danisman:pName(document.getElementById("danismanId").value),sorumluId:document.getElementById("sorumluId").value,sorumlu:pName(document.getElementById("sorumluId").value),tahminiTeslim:val("tahminiTeslim"),planBolum:val("planBolum"),durum:old&&["Onay Bekliyor","Onaylandı · İşleme Hazır","Kısmi Onay","Reddedildi","İşlemde","Tamamlandı","Kalite Kontrol Bekliyor","Teslime Hazır","Teslim Edildi","Kapalı"].includes(old.durum)?old.durum:val("durum"),musteriSikayeti:a.musteriSikayeti||"",sorunKosulu:a.sorunKosulu||"",uyariLambalari:a.uyariLambalari||"",talepEdilenIslemler:a.talepEdilenIslemler||"",departmanlar:a.departmanlar||[],servisNotu:val("servisNotu"),musteriNotu:val("musteriNotu"),createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};works=loadArray(WORK_KEY);const wi=works.findIndex(w=>String(w.id)===String(id));if(wi>=0)works[wi]=data;else works.unshift(data);saveArray(WORK_KEY,works);accepts=loadArray(ACCEPT_KEY);const ai=accepts.findIndex(x=>String(x.id)===String(a.id));if(ai>=0){accepts[ai].durum="İş Emri Oluşturuldu";accepts[ai].isEmriId=id;accepts[ai].isEmriNo=data.isEmriNo;accepts[ai].updatedAt=new Date().toISOString();saveArray(ACCEPT_KEY,accepts)}renderList();if(goOps){location.href="Islemler.html?isEmriId="+encodeURIComponent(id);return}alert("İş emri planı kaydedildi.");resetForm(false)}
+function editWork(id){works=loadArray(WORK_KEY);const w=works.find(x=>String(x.id)===String(id));if(!w)return;if(isClosedWork(w)&&!isUnlocked(id)){alert("Bu iş emri kapalı. Önce Güvenlik Şifresiyle Aç butonunu kullanın.");return}editId=w.id;populateAccepts();const a=accepts.find(x=>String(x.id)===String(w.kabulId));const sel=document.getElementById("kabulId");if(a&&!Array.from(sel.options).some(o=>String(o.value)===String(a.id))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=String(w.kabulId||"");selectAcceptance();fillPersonnel(w.danismanId,w.sorumluId);["isEmriNo","tarih","saat","oncelik","tahminiTeslim","planBolum","durum","servisNotu","musteriNotu"].forEach(k=>{if(document.getElementById(k)&&w[k]!=null)document.getElementById(k).value=w[k]});document.getElementById("formTitle").innerText=w.isEmriNo+" · İş Emri Planını Düzenle";window.scrollTo({top:0,behavior:"smooth"})}
 function renderList(){
  works=loadArray(WORK_KEY);
  let migrated=false;
@@ -101,13 +140,25 @@ function renderList(){
  document.getElementById("sWork").innerText=works.filter(w=>w.durum==="İşlemde").length;
  const el=document.getElementById("list");
  if(!list.length){el.innerHTML='<div class="empty">Henüz iş emri yok.</div>';return;}
- el.innerHTML=list.map(w=>
-  '<div class="row"><div><div class="rowTitle">'+esc(w.isEmriNo)+' · '+esc(w.plaka)+' <span class="badge">'+esc(w.durum||"")+'</span></div>'+
-  '<div class="meta">'+esc(w.cariAdi||"-")+' · '+esc(w.planBolum||"-")+' · '+esc(w.danisman||"-")+'<br>'+esc(w.musteriSikayeti||"-")+'</div></div>'+
-  '<div class="actions"><button class="edit" onclick="editWork(&quot;'+String(w.id)+'&quot;)">Planı Düzenle</button>'+
-  '<a class="ops" href="Islemler.html?isEmriId='+encodeURIComponent(w.id)+'">İşlemler</a>'+
-  '<a class="quote" href="Teklifler.html?isEmriId='+encodeURIComponent(w.id)+'">Teklif / Onay</a>'+((w.durum==="İşlemde"||w.durum==="Kalite Kontrol Bekliyor")?'<a class="ops" href="AtolyeTakip.html?isEmriId='+encodeURIComponent(w.id)+'">Atölye Takip</a>':'')+((w.durum==="Teslime Hazır"||w.durum==="Teslim Edildi")?'<a class="quote" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Fatura / Teslim</a>':'')+'</div></div>'
- ).join("");
+ el.innerHTML=list.map(w=>{
+  const closed=isClosedWork(w),unlocked=!closed||isUnlocked(w.id);
+  let actions='';
+  if(closed&&!unlocked){
+   actions='<button class="unlock" onclick="unlockWork(&quot;'+String(w.id)+'&quot;)">🔒 Güvenlik Şifresiyle Aç</button>'+
+    '<a class="quote" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Fatura / Tahsilat Gör</a>';
+  }else{
+   actions='<button class="edit" onclick="editWork(&quot;'+String(w.id)+'&quot;)">Planı Düzenle</button>'+
+    '<button class="ops" onclick="protectedNavigate(&quot;'+String(w.id)+'&quot;,&quot;Islemler.html?isEmriId='+encodeURIComponent(w.id)+'&quot;)">İşlemler</button>'+
+    '<button class="quote" onclick="protectedNavigate(&quot;'+String(w.id)+'&quot;,&quot;Teklifler.html?isEmriId='+encodeURIComponent(w.id)+'&quot;)">Teklif / Onay</button>'+
+    ((w.durum==="İşlemde"||w.durum==="Kalite Kontrol Bekliyor")?'<a class="ops" href="AtolyeTakip.html?isEmriId='+encodeURIComponent(w.id)+'">Atölye Takip</a>':'')+
+    ((w.durum==="Teslime Hazır"||w.durum==="Teslim Edildi")?'<a class="quote" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Fatura / Teslim</a>':'')+
+    (closed?'<button class="relock" onclick="relockWork(&quot;'+String(w.id)+'&quot;)">Tekrar Kilitle</button>':'');
+  }
+  return '<div class="row"><div><div class="rowTitle">'+esc(w.isEmriNo)+' · '+esc(w.plaka)+' <span class="badge">'+esc(w.durum||"")+'</span></div>'+
+   '<div class="meta">'+esc(w.cariAdi||"-")+' · '+esc(w.planBolum||"-")+' · '+esc(w.danisman||"-")+'<br>'+esc(w.musteriSikayeti||"-")+
+   (closed?'<div class="lockNote">'+(unlocked?'🔓 Bu oturumda düzenleme açık':'🔒 Kapanmış kayıt · düzenleme kilitli')+'</div>':'')+
+   '</div></div><div class="actions">'+actions+'</div></div>';
+ }).join("");
 }
 function preload(){const p=new URLSearchParams(location.search),kid=p.get("kabulId");if(!kid)return;const a=accepts.find(x=>String(x.id)===String(kid));if(!a)return;const sel=document.getElementById("kabulId");if(!Array.from(sel.options).some(o=>String(o.value)===String(kid))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=kid;selectAcceptance()}
 resetForm(false);renderList();preload();
