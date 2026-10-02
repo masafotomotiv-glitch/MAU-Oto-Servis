@@ -103,7 +103,8 @@ body{
 .toolbar{
   margin:16px 18px;
   display:grid;
-  grid-template-columns:1fr 70px 210px;
+  grid-template-columns:70px 210px;
+  justify-content:end;
   gap:10px;
 }
 
@@ -410,11 +411,9 @@ body{
   </header>
 
   <section class="toolbar">
-    <input id="globalSearch" class="search" placeholder="⌕  Plaka, müşteri, telefon, dosya no ile ara..." oninput="renderGlobalSearch()">
     <div class="qr">▦</div>
     <div class="accept" onclick="window.location.href='Araclar.html'">＋ Araç Kayıt</div>
   </section>
-  <div id="searchResults" class="search-results"></div>
 
   <section class="menu-grid">
     <div class="menu-card blue" onclick="window.location.href=&quot;AracKabul.html&quot;">
