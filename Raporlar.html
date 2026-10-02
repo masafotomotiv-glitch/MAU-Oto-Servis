@@ -23,6 +23,7 @@ header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:1
 @media print{header,.filters,.quickDate,.tabs,.actions,.noPrint{display:none!important}.wrap{max-width:none;margin:0;padding:0}.card{border:0;box-shadow:none;break-inside:avoid}.body{padding:8px}body{background:#fff}}
 </style>
 <script src="lisans.js"></script>
+<script src="firma.js"></script>
 </head>
 <body>
 <header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Raporlar · Finans · Servis · Stok · Personel · Sigorta</div></div></div></header>
@@ -58,6 +59,7 @@ header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:1
   </div>
  </div></div>
 
+ <div id="firmaRaporBaslik"></div>
  <div id="report"></div>
 
  <div class="card noPrint"><div class="body">
@@ -213,6 +215,9 @@ function renderSigorta(d){
 }
 function renderAll(){
  const d=data(),renderers={genel:renderGenel,finans:renderFinans,cari:renderCari,kasa:renderKasa,servis:renderServis,stok:renderStok,personel:renderPersonel,sigorta:renderSigorta};
+ const titles={genel:"Genel Yönetim Raporu",finans:"Gelir · Gider · Kârlılık Raporu",cari:"Cari · Tahsilat Raporu",kasa:"Kasa · Banka · POS Raporu",servis:"Servis · İş Emri Raporu",stok:"Parça · Stok Raporu",personel:"Personel · Usta Raporu",sigorta:"Hasar · Sigorta Raporu"};
+ const from=document.getElementById("fromDate").value||"Başlangıç",to=document.getElementById("toDate").value||"Bugün";
+ if(window.MAUFirma)MAUFirma.apply("firmaRaporBaslik",titles[activeTab]||"Rapor",from+" - "+to);
  document.getElementById("report").innerHTML=renderers[activeTab](d)
 }
 function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
@@ -222,11 +227,12 @@ function exportCsv(){
  a.href=URL.createObjectURL(blob);a.download="MAU-Rapor-"+activeTab+"-"+today()+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
 }
 async function shareReport(){
- const title="MAU Oto Servis · "+document.querySelector('.tab.on').textContent.trim();
+ const _fs=window.MAUFirma?MAUFirma.get():{};const title=(_fs.firmaAdi||"Firma")+" · "+document.querySelector('.tab.on').textContent.trim();
  const text=title+"\nTarih: "+(document.getElementById("fromDate").value||"Başlangıç")+" - "+(document.getElementById("toDate").value||"Bugün");
  if(navigator.share){try{await navigator.share({title,text});return}catch(e){}}
  try{await navigator.clipboard.writeText(text);alert("Rapor özeti panoya kopyalandı.")}catch(e){alert(text)}
 }
+window.addEventListener("storage",function(e){if(e.key==="mau_ayarlar")renderAll()});
 setRange("month");
 </script>
 </body>
