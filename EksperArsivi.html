@@ -134,6 +134,27 @@ async function existingFingerprints(all){
  if(changed)saveMeta(all);
  return set
 }
+async function cleanupExactDuplicates(){
+ const all=metaAll(),rows=all.filter(x=>String(x.claimId)===String(claimId))
+  .sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||""))||Number(a.order||0)-Number(b.order||0));
+ const seen=new Map(),removeIds=[],removeSet=new Set();let changed=false;
+ for(const m of rows){
+  let fp=String(m.fingerprint||"").trim();
+  if(!fp){
+   try{const r=await dbGet(m.id);if(r&&r.blob){fp=await blobFingerprint(r.blob);m.fingerprint=fp;changed=true}}catch(e){}
+  }
+  if(!fp)continue;
+  const key=[fp,String(m.category||""),String(m.stage||"")].join("|");
+  if(seen.has(key)){removeIds.push(m.id);removeSet.add(m.id)}else seen.set(key,m.id)
+ }
+ if(removeIds.length){
+  for(const id of removeIds){try{await dbDelete(id)}catch(e){}}
+  saveMeta(all.filter(x=>!removeSet.has(x.id)));
+  return removeIds.length
+ }
+ if(changed)saveMeta(all);
+ return 0
+}
 async function saveFiles(){
  if(window.MAULicense&&!MAULicense.requireWrite())return;
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
@@ -283,7 +304,8 @@ async function runArchiveSelfTest(){
   out.className="warn";out.innerHTML="<b>TEST HATASI</b><br>"+esc(e.message||e)
  }
 }
-fillCats();renderClaim();render();
+fillCats();renderClaim();
+(async()=>{const removed=await cleanupExactDuplicates();render();if(removed)alert(removed+" eski mükerrer arşiv kaydı temizlendi. En eski kayıt korundu.")})().catch(()=>render());
 </script>
 </body>
 </html>
