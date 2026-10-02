@@ -99,45 +99,20 @@ body{
   margin-bottom:4px;
 }
 
-/* ARAMA */
+/* HIZLI ARAÇ KAYIT */
 .toolbar{
-  margin:16px 18px;
+  margin:10px 18px 12px;
   display:grid;
-  grid-template-columns:70px 210px;
-  justify-content:end;
-  gap:10px;
+  grid-template-columns:1fr;
 }
 
-.search{
-  height:52px;
-  background:white;
-  border:1px solid #d5dce5;
-  border-radius:10px;
-  padding:0 16px;
-  color:#172943;
-  font-size:15px;
-  width:100%;
-  outline:none;
-}
-.search:focus{border-color:#1976d2;box-shadow:0 0 0 2px #1976d222}
-
-.qr,
 .accept{
-  height:52px;
+  min-height:52px;
   border-radius:10px;
   display:flex;
   align-items:center;
   justify-content:center;
   font-weight:bold;
-}
-
-.qr{
-  background:white;
-  border:1px solid #d5dce5;
-  font-size:25px;
-}
-
-.accept{
   background:#13a05a;
   color:white;
   font-size:15px;
@@ -343,11 +318,12 @@ body{
   }
 
   .toolbar{
-    grid-template-columns:1fr 58px;
+    grid-template-columns:1fr;
+    margin-top:8px;
   }
 
   .accept{
-    grid-column:1 / -1;
+    grid-column:auto;
   }
 
   .menu-card{
@@ -411,7 +387,6 @@ body{
   </header>
 
   <section class="toolbar">
-    <div class="qr">▦</div>
     <div class="accept" onclick="window.location.href='Araclar.html'">＋ Araç Kayıt</div>
   </section>
 
