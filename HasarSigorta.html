@@ -29,6 +29,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
 @media print{body>*:not(#report){display:none!important}#report{display:block!important;position:static;padding:0}.reportTop{display:none}.reportWrap{max-width:none}}
 </style>
 <script src="lisans.js"></script>
+<script src="firma.js"></script>
 </head>
 <body>
 <header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Hasar · Sigorta · Eksper Dosya Takibi</div></div></div></header>
@@ -256,13 +257,13 @@ function renderList(){
 }
 function reportHtml(x){
  const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["Kaza Tespit Tutanağı",ev.kazaTutanagi],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
- return '<h2>MAU OTO SERVİS</h2><h3>Hasar & Sigorta Dosyası</h3><p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+(x.dosyaSaati?' '+esc(x.dosyaSaati):'')+' · '+esc(x.durum||"")+'</p>'+
+ return (window.MAUFirma?MAUFirma.header("HASAR & SİGORTA DOSYASI","Dosya No: "+(x.dosyaNo||"-")):'<h2>Hasar & Sigorta Dosyası</h2>')+'<p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+(x.dosyaSaati?' '+esc(x.dosyaSaati):'')+' · '+esc(x.durum||"")+'</p>'+
  '<table><tr><th>Plaka</th><td>'+esc(x.plaka||"-")+'</td><th>Müşteri</th><td>'+esc(x.cariAdi||"-")+'</td></tr><tr><th>Sigorta</th><td>'+esc(x.sigortaSirketi||x.sigorta||"-")+'</td><th>Poliçe</th><td>'+esc(x.policeNo||"-")+'</td></tr><tr><th>Sigorta Dosya No</th><td>'+esc(x.sigortaDosyaNo||"-")+'</td><th>Eksper</th><td>'+esc([x.eksperFirma,x.eksper].filter(Boolean).join(" / ")||"-")+'</td></tr><tr><th>Olay Tarihi</th><td><b>'+esc(x.olayTarihi||"Girilmedi")+'</b></td><th>Olay Saati</th><td><b>'+esc(x.olaySaati||"Girilmedi")+'</b></td></tr><tr><th>Olay Yeri</th><td colspan="3">'+esc(x.olayYeri||"-")+'</td></tr></table>'+
  '<h4>Hasar Açıklaması</h4><p>'+esc(x.hasarAciklama||"-")+'</p><h4>Eksper / Ön Tespit Notu</h4><p>'+esc(x.eksperNotu||"-")+'</p>'+
  '<h4>Evrak Kontrolü</h4><table><tr><th>Evrak</th><th>Durum</th></tr>'+docs+'</table>'+
  '<h4>Mali / Ekspertiz Özeti</h4><table><tr><th>Servis Ön Tahmin</th><th>Parça</th><th>İşçilik</th><th>Sarf</th></tr><tr><td>'+money(x.servisOnTahmin)+'</td><td>'+money(x.parcaToplam)+'</td><td>'+money(x.iscilikToplam)+'</td><td>'+money(x.sarfToplam)+'</td></tr><tr><th>Parça İskonto</th><th>İşçilik İskonto</th><th>Sovtaj</th><th>KDV</th></tr><tr><td>'+money(x.parcaIskonto)+'</td><td>'+money(x.iscilikIskonto)+'</td><td>'+money(x.sovtaj)+'</td><td>'+money(x.kdvTutar)+'</td></tr><tr><th>Genel Hasar</th><th>Eksper Tespit</th><th>Sigorta Onaylanan</th><th>Müşteri Payı</th></tr><tr><td>'+money(x.genelHasarToplam)+'</td><td>'+money(x.eksperTespitTutar)+'</td><td>'+money(x.sigortaOnaylananTutar)+'</td><td>'+money(x.musteriPayi)+'</td></tr><tr><th>Net Sigorta</th><th>Ödenen</th><th>Kalan Alacak</th><th>Karar</th></tr><tr><td>'+money(x.netSigortaTutar)+'</td><td>'+money(x.sigortaOdenenTutar)+'</td><td>'+money(x.kalanSigortaAlacagi)+'</td><td>'+esc(x.hasarKarari||"-")+'</td></tr></table>'+
  '<p><b>Ağır/Tam Hasar Değerlendirmesi:</b> '+(x.agirHasarDegerlendirme?"Evet":"Hayır")+' · <b>Rayiç:</b> '+money(x.rayicDeger)+' · <b>Onarım/Rayiç:</b> '+(Number(x.onarimRayicOrani||0).toLocaleString("tr-TR",{maximumFractionDigits:2}))+'%</p>'+
- '<p class="note">Dosya adları: '+esc((x.dosyaAdlari||[]).join(", ")||"-")+'</p><p class="note">MAU Oto Servis · '+new Date().toLocaleString("tr-TR")+'</p>'
+ '<p class="note">Dosya adları: '+esc((x.dosyaAdlari||[]).join(", ")||"-")+'</p>'+(window.MAUFirma?MAUFirma.footer():"")
 }
 function printClaim(id){const x=load(CLAIM_KEY).find(a=>String(a.id)===String(id));if(!x)return;document.getElementById("reportBody").innerHTML=reportHtml(x);document.getElementById("report").style.display="block";window.scrollTo(0,0)}
 function printActive(){if(editId!=null){printClaim(editId);return}alert("Önce dosyayı kaydedin veya listeden PDF / Yazdır seçin.")}
