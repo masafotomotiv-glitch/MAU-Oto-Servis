@@ -204,7 +204,7 @@ async function makeZip(entries){
  const centralData=concat(centrals),localData=concat(locals),end=concat([u32(0x06054b50),u16(0),u16(0),u16(entries.length),u16(entries.length),u32(centralData.length),u32(localData.length),u16(0)]);
  return new Blob([localData,centralData,end],{type:"application/zip"})
 }
-function bytesToBase64(bytes){let out="";const step=0x8000;for(let i=0;i<bytes.length;i+=step){const sub=bytes.subarray(i,Math.min(i+step,bytes.length));let s="";for(let j=0;j<sub.length;j++)s+=String.fromCharCode(sub[j]);out+=btoa(s)}return out}
+function bytesToBase64(bytes){let out="";const step=0x6000;for(let i=0;i<bytes.length;i+=step){const sub=bytes.subarray(i,Math.min(i+step,bytes.length));let s="";for(let j=0;j<sub.length;j++)s+=String.fromCharCode(sub[j]);out+=btoa(s)}return out}
 async function saveBlob(blob,fileName,mime){
  if(window.MAUAndroid&&typeof window.MAUAndroid.beginBinarySave==="function"&&typeof window.MAUAndroid.appendBinaryChunk==="function"&&typeof window.MAUAndroid.finishBinarySave==="function"){
   const bytes=new Uint8Array(await blob.arrayBuffer()),chunk=196608;
