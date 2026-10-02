@@ -4,385 +4,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAU Oto Servis - Cariler</title>
-
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,sans-serif;
- background:#f3f6fb;
- color:#1f2937
-}
-header{
- background:linear-gradient(135deg,#0874d1,#083fa7);
- color:white;
- padding:18px
-}
-.head{
- max-width:1200px;
- margin:auto;
- display:flex;
- align-items:center;
- gap:12px
-}
-.back{
- background:#ffffff18;
- border:0;
- color:white;
- width:42px;
- height:42px;
- border-radius:10px;
- font-size:22px
-}
-.logo{font-size:23px;font-weight:800}
-.sub{font-size:13px;opacity:.85;margin-top:3px}
+:root{--blue:#0874d1;--blue2:#083fa7;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--green:#08a451;--red:#c12738}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:18px}
+.head,.detailTop{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}
+.back{background:#ffffff18;border:0;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}
+.logo{font-size:23px;font-weight:800}.sub{font-size:13px;opacity:.85;margin-top:3px}
 .container{max-width:1200px;margin:auto;padding:18px}
-
-.toolbar{
- display:flex;
- gap:10px;
- margin-bottom:12px
-}
-.search{
- flex:1;
- padding:14px;
- border:1px solid #d8e0ea;
- border-radius:12px;
- font-size:15px
-}
-.add{
- border:0;
- background:#08a451;
- color:white;
- font-weight:700;
- padding:0 20px;
- border-radius:12px
-}
-
-.tabs{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
- margin:12px 0
-}
-.tab{
- border:0;
- background:white;
- padding:11px 16px;
- border-radius:22px;
- box-shadow:0 2px 8px #0000000c
-}
-.tab.on{background:#0874d1;color:white}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:10px;
- margin:15px 0
-}
-.stat{
- background:white;
- border-radius:13px;
- padding:14px;
- text-align:center;
- box-shadow:0 2px 10px #0000000b
-}
-.stat b{
- display:block;
- font-size:24px;
- color:#0864b8
-}
-.stat span{font-size:13px;color:#64748b}
-
-.card{
- background:white;
- border-radius:15px;
- padding:17px;
- margin-bottom:12px;
- box-shadow:0 3px 14px #0000000c
-}
-.name{font-size:19px;font-weight:800}
-.code{font-size:12px;color:#7b8794;margin:5px 0}
-.badges{margin:8px 0}
-.badge{
- display:inline-block;
- background:#e9f3ff;
- color:#075ca8;
- padding:5px 9px;
- margin:2px;
- border-radius:10px;
- font-size:12px
-}
-.badge.type{background:#e8f7ef;color:#087840}
-.info{font-size:13px;line-height:1.7;color:#536170}
-
-.actions{
- display:grid;
- grid-template-columns:1fr 1fr 1fr 1fr;
- gap:7px;
- margin-top:13px
-}
-.actions button{
- border:0;
- padding:11px 5px;
- border-radius:9px;
- font-weight:700
-}
-.open{background:#0874d1;color:white}
-.edit{background:#eaf2ff;color:#0756a5}
-.pass{background:#fff2df;color:#9b6200}
-.del{background:#ffe8eb;color:#a21c2b}
-
-.empty{
- background:white;
- text-align:center;
- padding:50px 15px;
- border-radius:15px;
- color:#64748b
-}
-
-/* CARİ FORMU */
-.modal{
- display:none;
- position:fixed;
- inset:0;
- background:#0008;
- z-index:1000;
- overflow:auto;
- padding:15px
-}
-.box{
- max-width:760px;
- background:white;
- margin:20px auto;
- border-radius:16px;
- overflow:hidden
-}
-.boxHead{
- background:#0874d1;
- color:white;
- padding:17px;
- font-size:19px;
- font-weight:800;
- display:flex;
- justify-content:space-between
-}
+.toolbar{display:flex;gap:10px;margin-bottom:12px}
+.search{flex:1;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px}
+.add{border:0;background:var(--green);color:#fff;font-weight:700;padding:0 20px;border-radius:12px}
+.tabs,.detailTabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.tab,.dtab{border:0;background:#fff;padding:11px 16px;border-radius:22px;box-shadow:0 2px 8px #0000000c}
+.tab.on,.dtab.on{background:var(--blue);color:#fff}
+.stats,.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
+.stat,.sum{background:#fff;border-radius:13px;padding:14px;box-shadow:0 2px 10px #0000000b}
+.stat{text-align:center}.stat b{display:block;font-size:24px;color:#0864b8}.stat span,.sum span{font-size:13px;color:var(--muted)}
+.sum b{display:block;font-size:20px;margin-top:5px}
+.green{color:#078744}.red{color:var(--red)}.blue{color:#0864b8}
+.card{background:#fff;border-radius:15px;padding:17px;margin-bottom:12px;box-shadow:0 3px 14px #0000000c}
+.name{font-size:19px;font-weight:800}.code{font-size:12px;color:#7b8794;margin:5px 0}
+.badges{margin:8px 0}.badge{display:inline-block;background:#e9f3ff;color:#075ca8;padding:5px 9px;margin:2px;border-radius:10px;font-size:12px}
+.badge.type{background:#e8f7ef;color:#087840}.info{font-size:13px;line-height:1.7;color:#536170}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}
+.actions button{border:0;padding:11px 5px;border-radius:9px;font-weight:700}
+.open{background:var(--blue);color:#fff}.edit{background:#eaf2ff;color:#0756a5}.pass{background:#fff2df;color:#9b6200}.del{background:#ffe8eb;color:#a21c2b}
+.empty{background:#fff;text-align:center;padding:50px 15px;border-radius:15px;color:var(--muted)}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:1000;overflow:auto;padding:15px}
+.box{max-width:760px;background:#fff;margin:20px auto;border-radius:16px;overflow:hidden}
+.boxHead{background:var(--blue);color:#fff;padding:17px;font-size:19px;font-weight:800;display:flex;justify-content:space-between}
 .boxBody{padding:17px}
-
-.typeRow{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px;
- margin:10px 0
-}
-.typeBtn{
- border:1px solid #d8e0ea;
- background:white;
- padding:14px;
- border-radius:10px
-}
-.typeBtn.selected{
- border:2px solid #0874d1;
- background:#f1f7ff
-}
-
-.roleGrid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:8px;
- margin:10px 0 18px
-}
-.role{
- border:1px solid #e0e6ed;
- padding:12px;
- border-radius:9px
-}
-
-.formGrid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px
-}
-.field{margin-bottom:11px}
-.field.full{grid-column:1/-1}
-label{
- display:block;
- font-size:12px;
- font-weight:700;
- margin-bottom:5px;
- color:#4c5968
-}
-input,textarea,select{
- width:100%;
- border:1px solid #d9e1ea;
- padding:12px;
- border-radius:9px;
- font-size:14px
-}
-textarea{min-height:75px}
-.save{
- width:100%;
- background:#09a44f;
- color:white;
- border:0;
- padding:14px;
- border-radius:10px;
- font-size:16px;
- font-weight:800
-}
-
-/* CARİ DETAY */
-.detail{
- display:none;
- position:fixed;
- inset:0;
- background:#f3f6fb;
- z-index:900;
- overflow:auto
-}
-.detailHead{
- background:linear-gradient(135deg,#0874d1,#083fa7);
- color:white;
- padding:16px
-}
-.detailTop{
- max-width:1200px;
- margin:auto;
- display:flex;
- align-items:center;
- gap:12px
-}
-.detailTitle{font-size:21px;font-weight:800}
-.detailCode{font-size:12px;opacity:.85}
-
-.summary{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:10px;
- margin:15px 0
-}
-.sum{
- background:white;
- padding:14px;
- border-radius:13px;
- box-shadow:0 2px 10px #0000000c
-}
-.sum span{
- font-size:12px;
- color:#64748b
-}
-.sum b{
- display:block;
- font-size:20px;
- margin-top:5px
-}
-.green{color:#078744}
-.red{color:#c12738}
-.blue{color:#0864b8}
-
-.detailTabs{
- display:flex;
- overflow:auto;
- gap:7px;
- margin:12px 0;
- padding-bottom:4px
-}
-.dtab{
- white-space:nowrap;
- border:0;
- background:white;
- padding:11px 14px;
- border-radius:9px
-}
-.dtab.on{
- background:#0874d1;
- color:white
-}
-
-.panel{
- background:white;
- border-radius:14px;
- padding:16px;
- min-height:260px;
- box-shadow:0 2px 12px #0000000b
-}
-.panelTitle{
- font-size:18px;
- font-weight:800;
- margin-bottom:13px
-}
-
-.quick{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
- margin-bottom:14px
-}
-.quick button{
- border:0;
- background:#eaf3ff;
- color:#075ba8;
- padding:10px 13px;
- border-radius:8px;
- font-weight:700
-}
-.quick .pdf{
- background:#ffe9ec;
- color:#a11e30
-}
-
-.tableWrap{overflow:auto}
-table{
- width:100%;
- border-collapse:collapse;
- min-width:650px
-}
-th,td{
- text-align:left;
- border-bottom:1px solid #edf0f3;
- padding:11px 8px;
- font-size:13px
-}
-th{background:#f7f9fc}
-
-.miniForm{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:8px;
- background:#f7f9fc;
- padding:12px;
- border-radius:10px;
- margin-bottom:14px
-}
-.miniForm button{
- border:0;
- background:#0874d1;
- color:white;
- border-radius:8px;
- font-weight:700
-}
-
-.overviewGrid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:12px
-}
-.overCard{
- border:1px solid #e8edf2;
- border-radius:12px;
- padding:14px
-}
-.overCard h3{margin:0 0 10px;font-size:15px}
-
-@media(max-width:700px){
- .stats,.summary{grid-template-columns:1fr 1fr}
- .actions{grid-template-columns:1fr 1fr}
- .formGrid,.roleGrid,.overviewGrid{grid-template-columns:1fr}
- .miniForm{grid-template-columns:1fr 1fr}
-}
+.typeRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.typeBtn{border:1px solid var(--line);background:#fff;padding:14px;border-radius:10px}
+.typeBtn.selected{border:2px solid var(--blue);background:#f1f7ff}
+.roleGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 18px}
+.role{border:1px solid #e0e6ed;padding:12px;border-radius:9px}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:11px}.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#4c5968}
+input,textarea,select{width:100%;border:1px solid var(--line);padding:12px;border-radius:9px;font-size:14px}
+textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0;padding:14px;border-radius:10px;font-size:16px;font-weight:800}
+.detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;overflow:auto}
+.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:16px}
+.detailTitle{font-size:21px;font-weight:800}.detailCode{font-size:12px;opacity:.85}
+.detailTabs{overflow:auto;flex-wrap:nowrap;padding-bottom:4px}.dtab{white-space:nowrap;border-radius:9px}
+.panel{background:#fff;border-radius:14px;padding:16px;min-height:260px;box-shadow:0 2px 12px #0000000b}
+.panelTitle{font-size:18px;font-weight:800;margin-bottom:13px}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.quick button{border:0;background:#eaf3ff;color:#075ba8;padding:10px 13px;border-radius:8px;font-weight:700}.quick .pdf{background:#ffe9ec;color:#a11e30}
+.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;border-bottom:1px solid #edf0f3;padding:11px 8px;font-size:13px}th{background:#f7f9fc}
+.miniForm{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#f7f9fc;padding:12px;border-radius:10px;margin-bottom:14px}.miniForm button{border:0;background:var(--blue);color:#fff;border-radius:8px;font-weight:700;min-height:42px}
+.overviewGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.overCard{border:1px solid #e8edf2;border-radius:12px;padding:14px}.overCard h3{margin:0 0 10px;font-size:15px}
+.note{padding:12px;border-radius:10px;background:#f7f9fc;color:#52606d}
+@media(max-width:700px){.stats,.summary{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.formGrid,.roleGrid,.overviewGrid{grid-template-columns:1fr}.miniForm{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -396,12 +74,8 @@ th{background:#f7f9fc}
 </header>
 
 <div class="container">
-
  <div class="toolbar">
-  <input id="search" class="search"
-   placeholder="Ad, firma, telefon, vergi no, cari kodu ara..."
-   oninput="render()">
-
+  <input id="search" class="search" placeholder="Ad, firma, telefon, vergi no, cari kodu ara..." oninput="render()">
   <button class="add" onclick="openForm()">+ Yeni Cari</button>
  </div>
 
@@ -423,522 +97,501 @@ th{background:#f7f9fc}
  <div id="list"></div>
 </div>
 
-<!-- YENİ / DÜZENLE CARİ -->
 <div id="modal" class="modal">
  <div class="box">
-
-  <div class="boxHead">
-   <span id="formTitle">Yeni Cari Kartı</span>
-   <span onclick="closeForm()" style="cursor:pointer">×</span>
-  </div>
-
+  <div class="boxHead"><span id="formTitle">Yeni Cari Kartı</span><span onclick="closeForm()" style="cursor:pointer">×</span></div>
   <div class="boxBody">
-
    <b>Cari Tipi</b>
-
    <div class="typeRow">
-    <button id="b1" class="typeBtn selected"
-     onclick="selectType('Bireysel')">👤 Bireysel</button>
-
-    <button id="b2" class="typeBtn"
-     onclick="selectType('Kurumsal')">🏢 Kurumsal</button>
+    <button id="b1" class="typeBtn selected" onclick="selectType('Bireysel')">👤 Bireysel</button>
+    <button id="b2" class="typeBtn" onclick="selectType('Kurumsal')">🏢 Kurumsal</button>
    </div>
 
    <b>Cari Rolü</b>
-
    <div class="roleGrid">
-    <label class="role">
-     <input type="checkbox" class="roleC" value="Müşteri">
-     Müşteri
-    </label>
-
-    <label class="role">
-     <input type="checkbox" class="roleC" value="Tedarikçi">
-     Tedarikçi
-    </label>
-
-    <label class="role">
-     <input type="checkbox" class="roleC" value="Sigorta Şirketi">
-     Sigorta Şirketi
-    </label>
-
-    <label class="role">
-     <input type="checkbox" class="roleC" value="Eksper Firması">
-     Eksper Firması
-    </label>
+    <label class="role"><input type="checkbox" class="roleC" value="Müşteri"> Müşteri</label>
+    <label class="role"><input type="checkbox" class="roleC" value="Tedarikçi"> Tedarikçi</label>
+    <label class="role"><input type="checkbox" class="roleC" value="Sigorta Şirketi"> Sigorta Şirketi</label>
+    <label class="role"><input type="checkbox" class="roleC" value="Eksper Firması"> Eksper Firması</label>
    </div>
 
    <div class="formGrid">
-
-    <div class="field full">
-     <label id="nameLabel">Ad Soyad</label>
-     <input id="name" placeholder="Ad Soyad">
-    </div>
-
-    <div class="field" id="tcBox">
-     <label>T.C. Kimlik No</label>
-     <input id="tc">
-    </div>
-
-    <div class="field" id="vdBox" style="display:none">
-     <label>Vergi Dairesi</label>
-     <input id="vd">
-    </div>
-
-    <div class="field" id="vnBox" style="display:none">
-     <label>Vergi No</label>
-     <input id="vn">
-    </div>
-
-    <div class="field" id="yetBox" style="display:none">
-     <label>Yetkili Kişi</label>
-     <input id="yet">
-    </div>
-
-    <div class="field">
-     <label>Telefon</label>
-     <input id="tel" placeholder="05xx xxx xx xx">
-    </div>
-
-    <div class="field">
-     <label>E-posta</label>
-     <input id="mail">
-    </div>
-
-    <div class="field full">
-     <label>Adres</label>
-     <textarea id="adres"></textarea>
-    </div>
-
-    <div class="field full">
-     <label>Notlar</label>
-     <textarea id="notlar" placeholder="Cari hakkında not..."></textarea>
-    </div>
-
+    <div class="field full"><label id="nameLabel">Ad Soyad</label><input id="name" placeholder="Ad Soyad"></div>
+    <div class="field" id="tcBox"><label>T.C. Kimlik No</label><input id="tc"></div>
+    <div class="field" id="vdBox" style="display:none"><label>Vergi Dairesi</label><input id="vd"></div>
+    <div class="field" id="vnBox" style="display:none"><label>Vergi No</label><input id="vn"></div>
+    <div class="field" id="yetBox" style="display:none"><label>Yetkili Kişi</label><input id="yet"></div>
+    <div class="field"><label>Telefon</label><input id="tel" placeholder="05xx xxx xx xx"></div>
+    <div class="field"><label>E-posta</label><input id="mail"></div>
+    <div class="field full"><label>Adres</label><textarea id="adres"></textarea></div>
+    <div class="field full"><label>Notlar</label><textarea id="notlar" placeholder="Cari hakkında not..."></textarea></div>
    </div>
 
-   <button class="save" onclick="saveCari()">
-    ✓ Cari Kartını Kaydet
-   </button>
-
+   <button class="save" onclick="saveCari()">✓ Cari Kartını Kaydet</button>
   </div>
  </div>
 </div>
 
-<!-- CARİ DETAY -->
 <div id="detail" class="detail">
-
  <div class="detailHead">
   <div class="detailTop">
-
    <button class="back" onclick="closeDetail()">‹</button>
-
    <div>
     <div id="detailName" class="detailTitle"></div>
     <div id="detailCode" class="detailCode"></div>
    </div>
-
   </div>
  </div>
 
  <div class="container">
-
   <div class="summary">
-
-   <div class="sum">
-    <span>Toplam Borç</span>
-    <b class="red" id="sumBorc">0,00 ₺</b>
-   </div>
-
-   <div class="sum">
-    <span>Toplam Alacak</span>
-    <b class="green" id="sumAlacak">0,00 ₺</b>
-   </div>
-
-   <div class="sum">
-    <span>Bakiye</span>
-    <b class="blue" id="sumBakiye">0,00 ₺</b>
-   </div>
-
-   <div class="sum">
-    <span>Araç Sayısı</span>
-    <b id="sumArac">0</b>
-   </div>
-
+   <div class="sum"><span>Toplam Borç</span><b class="red" id="sumBorc">0,00 ₺</b></div>
+   <div class="sum"><span>Toplam Alacak</span><b class="green" id="sumAlacak">0,00 ₺</b></div>
+   <div class="sum"><span>Bakiye</span><b class="blue" id="sumBakiye">0,00 ₺</b></div>
+   <div class="sum"><span>Araç Sayısı</span><b id="sumArac">0</b></div>
   </div>
 
   <div class="detailTabs">
-   <button class="dtab on"
-    onclick="showPanel('ozet',this)">Genel Bakış</button>
-
-   <button class="dtab"
-    onclick="showPanel('araclar',this)">Araçlar</button>
-
-   <button class="dtab"
-    onclick="showPanel('hareket',this)">Cari Hareketler</button>
-
-   <button class="dtab"
-    onclick="showPanel('isemri',this)">İş Emirleri</button>
-
-   <button class="dtab"
-    onclick="showPanel('fatura',this)">Faturalar</button>
-
-   <button class="dtab"
-    onclick="showPanel('hasar',this)">Hasar & Sigorta</button>
-
-   <button class="dtab"
-    onclick="showPanel('belge',this)">Belgeler</button>
-
-   <button class="dtab"
-    onclick="showPanel('not',this)">Notlar</button>
+   <button class="dtab on" data-panel="ozet" onclick="showPanel('ozet')">Genel Bakış</button>
+   <button class="dtab" data-panel="araclar" onclick="showPanel('araclar')">Araçlar</button>
+   <button class="dtab" data-panel="hareket" onclick="showPanel('hareket')">Cari Hareketler</button>
+   <button class="dtab" data-panel="isemri" onclick="showPanel('isemri')">İş Emirleri</button>
+   <button class="dtab" data-panel="fatura" onclick="showPanel('fatura')">Faturalar</button>
+   <button class="dtab" data-panel="hasar" onclick="showPanel('hasar')">Hasar & Sigorta</button>
+   <button class="dtab" data-panel="belge" onclick="showPanel('belge')">Belgeler</button>
+   <button class="dtab" data-panel="not" onclick="showPanel('not')">Notlar</button>
   </div>
 
   <div id="panel" class="panel"></div>
-
  </div>
 </div>
 
 <script>
+function loadArray(key){
+ try{
+  var v=JSON.parse(localStorage.getItem(key)||"[]");
+  return Array.isArray(v)?v:[];
+ }catch(e){
+  console.error(key+" okunamadı",e);
+  return [];
+ }
+}
 
-/* ================================
-   VERİTABANI - LOCAL STORAGE
-================================ */
+var cariler=loadArray("mau_cariler");
+var hareketler=loadArray("mau_cari_hareketler");
+var araclar=loadArray("mau_cari_araclar");
 
-let cariler =
-JSON.parse(localStorage.getItem("mau_cariler") || "[]");
-
-let hareketler =
-JSON.parse(localStorage.getItem("mau_cari_hareketler") || "[]");
-
-let araclar =
-JSON.parse(localStorage.getItem("mau_cari_araclar") || "[]");
-
-let currentFilter="Tümü";
-let currentType="Bireysel";
-let editId=null;
-let activeCari=null;
-
-
-/* ================================
-   KAYIT
-================================ */
+var currentFilter="Tümü";
+var currentType="Bireysel";
+var editId=null;
+var activeCari=null;
 
 function saveAll(){
-
- localStorage.setItem(
-  "mau_cariler",
-  JSON.stringify(cariler)
- );
-
- localStorage.setItem(
-  "mau_cari_hareketler",
-  JSON.stringify(hareketler)
- );
-
- localStorage.setItem(
-  "mau_cari_araclar",
-  JSON.stringify(araclar)
- );
+ localStorage.setItem("mau_cariler",JSON.stringify(cariler));
+ localStorage.setItem("mau_cari_hareketler",JSON.stringify(hareketler));
+ localStorage.setItem("mau_cari_araclar",JSON.stringify(araclar));
 }
-
-
-/* ================================
-   PARA
-================================ */
 
 function money(n){
-
- return Number(n||0).toLocaleString(
-  "tr-TR",
-  {
-   minimumFractionDigits:2,
-   maximumFractionDigits:2
-  }
- )+" ₺";
-
+ return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";
 }
-
-
-/* ================================
-   GÜVENLİ METİN
-================================ */
 
 function esc(v){
-
- return String(v||"")
- .replace(/&/g,"&amp;")
- .replace(/</g,"&lt;")
- .replace(/>/g,"&gt;");
-
+ return String(v==null?"":v)
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;");
 }
-
-
-/* ================================
-   CARİ KODU
-================================ */
 
 function codeCreate(){
-
- let max=0;
-
- cariler.forEach(c=>{
-
-  let n=parseInt(
-   (c.code||"").replace(/\D/g,"")
-  );
-
-  if(n>max) max=n;
-
+ var max=0;
+ cariler.forEach(function(c){
+  var n=parseInt((c.code||"").replace(/\D/g,""),10);
+  if(Number.isFinite(n)&&n>max)max=n;
  });
-
  return "CR-"+String(max+1).padStart(5,"0");
-
 }
-
-
-/* ================================
-   BİREYSEL / KURUMSAL
-================================ */
 
 function selectType(type){
-
  currentType=type;
-
- document
- .getElementById("b1")
- .classList.toggle(
-  "selected",
-  type==="Bireysel"
- );
-
- document
- .getElementById("b2")
- .classList.toggle(
-  "selected",
-  type==="Kurumsal"
- );
-
- let k=type==="Kurumsal";
-
- document.getElementById("nameLabel").innerText=
- k ? "Firma / Ticari Unvan" : "Ad Soyad";
-
- document.getElementById("name").placeholder=
- k ? "Firma veya ticari unvan" : "Ad Soyad";
-
- document.getElementById("tcBox").style.display=
- k ? "none" : "block";
-
- document.getElementById("vdBox").style.display=
- k ? "block" : "none";
-
- document.getElementById("vnBox").style.display=
- k ? "block" : "none";
-
- document.getElementById("yetBox").style.display=
- k ? "block" : "none";
-
+ document.getElementById("b1").classList.toggle("selected",type==="Bireysel");
+ document.getElementById("b2").classList.toggle("selected",type==="Kurumsal");
+ var k=type==="Kurumsal";
+ document.getElementById("nameLabel").innerText=k?"Firma / Ticari Unvan":"Ad Soyad";
+ document.getElementById("name").placeholder=k?"Firma veya ticari unvan":"Ad Soyad";
+ document.getElementById("tcBox").style.display=k?"none":"block";
+ document.getElementById("vdBox").style.display=k?"block":"none";
+ document.getElementById("vnBox").style.display=k?"block":"none";
+ document.getElementById("yetBox").style.display=k?"block":"none";
 }
-
-
-/* ================================
-   FORM TEMİZLE
-================================ */
 
 function clearForm(){
-
- [
-  "name",
-  "tc",
-  "vd",
-  "vn",
-  "yet",
-  "tel",
-  "mail",
-  "adres",
-  "notlar"
- ]
- .forEach(id=>{
+ ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(id){
   document.getElementById(id).value="";
  });
-
- document
- .querySelectorAll(".roleC")
- .forEach(x=>{
-  x.checked=false;
- });
-
+ document.querySelectorAll(".roleC").forEach(function(x){x.checked=false;});
 }
 
+function findCari(id){
+ return cariler.find(function(x){return String(x.id)===String(id);});
+}
 
-/* ================================
-   CARİ FORMU AÇ
-================================ */
-
-function openForm(id=null){
-
+function openForm(id){
+ if(typeof id==="undefined")id=null;
  editId=id;
-
  clearForm();
 
- if(id){
-
-  let c=cariler.find(x=>x.id===id);
-
-  if(!c) return;
-
-  document.getElementById("formTitle").innerText=
-  "Cari Kartını Düzenle";
-
-  selectType(c.type);
-
-  [
-   "name",
-   "tc",
-   "vd",
-   "vn",
-   "yet",
-   "tel",
-   "mail",
-   "adres",
-   "notlar"
-  ]
-  .forEach(k=>{
-
-   document.getElementById(k).value=
-   c[k] || "";
-
+ if(id!==null){
+  var c=findCari(id);
+  if(!c)return;
+  document.getElementById("formTitle").innerText="Cari Kartını Düzenle";
+  selectType(c.type||"Bireysel");
+  ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(k){
+   document.getElementById(k).value=c[k]||"";
   });
-
-  document
-  .querySelectorAll(".roleC")
-  .forEach(x=>{
-
-   x.checked=
-   (c.roles||[]).includes(x.value);
-
+  document.querySelectorAll(".roleC").forEach(function(x){
+   x.checked=(c.roles||[]).includes(x.value);
   });
-
  }else{
-
-  document.getElementById("formTitle").innerText=
-  "Yeni Cari Kartı";
-
+  document.getElementById("formTitle").innerText="Yeni Cari Kartı";
   selectType("Bireysel");
-
  }
 
- document.getElementById("modal").style.display=
- "block";
-
+ document.getElementById("modal").style.display="block";
 }
-
-
-/* ================================
-   FORM KAPAT
-================================ */
 
 function closeForm(){
-
- document.getElementById("modal").style.display=
- "none";
-
+ document.getElementById("modal").style.display="none";
 }
 
-
-/* ================================
-   CARİ KAYDET
-================================ */
-
 function saveCari(){
+ var name=document.getElementById("name").value.trim();
+ var roles=Array.from(document.querySelectorAll(".roleC:checked")).map(function(x){return x.value;});
 
- let name=
- document.getElementById("name").value.trim();
+ if(!name){alert("Ad / Firma bilgisi giriniz.");return;}
+ if(!roles.length){alert("En az bir cari rolü seçiniz.");return;}
 
- let roles=[
-  ...document.querySelectorAll(".roleC:checked")
- ]
- .map(x=>x.value);
-
- if(!name){
-
-  alert("Ad / Firma bilgisi giriniz.");
-
-  return;
- }
-
- if(!roles.length){
-
-  alert("En az bir cari rolü seçiniz.");
-
-  return;
- }
-
- let old=
- editId
- ? cariler.find(x=>x.id===editId)
- : null;
-
- let data={
-
-  id:
-  editId || Date.now(),
-
-  code:
-  old ? old.code : codeCreate(),
-
-  type:
-  currentType,
-
-  roles:
-  roles,
-
-  name:
-  name,
-
-  tc:
-  document.getElementById("tc").value.trim(),
-
-  vd:
-  document.getElementById("vd").value.trim(),
-
-  vn:
-  document.getElementById("vn").value.trim(),
-
-  yet:
-  document.getElementById("yet").value.trim(),
-
-  tel:
-  document.getElementById("tel").value.trim(),
-
-  mail:
-  document.getElementById("mail").value.trim(),
-
-  adres:
-  document.getElementById("adres").value.trim(),
-
-  notlar:
-  document.getElementById("notlar").value.trim(),
-
-  active:
-  old ? old.active : true,
-
-  created:
-  old
-  ? old.created
-  : new Date().toISOString()
-
+ var old=editId!==null?findCari(editId):null;
+ var data={
+  id:old?old.id:Date.now(),
+  code:old?old.code:codeCreate(),
+  type:currentType,
+  roles:roles,
+  name:name,
+  tc:document.getElementById("tc").value.trim(),
+  vd:document.getElementById("vd").value.trim(),
+  vn:document.getElementById("vn").value.trim(),
+  yet:document.getElementById("yet").value.trim(),
+  tel:document.getElementById("tel").value.trim(),
+  mail:document.getElementById("mail").value.trim(),
+  adres:document.getElementById("adres").value.trim(),
+  notlar:document.getElementById("notlar").value.trim(),
+  active:old?old.active!==false:true,
+  created:old&&old.created?old.created:new Date().toISOString()
  };
 
- if(editId){
-
-  let i=
-  cariler.findIndex(
-   x=>x.id===editId
-  );
-
+ if(old){
+  var i=cariler.findIndex(function(x){return String(x.id)===String(old.id);});
   cariler[i]=data;
-
  }else{
+  cariler.unshift(data);
+ }
 
-  cariler
+ saveAll();
+ closeForm();
+ render();
+}
+
+function setFilter(f,btn){
+ currentFilter=f;
+ document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+ btn.classList.add("on");
+ render();
+}
+
+function toggleActive(id){
+ var c=findCari(id);
+ if(!c)return;
+ c.active=c.active===false;
+ saveAll();
+ render();
+}
+
+function deleteCari(id){
+ var c=findCari(id);
+ if(!c)return;
+
+ var hasMoves=hareketler.some(function(x){return String(x.cariId)===String(c.id);});
+ var hasCars=araclar.some(function(x){return String(x.cariId)===String(c.id);});
+ if(hasMoves||hasCars){
+  alert("Bu cariye bağlı hareket veya araç kaydı var. Veri kaybını önlemek için silmek yerine Pasife Al kullanın.");
+  return;
+ }
+
+ if(confirm(c.name+" cari kartı silinsin mi?")){
+  cariler=cariler.filter(function(x){return String(x.id)!==String(c.id);});
+  saveAll();
+  render();
+ }
+}
+
+function render(){
+ var q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
+
+ var filtered=cariler.filter(function(c){
+  var ok=currentFilter==="Tümü"||(c.roles||[]).includes(currentFilter);
+  var text=[c.code,c.name,c.tel,c.mail,c.tc,c.vn,c.vd,c.yet].concat(c.roles||[]).join(" ").toLocaleLowerCase("tr-TR");
+  return ok&&(!q||text.includes(q));
+ });
+
+ document.getElementById("m").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Müşteri");}).length;
+ document.getElementById("t").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Tedarikçi");}).length;
+ document.getElementById("s").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Sigorta Şirketi");}).length;
+ document.getElementById("e").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Eksper Firması");}).length;
+
+ var list=document.getElementById("list");
+ if(!filtered.length){
+  list.innerHTML='<div class="empty"><div style="font-size:42px">👥</div><h3>Cari kaydı bulunamadı</h3><div>İlk kayıt için <b>+ Yeni Cari</b> düğmesine basın.</div></div>';
+  return;
+ }
+
+ list.innerHTML=filtered.map(function(c){
+  var badges=(c.roles||[]).map(function(r){return '<span class="badge">'+esc(r)+'</span>';}).join("");
+  var info="";
+  if(c.tel)info+="📞 "+esc(c.tel)+"<br>";
+  if(c.mail)info+="✉️ "+esc(c.mail)+"<br>";
+  if(c.vn)info+="Vergi No: "+esc(c.vn)+"<br>";
+  if(c.yet)info+="Yetkili: "+esc(c.yet)+"<br>";
+  if(c.adres)info+="📍 "+esc(c.adres);
+
+  return '<div class="card" style="'+(c.active===false?'opacity:.55':'')+'">'+
+   '<div class="name">'+esc(c.name)+'</div>'+
+   '<div class="code">'+esc(c.code)+' • '+esc(c.type||"")+(c.active===false?' • PASİF':'')+'</div>'+
+   '<div class="badges">'+badges+'<span class="badge type">'+esc(c.type||"")+'</span></div>'+
+   '<div class="info">'+info+'</div>'+
+   '<div class="actions">'+
+    '<button class="open" onclick="openDetail(\''+String(c.id)+'\')">Cariyi Aç</button>'+
+    '<button class="edit" onclick="openForm(\''+String(c.id)+'\')">Düzenle</button>'+
+    '<button class="pass" onclick="toggleActive(\''+String(c.id)+'\')">'+(c.active===false?'Aktif Et':'Pasife Al')+'</button>'+
+    '<button class="del" onclick="deleteCari(\''+String(c.id)+'\')">Sil</button>'+
+   '</div>'+
+  '</div>';
+ }).join("");
+}
+
+function cariHareket(){
+ if(!activeCari)return[];
+ return hareketler.filter(function(h){return String(h.cariId)===String(activeCari.id);});
+}
+
+function cariArac(){
+ if(!activeCari)return[];
+ return araclar.filter(function(a){return String(a.cariId)===String(activeCari.id);});
+}
+
+function updateSummary(){
+ var hs=cariHareket();
+ var borc=hs.filter(function(x){return x.tip==="Borç";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+ var alacak=hs.filter(function(x){return x.tip==="Alacak";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+ document.getElementById("sumBorc").innerText=money(borc);
+ document.getElementById("sumAlacak").innerText=money(alacak);
+ document.getElementById("sumBakiye").innerText=money(borc-alacak);
+ document.getElementById("sumArac").innerText=cariArac().length;
+}
+
+function openDetail(id){
+ activeCari=findCari(id);
+ if(!activeCari)return;
+ document.getElementById("detailName").innerText=activeCari.name;
+ document.getElementById("detailCode").innerText=(activeCari.code||"")+" • "+(activeCari.type||"")+" • "+(activeCari.roles||[]).join(" / ");
+ document.getElementById("detail").style.display="block";
+ updateSummary();
+ showPanel("ozet");
+}
+
+function closeDetail(){
+ document.getElementById("detail").style.display="none";
+ activeCari=null;
+}
+
+function activateTab(type){
+ document.querySelectorAll(".dtab").forEach(function(x){
+  x.classList.toggle("on",x.getAttribute("data-panel")===type);
+ });
+}
+
+function showPanel(type){
+ activateTab(type);
+ if(type==="ozet")panelOzet();
+ else if(type==="araclar")panelArac();
+ else if(type==="hareket")panelHareket();
+ else if(type==="not")panelNot();
+ else if(type==="isemri")panelBos("İş Emirleri","Bu cariye bağlı iş emirleri burada listelenecek.");
+ else if(type==="fatura")panelBos("Faturalar","Alış ve satış faturaları burada listelenecek.");
+ else if(type==="hasar")panelBos("Hasar & Sigorta","Hasar dosyaları, sigorta ve eksper işlemleri burada listelenecek.");
+ else if(type==="belge")panelBos("Belgeler","PDF, fotoğraf, ruhsat, fatura ve diğer belgeler burada tutulacak.");
+}
+
+function panelOzet(){
+ var son=cariHareket().slice().sort(function(a,b){return Number(b.id||0)-Number(a.id||0);}).slice(0,5);
+ var sonHtml=son.length?son.map(function(h){
+  return '<div style="border-bottom:1px solid #eee;padding:7px 0"><b>'+esc(h.tip)+'</b> - '+money(h.tutar)+'<br><small>'+esc(h.tarih||"")+' • '+esc(h.aciklama||"")+'</small></div>';
+ }).join(""):"Henüz cari hareket yok.";
+
+ document.getElementById("panel").innerHTML=
+  '<div class="panelTitle">Cari Genel Bakış</div>'+
+  '<div class="quick">'+
+   '<button onclick="showPanel(\'hareket\')">+ Cari Hareket</button>'+
+   '<button onclick="showPanel(\'araclar\')">+ Araç</button>'+
+   '<button class="pdf" onclick="printCari()">📄 Cari Raporu / PDF</button>'+
+  '</div>'+
+  '<div class="overviewGrid">'+
+   '<div class="overCard"><h3>Cari Bilgileri</h3><b>'+esc(activeCari.name)+'</b><br><br>'+
+    'Cari Kodu: '+esc(activeCari.code||"-")+'<br>'+
+    'Telefon: '+esc(activeCari.tel||"-")+'<br>'+
+    'E-posta: '+esc(activeCari.mail||"-")+'<br>'+
+    'Vergi No: '+esc(activeCari.vn||"-")+'<br>'+
+    'Adres: '+esc(activeCari.adres||"-")+
+   '</div>'+
+   '<div class="overCard"><h3>Son Hareketler</h3>'+sonHtml+'</div>'+
+  '</div>';
+}
+
+function panelHareket(){
+ var hs=cariHareket().slice().sort(function(a,b){return Number(b.id||0)-Number(a.id||0);});
+ var rows=hs.length?hs.map(function(h){
+  return '<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.tip||"")+'</td><td>'+esc(h.belge||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td><b>'+money(h.tutar)+'</b></td><td><button onclick="deleteHareket(\''+String(h.id)+'\')">Sil</button></td></tr>';
+ }).join(""):'<tr><td colspan="6">Henüz hareket yok.</td></tr>';
+
+ document.getElementById("panel").innerHTML=
+  '<div class="panelTitle">Cari Hareketler / Ekstre</div>'+
+  '<div class="miniForm">'+
+   '<input type="date" id="hTarih">'+
+   '<select id="hTip"><option>Borç</option><option>Alacak</option></select>'+
+   '<input type="number" id="hTutar" placeholder="Tutar">'+
+   '<input id="hBelge" placeholder="Belge / Fatura No">'+
+   '<input id="hAciklama" placeholder="Açıklama" style="grid-column:span 3">'+
+   '<button onclick="addHareket()">Hareket Ekle</button>'+
+  '</div>'+
+  '<div class="quick"><button class="pdf" onclick="printCari()">📄 Ekstre / PDF</button></div>'+
+  '<div class="tableWrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Belge</th><th>Açıklama</th><th>Tutar</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function addHareket(){
+ var tarih=document.getElementById("hTarih").value;
+ var tip=document.getElementById("hTip").value;
+ var tutar=Number(document.getElementById("hTutar").value);
+ var belge=document.getElementById("hBelge").value.trim();
+ var aciklama=document.getElementById("hAciklama").value.trim();
+ if(!tarih){alert("Tarih seçiniz.");return;}
+ if(!tutar||tutar<=0){alert("Geçerli tutar giriniz.");return;}
+ hareketler.push({id:Date.now(),cariId:activeCari.id,tarih:tarih,tip:tip,tutar:tutar,belge:belge,aciklama:aciklama});
+ saveAll();
+ updateSummary();
+ panelHareket();
+}
+
+function deleteHareket(id){
+ if(confirm("Cari hareketi silinsin mi?")){
+  hareketler=hareketler.filter(function(x){return String(x.id)!==String(id);});
+  saveAll();
+  updateSummary();
+  panelHareket();
+ }
+}
+
+function panelArac(){
+ var as=cariArac();
+ var rows=as.length?as.map(function(a){
+  return '<tr><td><b>'+esc(a.plaka||"")+'</b></td><td>'+esc(a.marka||"-")+'</td><td>'+esc(a.sasi||"-")+'</td><td>'+esc(a.km||"-")+'</td><td><button onclick="deleteArac(\''+String(a.id)+'\')">Sil</button></td></tr>';
+ }).join(""):'<tr><td colspan="5">Bu cariye kayıtlı araç yok.</td></tr>';
+
+ document.getElementById("panel").innerHTML=
+  '<div class="panelTitle">Cari Araçları</div>'+
+  '<div class="miniForm">'+
+   '<input id="aPlaka" placeholder="Plaka">'+
+   '<input id="aMarka" placeholder="Marka / Model">'+
+   '<input id="aSasi" placeholder="Şasi / VIN">'+
+   '<input type="number" id="aKm" placeholder="KM">'+
+   '<button onclick="addArac()">Araç Ekle</button>'+
+  '</div>'+
+  '<div class="tableWrap"><table><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>KM</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function addArac(){
+ var plaka=document.getElementById("aPlaka").value.trim().toUpperCase();
+ var marka=document.getElementById("aMarka").value.trim();
+ var sasi=document.getElementById("aSasi").value.trim();
+ var km=document.getElementById("aKm").value;
+ if(!plaka){alert("Plaka giriniz.");return;}
+ araclar.push({id:Date.now(),cariId:activeCari.id,plaka:plaka,marka:marka,sasi:sasi,km:km});
+ saveAll();
+ updateSummary();
+ panelArac();
+}
+
+function deleteArac(id){
+ if(confirm("Araç kaydı silinsin mi?")){
+  araclar=araclar.filter(function(x){return String(x.id)!==String(id);});
+  saveAll();
+  updateSummary();
+  panelArac();
+ }
+}
+
+function panelNot(){
+ document.getElementById("panel").innerHTML=
+  '<div class="panelTitle">Cari Notları</div>'+
+  '<textarea id="detailNot" style="min-height:180px">'+esc(activeCari.notlar||"")+'</textarea><br><br>'+
+  '<button class="save" onclick="saveDetailNote()">Notları Kaydet</button>';
+}
+
+function saveDetailNote(){
+ activeCari.notlar=document.getElementById("detailNot").value;
+ var i=cariler.findIndex(function(x){return String(x.id)===String(activeCari.id);});
+ if(i>=0)cariler[i]=activeCari;
+ saveAll();
+ alert("Not kaydedildi.");
+}
+
+function panelBos(title,text){
+ document.getElementById("panel").innerHTML=
+  '<div class="panelTitle">'+esc(title)+'</div>'+
+  '<div style="padding:35px;text-align:center;color:#64748b"><div style="font-size:38px">📁</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p><p><b>Bu bölüm ana MAU modülüyle bağlantı için hazırlandı.</b></p></div>';
+}
+
+function printCari(){
+ var hs=cariHareket().slice().sort(function(a,b){return String(a.tarih||"").localeCompare(String(b.tarih||""));});
+ var borc=hs.filter(function(x){return x.tip==="Borç";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+ var alacak=hs.filter(function(x){return x.tip==="Alacak";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+
+ var rows=hs.map(function(h){
+  return '<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.tip||"")+'</td><td>'+esc(h.belge||"")+'</td><td>'+esc(h.aciklama||"")+'</td><td>'+money(h.tutar)+'</td></tr>';
+ }).join("");
+ if(!rows)rows='<tr><td colspan="5">Hareket yok.</td></tr>';
+
+ var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cari Ekstre</title>'+
+  '<style>body{font-family:Arial;padding:30px;color:#222}h1{color:#075ca8}.head{border-bottom:3px solid #075ca8;padding-bottom:15px}.box{margin:20px 0;padding:15px;background:#f5f7fa}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:12px}th{background:#eee}.tot{margin-top:20px;font-size:16px;line-height:1.8}</style>'+
+  '</head><body>'+
+  '<div class="head"><h1>MAU OTO SERVİS</h1><b>Cari Hesap Ekstresi</b></div>'+
+  '<div class="box"><b>'+esc(activeCari.name)+'</b><br>Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+'</div>'+
+  '<table><tr><th>Tarih</th><th>İşlem</th><th>Belge</th><th>Açıklama</th><th>Tutar</th></tr>'+rows+'</table>'+
+  '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b></div>'+
+  '<script>window.onload=function(){window.print();};<\/script></body></html>';
+
+ var w=window.open("","_blank");
+ if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
+ w.document.open();
+ w.document.write(html);
+ w.document.close();
+}
+
+window.addEventListener("click",function(e){
+ if(e.target===document.getElementById("modal"))closeForm();
+});
+
+render();
+</script>
+</body>
+</html>
