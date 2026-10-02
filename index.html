@@ -428,6 +428,7 @@ body{
 }
 </style>
 <script src="lisans.js"></script>
+<script src="firma.js"></script>
 </head>
 
 <body>
@@ -453,7 +454,7 @@ body{
     <div>
       <div class="company-label">Firma</div>
       <div class="company-box" aria-label="Firma adı">
-        <span id="companyName">ASIM OTO SERVİS</span>
+        <span id="companyName">MAU OTO SERVİS</span>
       </div>
     </div>
 
@@ -724,10 +725,27 @@ function renderGlobalSearch(){
  box.innerHTML=results.length?results.slice(0,8).map(r=>'<div class="search-result" onclick="location.href=\''+r.url+'\'"><b>'+escd(r.title)+'</b><span>'+escd(r.sub)+'</span></div>').join(""):'<div class="search-result"><b>Sonuç bulunamadı</b></div>';
  box.className="search-results show";
 }
-window.addEventListener("storage",renderDashboard);
-window.addEventListener("pageshow",renderDashboard);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
+function renderCompanyName(){
+ const el=document.getElementById("companyName");if(!el)return;
+ let name="";
+ try{
+  if(window.MAUFirma&&typeof window.MAUFirma.get==="function"){
+   const s=window.MAUFirma.get()||{};
+   name=String(s.firmaAdi||"").trim();
+  }
+  if(!name){
+   const s=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");
+   name=String(s.firmaAdi||"").trim();
+  }
+ }catch(e){}
+ el.textContent=name||"MAU Oto Servis";
+}
+
+window.addEventListener("storage",()=>{renderDashboard();renderCompanyName()});
+window.addEventListener("pageshow",()=>{renderDashboard();renderCompanyName()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){renderDashboard();renderCompanyName()}});
 renderDashboard();
+renderCompanyName();
 const _topItems=document.querySelectorAll(".top-item");if(_topItems[2]){_topItems[2].style.cursor="pointer";_topItems[2].addEventListener("click",function(){location.href="Kapali.html"})}
 const _brandLogo=document.getElementById("mauSplashLogo");if(_brandLogo)_brandLogo.addEventListener("error",function(){this.style.display="none";const m=document.getElementById("mauSplashMark");if(m)m.style.display="block"});
 
