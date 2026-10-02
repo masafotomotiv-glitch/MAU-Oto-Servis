@@ -356,7 +356,12 @@ function saveAcceptance(prepareWork){
  if(vi>=0&&newKm>=oldKm){vehicles[vi].km=String(newKm);vehicles[vi].updatedAt=new Date().toISOString();saveArray(VEHICLE_KEY,vehicles);}
 
  renderList();
- alert(prepareWork?"Araç kabul kaydedildi ve İş Emrine Hazır durumuna alındı. Sonraki adımda bu kayıttan iş emrini oluşturacağız.":"Araç kabul kaydedildi.");
+ if(prepareWork){
+  alert("Araç kabul kaydedildi. Şimdi iş emri oluşturuluyor.");
+  location.href="IsEmirleri.html?kabulId="+encodeURIComponent(data.id);
+  return;
+ }
+ alert("Araç kabul kaydedildi.");
  resetForm(false);
 }
 function editAcceptance(id){
