@@ -133,10 +133,7 @@ function saveSettings(){
 }
 loadSettings();
 if(window.MAULicense&&document.getElementById("licenseStatus"))document.getElementById("licenseStatus").textContent=MAULicense.statusText();
-if(window.MAULicense&&MAULicense.config().mode==="production"){
- const a=document.getElementById("qaTestBtn"),b=document.getElementById("qaLicenseBtn");
- if(a)a.style.display="none";if(b)b.style.display="none"
-}
+// QA bağlantıları bu geliştirme sürümünde görünür; satış derlemesinde kaldırılacaktır.
 </script>
 </body>
 </html>
