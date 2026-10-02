@@ -5,11 +5,15 @@ const APP_VERSION="2026.10";
 const STATE_KEY="mau_lisans";
 const DEVICE_KEY="mau_lisans_cihaz";
 const CONFIG_KEY="mau_lisans_config";
-const DEFAULTS={mode:"development",verifyUrl:"",graceDays:7,warningDays:7};
+const BUILD={mode:"development",verifyUrl:"",graceDays:7,warningDays:7};
 
 function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
 function saveObj(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function config(){return Object.assign({},DEFAULTS,loadObj(CONFIG_KEY))}
+function config(){
+ const local=loadObj(CONFIG_KEY);
+ if(BUILD.mode==="production")return Object.assign({},BUILD);
+ return Object.assign({},BUILD,local)
+}
 function uid(){return "MAU-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,10).toUpperCase()}
 function deviceId(){let v=localStorage.getItem(DEVICE_KEY);if(!v){v=uid();localStorage.setItem(DEVICE_KEY,v)}return v}
 function state(){return Object.assign({status:"development",licenseKey:"",plan:"",customer:"",validUntil:"",lastVerifiedAt:"",lastSeenAt:"",token:""},loadObj(STATE_KEY))}
