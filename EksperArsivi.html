@@ -114,6 +114,22 @@ function fillCats(){
  document.getElementById("category").innerHTML=opts;document.getElementById("filterCat").innerHTML='<option value="">Tüm Kategoriler</option>'+opts
 }
 function resetAddForm(){document.getElementById("label").value="";document.getElementById("note").value="";document.getElementById("files").value="";document.getElementById("sendFlag").checked=true}
+async function blobFingerprint(blob){
+ const bytes=await blob.arrayBuffer(),hash=await crypto.subtle.digest("SHA-256",bytes);
+ return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("")
+}
+async function existingFingerprints(all){
+ const set=new Set(),claimRows=all.filter(x=>String(x.claimId)===String(claimId));let changed=false;
+ for(const m of claimRows){
+  let fp=String(m.fingerprint||"").trim();
+  if(!fp){
+   try{const r=await dbGet(m.id);if(r&&r.blob){fp=await blobFingerprint(r.blob);m.fingerprint=fp;changed=true}}catch(e){}
+  }
+  if(fp)set.add(fp)
+ }
+ if(changed)saveMeta(all);
+ return set
+}
 async function saveFiles(){
  if(window.MAULicense&&!MAULicense.requireWrite())return;
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
@@ -121,15 +137,24 @@ async function saveFiles(){
  const cat=document.getElementById("category").value,stage=document.getElementById("stage").value,label=document.getElementById("label").value.trim(),note=document.getElementById("note").value.trim(),send=document.getElementById("sendFlag").checked,all=metaAll();
  let order=metaForClaim().reduce((m,x)=>Math.max(m,Number(x.order||0)),0);
  try{
+  const fingerprints=await existingFingerprints(all);let added=0,duplicates=0;const duplicateNames=[];
   for(const file of files){
+   const fingerprint=await blobFingerprint(file);
+   if(fingerprints.has(fingerprint)){duplicates++;duplicateNames.push(file.name);continue}
    const id="EXF-"+Date.now()+"-"+Math.random().toString(36).slice(2,8),folder=(CATEGORIES.find(x=>x[1]===cat)||["09_Diger"])[0];
    await dbPut({id,blob:file});
-   all.push({id,claimId:String(claimId),fileName:file.name,mime:file.type||"application/octet-stream",size:file.size,category:cat,folder,stage,label,note,sendToExpert:send,order:++order,createdAt:new Date().toISOString()})
+   all.push({id,claimId:String(claimId),fileName:file.name,mime:file.type||"application/octet-stream",size:file.size,fingerprint,category:cat,folder,stage,label,note,sendToExpert:send,order:++order,createdAt:new Date().toISOString()});
+   fingerprints.add(fingerprint);added++
   }
   saveMeta(all);
-  const flagMap={"Ruhsat / Resmi Evrak":"ruhsat","Kimlik":"kimlik","Kaza Tespit Tutanağı":"kazaTutanagi","IBAN":"iban","Vekalet / Yetki":"ortaklik","Şasi / VIN":"sasiKm","KM Göstergesi":"sasiKm","Olay Yeri":"olay","Onarım Aşaması":"tamir"};
-  const flag=flagMap[cat];if(flag){claims=load(CLAIM_KEY);const ci=claims.findIndex(x=>String(x.id)===String(claimId));if(ci>=0){claims[ci].evrak={...(claims[ci].evrak||{}),[flag]:true};put(CLAIM_KEY,claims);claim=claims[ci]}}
-  resetAddForm();render();alert(files.length+" dosya arşive eklendi.")
+  if(added){
+   const flagMap={"Ruhsat / Resmi Evrak":"ruhsat","Kimlik":"kimlik","Kaza Tespit Tutanağı":"kazaTutanagi","IBAN":"iban","Vekalet / Yetki":"ortaklik","Şasi / VIN":"sasiKm","KM Göstergesi":"sasiKm","Olay Yeri":"olay","Onarım Aşaması":"tamir"};
+   const flag=flagMap[cat];if(flag){claims=load(CLAIM_KEY);const ci=claims.findIndex(x=>String(x.id)===String(claimId));if(ci>=0){claims[ci].evrak={...(claims[ci].evrak||{}),[flag]:true};put(CLAIM_KEY,claims);claim=claims[ci]}}
+  }
+  resetAddForm();render();
+  if(duplicates&&added)alert(added+" dosya arşive eklendi. "+duplicates+" mükerrer dosya eklenmedi:\n"+duplicateNames.join("\n"));
+  else if(duplicates)alert("Seçilen dosya zaten bu arşivde kayıtlı. Mükerrer kayıt oluşturulmadı:\n"+duplicateNames.join("\n"));
+  else alert(added+" dosya arşive eklendi.")
  }catch(e){alert("Dosya kaydedilemedi: "+(e.message||e))}
 }
 function requiredStatus(list){
