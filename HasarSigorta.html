@@ -57,14 +57,16 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
    </div>
   </div>
 
-  <div class="section"><div class="sectionTitle">2. Sigorta ve Eksper</div>
+  <div class="section"><div class="sectionTitle" style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span>2. Sigorta ve Eksper</span><button type="button" class="print" onclick="location.href='SigortaEksperTanimlari.html'">Sigorta / Eksper Tanımları</button></div>
    <div class="grid">
-    <div class="field"><label>Sigorta Şirketi *</label><input id="sigortaSirketi" placeholder="Örn. Anadolu Sigorta"></div>
+    <div class="field"><label>Sigorta Şirketi *</label><select id="sigortaId" onchange="applyInsurance()"><option value="">Sigorta seçiniz...</option></select></div>
+    <div class="field"><label>Sigorta Telefon</label><input id="sigortaTel" readonly></div>
     <div class="field"><label>Poliçe No</label><input id="policeNo"></div>
     <div class="field"><label>Sigorta Hasar Dosya No</label><input id="sigortaDosyaNo"></div>
-    <div class="field"><label>Eksper Firma</label><input id="eksperFirma"></div>
-    <div class="field"><label>Eksper Adı</label><input id="eksper"></div>
-    <div class="field"><label>Eksper Telefon</label><input id="eksperTel"></div>
+    <div class="field"><label>Eksper Seç</label><select id="eksperId" onchange="applyExpert()"><option value="">Eksper seçiniz...</option></select></div>
+    <div class="field"><label>Eksper Firma</label><input id="eksperFirma" readonly></div>
+    <div class="field"><label>Eksper Adı</label><input id="eksper" readonly></div>
+    <div class="field"><label>Eksper Telefon</label><input id="eksperTel" readonly></div>
    </div>
   </div>
 
@@ -110,12 +112,23 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
 <div id="report"><div class="reportTop"><button onclick="closeReport()">← Uygulamaya Dön</button><button onclick="window.print()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
 
 <script>
-const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri";
+const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri",INS_KEY="mau_sigorta_sirketleri",EXP_KEY="mau_eksper_kayitlari";
 function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
 function today(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
 let claims=load(CLAIM_KEY),editId=null,fileNames=[];
+function ensureMasters(){
+ if(!load(INS_KEY).length)put(INS_KEY,[{id:"SIG-TEST-001",code:"SIG-00001",name:"TEST SİGORTA",phone:"0312 000 00 00",email:"",city:"Ankara",note:"Test kaydı",active:true,createdAt:new Date().toISOString()}]);
+ if(!load(EXP_KEY).length)put(EXP_KEY,[{id:"EXP-TEST-001",code:"EXP-00001",company:"TEST EKSPER FİRMASI",name:"TEST EKSPER",phone:"0500 000 00 00",email:"",city:"Ankara",note:"Test kaydı",active:true,createdAt:new Date().toISOString()}]);
+}
+function populateMasters(){
+ const insurers=load(INS_KEY).filter(x=>x.active!==false),experts=load(EXP_KEY).filter(x=>x.active!==false);
+ document.getElementById("sigortaId").innerHTML='<option value="">Sigorta seçiniz...</option>'+insurers.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.code||"")+' · '+esc(x.name||"")+'</option>').join("");
+ document.getElementById("eksperId").innerHTML='<option value="">Eksper seçiniz...</option>'+experts.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.code||"")+' · '+esc(x.name||"")+' · '+esc(x.company||"")+'</option>').join("");
+}
+function applyInsurance(){const x=load(INS_KEY).find(v=>String(v.id)===String(document.getElementById("sigortaId").value));document.getElementById("sigortaTel").value=x?x.phone||"":""}
+function applyExpert(){const x=load(EXP_KEY).find(v=>String(v.id)===String(document.getElementById("eksperId").value));document.getElementById("eksperFirma").value=x?x.company||"":"";document.getElementById("eksper").value=x?x.name||"":"";document.getElementById("eksperTel").value=x?x.phone||"":""}
 function isClosed(x){return ["Tamamlandı","Kapalı"].includes(x.durum)}
 function nextNo(){let m=0;load(CLAIM_KEY).forEach(x=>{const n=parseInt(String(x.dosyaNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "HSR-"+String(m+1).padStart(5,"0")}
 function populateVehicles(){
@@ -132,7 +145,7 @@ function selectVehicle(){
  document.getElementById("isEmriId").innerHTML='<option value="">İş emri yok / seçiniz</option>'+works.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.isEmriNo||"-")+' · '+esc(w.durum||"")+'</option>').join("");
 }
 function resetForm(focus){
- editId=null;fileNames=[];populateVehicles();
+ editId=null;fileNames=[];populateVehicles();populateMasters();
  document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.type==="checkbox")el.checked=false;else if(el.type==="file")el.value="";else el.value=""});
  document.getElementById("dosyaNo").value=nextNo();document.getElementById("tarih").value=today();document.getElementById("durum").value="Açık";
  document.getElementById("formTitle").textContent="Yeni Hasar & Sigorta Dosyası";document.getElementById("fileInfo").textContent="Henüz dosya seçilmedi. Bu sürümde dosya adları kayda bağlanır.";
@@ -143,17 +156,19 @@ function v(id){return document.getElementById(id).value.trim()}function ck(id){r
 function saveClaim(){
  const vehicle=load(VEH_KEY).find(x=>String(x.id)===String(document.getElementById("aracId").value));
  if(!vehicle){alert("Araç seçiniz.");return}
- if(!v("sigortaSirketi")){alert("Sigorta şirketini yazın.");return}
+ const insurer=load(INS_KEY).find(x=>String(x.id)===String(document.getElementById("sigortaId").value));
+ if(!insurer){alert("Sigorta şirketi seçiniz.");return}
  if(!v("hasarAciklama")){alert("Hasar açıklamasını yazın.");return}
  claims=load(CLAIM_KEY);const old=editId!=null?claims.find(x=>String(x.id)===String(editId)):null;
  const cari=load(CARI_KEY).find(x=>String(x.id)===String(vehicle.cariId));
  const work=load(WORK_KEY).find(x=>String(x.id)===String(document.getElementById("isEmriId").value));
+ const expert=load(EXP_KEY).find(x=>String(x.id)===String(document.getElementById("eksperId").value));
  const x={...(old||{}),id:old?old.id:Date.now(),dosyaNo:old?old.dosyaNo:v("dosyaNo"),tarih:v("tarih"),durum:v("durum"),
   aracId:vehicle.id,vehicleId:vehicle.id,plaka:vehicle.plaka||"",marka:vehicle.marka||"",model:vehicle.model||"",
   cariId:vehicle.cariId,cariCode:(cari&&cari.code)||vehicle.cariCode||"",cariAdi:(cari&&cari.name)||vehicle.cariAdi||"",
   isEmriId:work?work.id:"",isEmriNo:work?work.isEmriNo:"",
-  sigorta:v("sigortaSirketi"),sigortaSirketi:v("sigortaSirketi"),policeNo:v("policeNo"),sigortaDosyaNo:v("sigortaDosyaNo"),
-  eksperFirma:v("eksperFirma"),eksper:v("eksper"),eksperTel:v("eksperTel"),olayTarihi:v("olayTarihi"),olayYeri:v("olayYeri"),
+  sigortaId:insurer.id,sigorta:insurer.name||"",sigortaSirketi:insurer.name||"",sigortaTel:insurer.phone||"",policeNo:v("policeNo"),sigortaDosyaNo:v("sigortaDosyaNo"),
+  eksperId:expert?expert.id:"",eksperFirma:expert?expert.company||"":"",eksper:expert?expert.name||"":"",eksperTel:expert?expert.phone||"":"",olayTarihi:v("olayTarihi"),olayYeri:v("olayYeri"),
   hasarAciklama:v("hasarAciklama"),eksperNotu:v("eksperNotu"),
   evrak:{ruhsat:ck("evRuhsat"),kimlik:ck("evKimlik"),iban:ck("evIban"),ortaklik:ck("evOrtaklik"),sasiKm:ck("evSasiKm"),olay:ck("evOlay"),tamir:ck("evTamir"),diger:ck("evDiger")},
   dosyaAdlari:fileNames.slice(),tahminiTutar:Number(v("tahminiTutar")||0),onaylananTutar:Number(v("onaylananTutar")||0),beklenenTutar:Number(v("beklenenTutar")||0),musteriPayi:Number(v("musteriPayi")||0),maliNot:v("maliNot"),
@@ -161,8 +176,10 @@ function saveClaim(){
  const i=claims.findIndex(a=>String(a.id)===String(x.id));if(i>=0)claims[i]=x;else claims.unshift(x);put(CLAIM_KEY,claims);renderList();alert(x.dosyaNo+" hasar dosyası kaydedildi.");resetForm(false)
 }
 function editClaim(id){
- claims=load(CLAIM_KEY);const x=claims.find(a=>String(a.id)===String(id));if(!x)return;editId=x.id;populateVehicles();document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
- ["dosyaNo","tarih","durum","sigortaSirketi","policeNo","sigortaDosyaNo","eksperFirma","eksper","eksperTel","olayTarihi","olayYeri","hasarAciklama","eksperNotu","tahminiTutar","onaylananTutar","beklenenTutar","musteriPayi","maliNot"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[k]??(k==="sigortaSirketi"?x.sigorta||"":"")});
+ claims=load(CLAIM_KEY);const x=claims.find(a=>String(a.id)===String(id));if(!x)return;editId=x.id;populateVehicles();populateMasters();document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
+ ["dosyaNo","tarih","durum","policeNo","sigortaDosyaNo","olayTarihi","olayYeri","hasarAciklama","eksperNotu","tahminiTutar","onaylananTutar","beklenenTutar","musteriPayi","maliNot"].forEach(k=>{const e=document.getElementById(k);if(e)e.value=x[k]??""});
+ const insurers=load(INS_KEY),experts=load(EXP_KEY);const ins=insurers.find(v=>String(v.id)===String(x.sigortaId||""))||insurers.find(v=>String(v.name||"")===String(x.sigortaSirketi||x.sigorta||""));const ex=experts.find(v=>String(v.id)===String(x.eksperId||""))||experts.find(v=>String(v.name||"")===String(x.eksper||""));
+ document.getElementById("sigortaId").value=ins?String(ins.id):"";applyInsurance();document.getElementById("eksperId").value=ex?String(ex.id):"";applyExpert();
  document.getElementById("isEmriId").value=String(x.isEmriId||"");const ev=x.evrak||{};document.getElementById("evRuhsat").checked=!!ev.ruhsat;document.getElementById("evKimlik").checked=!!ev.kimlik;document.getElementById("evIban").checked=!!ev.iban;document.getElementById("evOrtaklik").checked=!!ev.ortaklik;document.getElementById("evSasiKm").checked=!!ev.sasiKm;document.getElementById("evOlay").checked=!!ev.olay;document.getElementById("evTamir").checked=!!ev.tamir;document.getElementById("evDiger").checked=!!ev.diger;
  fileNames=(x.dosyaAdlari||[]).slice();document.getElementById("fileInfo").textContent=fileNames.length?fileNames.length+" kayıtlı dosya adı: "+fileNames.join(", "):"Henüz dosya seçilmedi.";document.getElementById("formTitle").textContent=x.dosyaNo+" · Dosyayı Düzenle";window.scrollTo({top:0,behavior:"smooth"})
 }
@@ -186,7 +203,7 @@ function reportHtml(x){
 function printClaim(id){const x=load(CLAIM_KEY).find(a=>String(a.id)===String(id));if(!x)return;document.getElementById("reportBody").innerHTML=reportHtml(x);document.getElementById("report").style.display="block";window.scrollTo(0,0)}
 function printActive(){if(editId!=null){printClaim(editId);return}alert("Önce dosyayı kaydedin veya listeden PDF / Yazdır seçin.")}
 function closeReport(){document.getElementById("report").style.display="none"}
-populateVehicles();resetForm(false);renderList();window.addEventListener("storage",renderList);
+ensureMasters();populateVehicles();populateMasters();resetForm(false);renderList();window.addEventListener("storage",function(e){if([CLAIM_KEY,INS_KEY,EXP_KEY,VEH_KEY,WORK_KEY].includes(e.key)){populateMasters();renderList()}});
 </script>
 </body>
 </html>
