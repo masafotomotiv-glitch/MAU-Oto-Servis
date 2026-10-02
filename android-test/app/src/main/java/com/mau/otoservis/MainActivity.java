@@ -68,6 +68,7 @@ public class MainActivity extends Activity {
         s.setDisplayZoomControls(false);
         s.setTextZoom(100);
         s.setSupportZoom(false);
+        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -80,7 +81,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new AndroidBridge(), "MAUAndroid");
 
         if (savedInstanceState == null) {
-            webView.loadUrl(START_URL);
+            webView.loadUrl(START_URL + "?v=0.4-ruhsat-kritik-alanlar");
         } else {
             webView.restoreState(savedInstanceState);
         }
