@@ -99,6 +99,20 @@ public class MainActivity extends Activity {
         public void printPage() {
             runOnUiThread(MainActivity.this::printCurrentPage);
         }
+
+        @JavascriptInterface
+        public void shareText(String text) {
+            runOnUiThread(() -> shareCurrentText(text));
+        }
+    }
+
+    private void shareCurrentText(String text) {
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text == null ? "" : text);
+
+        Intent chooser = Intent.createChooser(sendIntent, "Teklifi paylaş");
+        startActivity(chooser);
     }
 
     private void printCurrentPage() {
