@@ -12,6 +12,7 @@ import android.print.PrintManager;
 import android.util.Base64;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -41,6 +42,7 @@ public class MainActivity extends Activity {
     private static final int CREATE_CSV_FILE = 4022;
     private static final int CREATE_XLSX_FILE = 4023;
     private static final int CREATE_BINARY_FILE = 4024;
+    private static final int WEB_FILE_CHOOSER = 4025;
 
     private WebView webView;
     private TextRecognizer textRecognizer;
@@ -52,6 +54,7 @@ public class MainActivity extends Activity {
     private FileOutputStream pendingBinaryStream;
     private String pendingBinaryName = "MAU-Dosya.bin";
     private String pendingBinaryMime = "application/octet-stream";
+    private ValueCallback<Uri[]> pendingFileChooser;
 
     private static final String START_URL =
             "https://masafotomotiv-glitch.github.io/MAU-Oto-Servis/";
@@ -102,7 +105,44 @@ public class MainActivity extends Activity {
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
         webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(
+                    WebView view,
+                    ValueCallback<Uri[]> filePathCallback,
+                    FileChooserParams fileChooserParams
+            ) {
+                if (pendingFileChooser != null) {
+                    pendingFileChooser.onReceiveValue(null);
+                }
+                pendingFileChooser = filePathCallback;
+
+                try {
+                    Intent intent;
+                    if (fileChooserParams != null) {
+                        intent = fileChooserParams.createIntent();
+                    } else {
+                        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("*/*");
+                    }
+                    startActivityForResult(intent, WEB_FILE_CHOOSER);
+                    return true;
+                } catch (Exception e) {
+                    if (pendingFileChooser != null) {
+                        pendingFileChooser.onReceiveValue(null);
+                        pendingFileChooser = null;
+                    }
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Dosya seçici açılamadı: "
+                                    + (e.getMessage() == null ? "Android dosya seçici hatası" : e.getMessage()),
+                            Toast.LENGTH_LONG
+                    ).show();
+                    return true;
+                }
+            }
+        });
 
         // Sadece MAU sayfasının çağırdığı küçük Android köprüsü:
         // ruhsat fotoğrafı seçer ve OCR sonucunu sayfaya geri verir.
@@ -307,6 +347,28 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == WEB_FILE_CHOOSER) {
+            Uri[] result = null;
+            if (resultCode == RESULT_OK) {
+                try {
+                    result = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+                } catch (Exception e) {
+                    Toast.makeText(
+                            this,
+                            "Seçilen dosya okunamadı: "
+                                    + (e.getMessage() == null ? "dosya seçimi hatası" : e.getMessage()),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+
+            if (pendingFileChooser != null) {
+                pendingFileChooser.onReceiveValue(result);
+                pendingFileChooser = null;
+            }
+            return;
+        }
 
         if (requestCode == CREATE_BINARY_FILE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null && pendingBinaryFile != null) {
