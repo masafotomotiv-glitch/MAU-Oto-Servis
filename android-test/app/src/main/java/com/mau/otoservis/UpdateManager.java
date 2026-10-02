@@ -57,7 +57,7 @@ public final class UpdateManager {
                 }
 
                 int remoteCode = info.optInt("versionCode", 0);
-                if (remoteCode <= BuildConfig.VERSION_CODE) {
+                if (remoteCode <= getCurrentVersionCode()) {
                     return;
                 }
 
@@ -109,6 +109,16 @@ public final class UpdateManager {
 
         prefs.edit().remove(PREF_PENDING_APK).apply();
         commitInstall(apk);
+    }
+
+    private long getCurrentVersionCode() throws Exception {
+        android.content.pm.PackageInfo info = activity.getPackageManager()
+                .getPackageInfo(activity.getPackageName(), 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return info.getLongVersionCode();
+        }
+        //noinspection deprecation
+        return info.versionCode;
     }
 
     private JSONObject fetchJson(String urlText) throws Exception {
