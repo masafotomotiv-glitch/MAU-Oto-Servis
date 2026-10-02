@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Cari & Kasa</title>
+<style>
+*{box-sizing:border-box}:root{--blue:#0b6db8;--navy:#163a5f;--green:#11834f;--red:#b42335;--amber:#9a6500;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:1180px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:40px;height:40px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1180px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.sum{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.sum span{display:block;font-size:10px;color:var(--muted)}.sum b{font-size:18px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.tab{border:1px solid #dfe5eb;background:#f7f9fb;color:#405168;border-radius:9px;padding:10px;font-weight:800}.tab.on{background:#0b6db8;color:#fff;border-color:#0b6db8}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:10px;background:#fff}.field textarea{min-height:72px}.full{grid-column:1/-1}.two{grid-column:span 2}
+.note{font-size:10px;color:var(--muted);line-height:1.55}.warn{background:#fff6e7;border:1px solid #f2ddb1;color:#835500;border-radius:9px;padding:9px;font-size:10px}
+.actions{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.save{background:#0b76c5;color:#fff}.green{background:var(--green);color:#fff}.gray{background:#edf2f7;color:#405168}.red{background:#ffe8eb;color:#a21c2b}
+.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.filters input,.filters select{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:9px;background:#fff}
+.tableWrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}th,td{border-bottom:1px solid #e7ecf1;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f5f8fb;text-align:left}.plus{color:#0b7b48;font-weight:900}.minus{color:#b42335;font-weight:900}.muted{color:#78889a}.badge{display:inline-block;border-radius:10px;padding:3px 6px;background:#edf4fb;color:#0b5fa8;font-weight:800;font-size:9px}.badge.cancel{background:#ffe9ec;color:#a21c2b}
+.accounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.account{border:1px solid #e1e7ed;border-radius:9px;padding:10px;background:#fafcfe}.account span{display:block;font-size:10px;color:var(--muted)}.account b{font-size:16px}.account small{display:block;margin-top:3px;color:#6d7d8d}
+.modal{display:none;position:fixed;inset:0;background:#0007;z-index:30;padding:18px;overflow:auto}.modalBox{max-width:720px;margin:5vh auto;background:#fff;border-radius:12px;overflow:hidden}.modalHead{padding:13px 15px;border-bottom:1px solid #e7ecf1;font-weight:900}.modalBody{padding:14px}
+@media(max-width:900px){.summary{grid-template-columns:1fr 1fr}.sum:last-child{grid-column:1/-1}.tabs{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr 1fr}.accounts{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.two{grid-column:span 2}}
+@media(max-width:560px){.grid,.filters,.accounts{grid-template-columns:1fr}.two,.full{grid-column:auto}.tabs{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Cari & Kasa · Tahsilat · Ödeme · Gelir/Gider · Kasa/Banka</div></div></div></header>
+<div class="wrap">
+
+ <div class="card"><div class="cardHead">Finans Özeti</div><div class="body">
+  <div class="summary">
+   <div class="sum"><span>Nakit Kasa</span><b id="sCash">0,00 ₺</b></div>
+   <div class="sum"><span>Banka</span><b id="sBank">0,00 ₺</b></div>
+   <div class="sum"><span>POS / Kart</span><b id="sPos">0,00 ₺</b></div>
+   <div class="sum"><span>Tahsil Edilecek</span><b id="sReceivable">0,00 ₺</b></div>
+   <div class="sum"><span>Ödenecek</span><b id="sPayable">0,00 ₺</b></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">İşlem Ekle</div><div class="body">
+  <div class="tabs">
+   <button class="tab on" data-type="Tahsilat" onclick="setType('Tahsilat')">Tahsilat</button>
+   <button class="tab" data-type="Ödeme" onclick="setType('Ödeme')">Ödeme</button>
+   <button class="tab" data-type="Gelir" onclick="setType('Gelir')">Kasa Geliri</button>
+   <button class="tab" data-type="Gider" onclick="setType('Gider')">Kasa Gideri</button>
+   <button class="tab" data-type="Transfer" onclick="setType('Transfer')">Kasa ↔ Banka</button>
+  </div>
+
+  <div id="normalFields" class="grid" style="margin-top:12px">
+   <div class="field two"><label id="cariLabel">Cari *</label><select id="cariId" onchange="fillCariInfo()"><option value="">Cari seçiniz...</option></select></div>
+   <div class="field"><label>Tarih *</label><input id="tarih" type="date"></div>
+   <div class="field"><label>Belge / Makbuz No</label><input id="belgeNo"></div>
+   <div class="field"><label>Tutar (TL) *</label><input id="tutar" type="number" min="0" step="0.01"></div>
+   <div class="field"><label>Hesap *</label><select id="hesapId"></select></div>
+   <div class="field"><label>Ödeme Yöntemi</label><select id="yontem"><option>Nakit</option><option>Banka</option><option>Kredi Kartı</option><option>Havale / EFT</option><option>Diğer</option></select></div>
+   <div class="field"><label>İş Emri / Fatura No</label><input id="referansNo"></div>
+   <div class="field full"><label>Açıklama</label><textarea id="aciklama" placeholder="İşlem açıklaması"></textarea></div>
+  </div>
+
+  <div id="transferFields" class="grid" style="margin-top:12px;display:none">
+   <div class="field two"><label>Çıkış Hesabı *</label><select id="fromAccount"></select></div>
+   <div class="field two"><label>Giriş Hesabı *</label><select id="toAccount"></select></div>
+   <div class="field"><label>Tarih *</label><input id="transferDate" type="date"></div>
+   <div class="field"><label>Tutar (TL) *</label><input id="transferAmount" type="number" min="0" step="0.01"></div>
+   <div class="field two"><label>Belge No</label><input id="transferNo"></div>
+   <div class="field full"><label>Açıklama</label><textarea id="transferNote" placeholder="Kasa / banka virman açıklaması"></textarea></div>
+  </div>
+
+  <div class="note" id="formNote" style="margin-top:9px">Tahsilat müşterinin cari borcunu azaltır ve seçilen kasa/banka hesabına para girişi oluşturur.</div>
+  <div class="actions"><button class="btn save" onclick="saveTransaction()">✓ İşlemi Kaydet</button><button class="btn gray" onclick="resetForm()">Formu Temizle</button><button class="btn green" onclick="location.href='Cariler.html'">Cariler</button></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Kasa / Banka Hesapları</div><div class="body">
+  <div id="accountCards" class="accounts"></div>
+  <div class="actions"><button class="btn gray" onclick="openAccountModal()">+ Hesap Ekle / Düzenle</button><div></div><div></div></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Hareketler</div><div class="body">
+  <div class="filters">
+   <input id="search" placeholder="Cari, belge no, açıklama..." oninput="renderMovements()">
+   <input id="fromDate" type="date" onchange="renderMovements()">
+   <input id="toDate" type="date" onchange="renderMovements()">
+   <select id="typeFilter" onchange="renderMovements()"><option value="">Tüm İşlemler</option><option>Tahsilat</option><option>Ödeme</option><option>Gelir</option><option>Gider</option><option>Transfer</option></select>
+   <select id="accountFilter" onchange="renderMovements()"><option value="">Tüm Hesaplar</option></select>
+  </div>
+  <div class="tableWrap"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>Cari / Açıklama</th><th>Hesap</th><th>Giriş</th><th>Çıkış</th><th>Durum</th><th>İşlem</th></tr></thead><tbody id="movementRows"></tbody></table></div>
+ </div></div>
+
+</div>
+
+<div id="accountModal" class="modal"><div class="modalBox">
+ <div class="modalHead">Kasa / Banka Hesabı</div><div class="modalBody">
+  <input id="accountEditId" type="hidden">
+  <div class="grid">
+   <div class="field two"><label>Hesap Adı *</label><input id="accountName"></div>
+   <div class="field"><label>Hesap Türü *</label><select id="accountType"><option>Nakit</option><option>Banka</option><option>POS</option></select></div>
+   <div class="field"><label>Açılış Bakiyesi</label><input id="openingBalance" type="number" step="0.01"></div>
+   <div class="field full"><label>Açıklama</label><input id="accountNote"></div>
+  </div>
+  <div class="actions"><button class="btn save" onclick="saveAccount()">Kaydet</button><button class="btn gray" onclick="closeAccountModal()">Kapat</button><div></div></div>
+ </div>
+</div></div>
+
+<script>
+const KEYS={cariler:"mau_cariler",invoices:"mau_faturalar",collections:"mau_tahsilatlar",payments:"mau_odemeler",accounts:"mau_kasa_hesaplari",cashMoves:"mau_kasa_hareketleri"};
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function num(v){const n=Number(v||0);return Number.isFinite(n)?n:0}
+function today(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function nextNo(key,prefix,field){let m=0;load(key).forEach(x=>{const n=parseInt(String(x[field]||x.belgeNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return prefix+String(m+1).padStart(5,"0")}
+let activeType="Tahsilat";
+
+function seedAccounts(){
+ let a=load(KEYS.accounts);if(a.length)return a;
+ a=[
+  {id:"ACC-CASH",name:"Nakit Kasa",type:"Nakit",openingBalance:0,active:true,createdAt:new Date().toISOString()},
+  {id:"ACC-BANK",name:"Banka",type:"Banka",openingBalance:0,active:true,createdAt:new Date().toISOString()},
+  {id:"ACC-POS",name:"POS / Kredi Kartı",type:"POS",openingBalance:0,active:true,createdAt:new Date().toISOString()}
+ ];put(KEYS.accounts,a);return a
+}
+function allAccounts(){return seedAccounts().filter(x=>x.active!==false)}
+function accountName(id){const a=allAccounts().find(x=>String(x.id)===String(id));return a?a.name:"-"}
+function mapMethodToAccount(method){
+ const m=String(method||"").toLocaleLowerCase("tr-TR"),a=allAccounts();
+ if(m.includes("nakit"))return a.find(x=>x.type==="Nakit")?.id||"ACC-CASH";
+ if(m.includes("kart")||m.includes("pos"))return a.find(x=>x.type==="POS")?.id||"ACC-POS";
+ return a.find(x=>x.type==="Banka")?.id||"ACC-BANK"
+}
+function fillCariler(){
+ const cs=load(KEYS.cariler).filter(x=>x.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"tr"));
+ document.getElementById("cariId").innerHTML='<option value="">Cari seçiniz...</option>'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.code||"")+' · '+esc(c.name||"")+'</option>').join("")
+}
+function fillAccounts(){
+ const a=allAccounts(),opts=a.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.type)+'</option>').join("");
+ ["hesapId","fromAccount","toAccount"].forEach(id=>document.getElementById(id).innerHTML=opts);
+ document.getElementById("accountFilter").innerHTML='<option value="">Tüm Hesaplar</option>'+opts;
+ if(activeType==="Tahsilat")document.getElementById("hesapId").value=mapMethodToAccount("Nakit");
+ renderAccountCards();
+}
+function fillCariInfo(){}
+
+function setType(t){
+ activeType=t;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.type===t));
+ const tr=t==="Transfer";document.getElementById("normalFields").style.display=tr?"none":"grid";document.getElementById("transferFields").style.display=tr?"grid":"none";
+ const label=document.getElementById("cariLabel"),note=document.getElementById("formNote");
+ if(t==="Tahsilat"){label.textContent="Müşteri / Cari *";note.textContent="Tahsilat müşterinin cari borcunu azaltır ve seçilen kasa/banka hesabına para girişi oluşturur."}
+ else if(t==="Ödeme"){label.textContent="Tedarikçi / Cari *";note.textContent="Ödeme tedarikçi carisindeki borcu azaltır ve seçilen kasa/banka hesabından para çıkışı oluşturur."}
+ else if(t==="Gelir"){label.textContent="Cari (isteğe bağlı)";note.textContent="Cari veya faturaya bağlı olmayan diğer gelirleri kasa/bankaya giriş olarak kaydeder."}
+ else if(t==="Gider"){label.textContent="Cari (isteğe bağlı)";note.textContent="Kira, yakıt, elektrik, personel avansı gibi giderleri seçilen hesaptan çıkış olarak kaydeder."}
+ else note.textContent="Hesaplar arası virman toplam varlığı değiştirmez; bir hesaptan çıkar, diğer hesaba girer.";
+ resetForm(false)
+}
+function resetForm(resetType=true){
+ if(resetType)setType(activeType);
+ ["cariId","tutar","referansNo","aciklama"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("tarih").value=today();document.getElementById("yontem").value="Nakit";document.getElementById("hesapId").value=mapMethodToAccount("Nakit");
+ document.getElementById("belgeNo").value=activeType==="Tahsilat"?nextNo(KEYS.collections,"MKB-","makbuzNo"):activeType==="Ödeme"?nextNo(KEYS.payments,"ODM-","makbuzNo"):nextNo(KEYS.cashMoves,activeType==="Gelir"?"GEL-":"GID-","belgeNo");
+ document.getElementById("transferDate").value=today();document.getElementById("transferAmount").value="";document.getElementById("transferNo").value=nextNo(KEYS.cashMoves,"TRF-","belgeNo");document.getElementById("transferNote").value="";
+}
+document.getElementById("yontem").addEventListener("change",()=>{document.getElementById("hesapId").value=mapMethodToAccount(document.getElementById("yontem").value)});
+
+function saveTransaction(){
+ if(activeType==="Transfer"){saveTransfer();return}
+ const cariId=document.getElementById("cariId").value,tutar=num(document.getElementById("tutar").value),tarih=document.getElementById("tarih").value,accountId=document.getElementById("hesapId").value;
+ if(["Tahsilat","Ödeme"].includes(activeType)&&!cariId){alert("Cari seçiniz.");return}
+ if(!(tutar>0)){alert("Tutar giriniz.");return}
+ if(!tarih){alert("Tarih giriniz.");return}
+ if(!accountId){alert("Kasa / banka hesabı seçiniz.");return}
+ const cari=load(KEYS.cariler).find(x=>String(x.id)===String(cariId)),common={id:Date.now(),tarih,tutar,amount:tutar,cariId:cari?.id||"",cariCode:cari?.code||"",cariAdi:cari?.name||"",hesapId:accountId,hesapAdi:accountName(accountId),yontem:document.getElementById("yontem").value,odemeYontemi:document.getElementById("yontem").value,referansNo:document.getElementById("referansNo").value.trim(),aciklama:document.getElementById("aciklama").value.trim(),durum:"Aktif",createdAt:new Date().toISOString()};
+ if(activeType==="Tahsilat"){
+  const arr=load(KEYS.collections);arr.unshift({...common,makbuzNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.collections,"MKB-","makbuzNo")});put(KEYS.collections,arr)
+ }else if(activeType==="Ödeme"){
+  const arr=load(KEYS.payments);arr.unshift({...common,makbuzNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.payments,"ODM-","makbuzNo")});put(KEYS.payments,arr)
+ }else{
+  const arr=load(KEYS.cashMoves);arr.unshift({...common,type:activeType,belgeNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.cashMoves,activeType==="Gelir"?"GEL-":"GID-","belgeNo")});put(KEYS.cashMoves,arr)
+ }
+ refreshAll();resetForm(false);alert(activeType+" kaydedildi.")
+}
+function saveTransfer(){
+ const from=document.getElementById("fromAccount").value,to=document.getElementById("toAccount").value,tutar=num(document.getElementById("transferAmount").value),tarih=document.getElementById("transferDate").value;
+ if(!from||!to){alert("Çıkış ve giriş hesaplarını seçiniz.");return}if(from===to){alert("Çıkış ve giriş hesabı aynı olamaz.");return}if(!(tutar>0)){alert("Tutar giriniz.");return}if(!tarih){alert("Tarih giriniz.");return}
+ const arr=load(KEYS.cashMoves),id=Date.now();arr.unshift({id,type:"Transfer",tarih,tutar,fromAccountId:from,fromAccountName:accountName(from),toAccountId:to,toAccountName:accountName(to),belgeNo:document.getElementById("transferNo").value.trim()||nextNo(KEYS.cashMoves,"TRF-","belgeNo"),aciklama:document.getElementById("transferNote").value.trim(),durum:"Aktif",createdAt:new Date().toISOString()});put(KEYS.cashMoves,arr);refreshAll();resetForm(false);alert("Transfer kaydedildi.")
+}
+
+function normalizedMovements(){
+ const out=[];
+ load(KEYS.collections).forEach(x=>out.push({source:"collection",id:x.id,type:"Tahsilat",tarih:x.tarih||"",belgeNo:x.makbuzNo||x.belgeNo||"",cariAdi:x.cariAdi||"",aciklama:x.aciklama||"",accountId:x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi),accountName:x.hesapAdi||accountName(x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi)),giris:num(x.tutar||x.amount),cikis:0,durum:x.durum||"Aktif",raw:x}));
+ load(KEYS.payments).forEach(x=>out.push({source:"payment",id:x.id,type:"Ödeme",tarih:x.tarih||"",belgeNo:x.makbuzNo||x.belgeNo||"",cariAdi:x.cariAdi||"",aciklama:x.aciklama||"",accountId:x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi),accountName:x.hesapAdi||accountName(x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi)),giris:0,cikis:num(x.tutar||x.amount),durum:x.durum||"Aktif",raw:x}));
+ load(KEYS.cashMoves).forEach(x=>{
+  if(x.type==="Transfer"){
+   out.push({source:"cash",id:x.id,type:"Transfer",tarih:x.tarih||"",belgeNo:x.belgeNo||"",cariAdi:"",aciklama:(x.aciklama||"Virman")+" · "+(x.fromAccountName||accountName(x.fromAccountId))+" → "+(x.toAccountName||accountName(x.toAccountId)),accountId:x.fromAccountId,accountName:(x.fromAccountName||accountName(x.fromAccountId))+" → "+(x.toAccountName||accountName(x.toAccountId)),giris:0,cikis:0,durum:x.durum||"Aktif",raw:x})
+  }else out.push({source:"cash",id:x.id,type:x.type||"Gelir",tarih:x.tarih||"",belgeNo:x.belgeNo||"",cariAdi:x.cariAdi||"",aciklama:x.aciklama||"",accountId:x.hesapId,accountName:x.hesapAdi||accountName(x.hesapId),giris:x.type==="Gelir"?num(x.tutar):0,cikis:x.type==="Gider"?num(x.tutar):0,durum:x.durum||"Aktif",raw:x})
+ });
+ return out.sort((a,b)=>String(b.tarih||"").localeCompare(String(a.tarih||""))||Number(b.id||0)-Number(a.id||0))
+}
+function isActive(x){return !["İptal","Iptal","Pasif"].includes(String(x.durum||""))}
+function accountBalances(){
+ const a=allAccounts(),bal={};a.forEach(x=>bal[x.id]=num(x.openingBalance));
+ load(KEYS.collections).filter(isActive).forEach(x=>{const id=x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi);bal[id]=(bal[id]||0)+num(x.tutar||x.amount)});
+ load(KEYS.payments).filter(isActive).forEach(x=>{const id=x.hesapId||mapMethodToAccount(x.yontem||x.odemeYontemi);bal[id]=(bal[id]||0)-num(x.tutar||x.amount)});
+ load(KEYS.cashMoves).filter(isActive).forEach(x=>{if(x.type==="Transfer"){bal[x.fromAccountId]=(bal[x.fromAccountId]||0)-num(x.tutar);bal[x.toAccountId]=(bal[x.toAccountId]||0)+num(x.tutar)}else{bal[x.hesapId]=(bal[x.hesapId]||0)+(x.type==="Gelir"?num(x.tutar):-num(x.tutar))}});
+ return bal
+}
+function receivablePayable(){
+ let sales=0,purchases=0;load(KEYS.invoices).filter(isActive).forEach(f=>{const t=String(f.tip||f.faturaTipi||"").toLocaleLowerCase("tr-TR"),v=num(f.genelToplam||f.toplam||f.tutar);if(t.includes("alış")||t.includes("alis")||t.includes("purchase")||t.includes("tedarik"))purchases+=v;else sales+=v});
+ const col=load(KEYS.collections).filter(isActive).reduce((s,x)=>s+num(x.tutar||x.amount),0),pay=load(KEYS.payments).filter(isActive).reduce((s,x)=>s+num(x.tutar||x.amount),0);
+ return {receivable:Math.max(0,sales-col),payable:Math.max(0,purchases-pay)}
+}
+function renderSummary(){
+ const bal=accountBalances(),a=allAccounts(),sumType=t=>a.filter(x=>x.type===t).reduce((s,x)=>s+num(bal[x.id]),0),rp=receivablePayable();
+ document.getElementById("sCash").textContent=money(sumType("Nakit"));document.getElementById("sBank").textContent=money(sumType("Banka"));document.getElementById("sPos").textContent=money(sumType("POS"));document.getElementById("sReceivable").textContent=money(rp.receivable);document.getElementById("sPayable").textContent=money(rp.payable)
+}
+function renderAccountCards(){
+ const bal=accountBalances();document.getElementById("accountCards").innerHTML=allAccounts().map(a=>'<div class="account"><span>'+esc(a.type)+'</span><b>'+esc(a.name)+'</b><small>Bakiye: <b>'+money(bal[a.id]||0)+'</b></small><small>Açılış: '+money(a.openingBalance||0)+'</small><button class="btn gray" style="margin-top:7px;padding:7px 9px" onclick="editAccount(&quot;'+a.id+'&quot;)">Düzenle</button></div>').join("")
+}
+function renderMovements(){
+ const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim(),from=document.getElementById("fromDate").value,to=document.getElementById("toDate").value,tf=document.getElementById("typeFilter").value,af=document.getElementById("accountFilter").value;
+ let list=normalizedMovements().filter(x=>(!q||[x.cariAdi,x.belgeNo,x.aciklama,x.accountName,x.type].join(" ").toLocaleLowerCase("tr-TR").includes(q))&&(!from||x.tarih>=from)&&(!to||x.tarih<=to)&&(!tf||x.type===tf)&&(!af||(x.type==="Transfer"?(x.raw.fromAccountId===af||x.raw.toAccountId===af):x.accountId===af)));
+ document.getElementById("movementRows").innerHTML=list.length?list.map(x=>'<tr><td>'+esc(x.tarih||"-")+'</td><td><span class="badge">'+esc(x.type)+'</span></td><td>'+esc(x.belgeNo||"-")+'</td><td><b>'+esc(x.cariAdi||"-")+'</b><br><span class="muted">'+esc(x.aciklama||"-")+'</span></td><td>'+esc(x.accountName||"-")+'</td><td class="plus">'+(x.giris?money(x.giris):"-")+'</td><td class="minus">'+(x.cikis?money(x.cikis):"-")+'</td><td>'+(isActive(x.raw)?'<span class="badge">Aktif</span>':'<span class="badge cancel">İptal</span>')+'</td><td>'+(isActive(x.raw)?'<button class="btn red" style="padding:6px" onclick="cancelMovement(&quot;'+x.source+'&quot;,&quot;'+x.id+'&quot;)">İptal</button>':'-')+'</td></tr>').join(""):'<tr><td colspan="9">Hareket bulunamadı.</td></tr>'
+}
+function cancelMovement(source,id){
+ if(!confirm("Bu finansal hareket silinmeyecek; İptal durumuna alınacak. Devam edilsin mi?"))return;
+ const key=source==="collection"?KEYS.collections:source==="payment"?KEYS.payments:KEYS.cashMoves,arr=load(key),i=arr.findIndex(x=>String(x.id)===String(id));if(i<0)return;arr[i].durum="İptal";arr[i].iptalTarihi=new Date().toISOString();put(key,arr);refreshAll()
+}
+
+function openAccountModal(){document.getElementById("accountEditId").value="";document.getElementById("accountName").value="";document.getElementById("accountType").value="Nakit";document.getElementById("openingBalance").value="0";document.getElementById("accountNote").value="";document.getElementById("accountModal").style.display="block"}
+function closeAccountModal(){document.getElementById("accountModal").style.display="none"}
+function editAccount(id){const a=load(KEYS.accounts).find(x=>String(x.id)===String(id));if(!a)return;document.getElementById("accountEditId").value=a.id;document.getElementById("accountName").value=a.name||"";document.getElementById("accountType").value=a.type||"Nakit";document.getElementById("openingBalance").value=num(a.openingBalance);document.getElementById("accountNote").value=a.note||"";document.getElementById("accountModal").style.display="block"}
+function saveAccount(){
+ const name=document.getElementById("accountName").value.trim();if(!name){alert("Hesap adı giriniz.");return}
+ let a=load(KEYS.accounts),id=document.getElementById("accountEditId").value||("ACC-"+Date.now()),i=a.findIndex(x=>String(x.id)===String(id)),data={...(i>=0?a[i]:{}),id,name,type:document.getElementById("accountType").value,openingBalance:num(document.getElementById("openingBalance").value),note:document.getElementById("accountNote").value.trim(),active:true,updatedAt:new Date().toISOString()};if(i>=0)a[i]=data;else a.push({...data,createdAt:new Date().toISOString()});put(KEYS.accounts,a);closeAccountModal();fillAccounts();refreshAll()
+}
+function refreshAll(){renderSummary();renderAccountCards();renderMovements()}
+seedAccounts();fillCariler();fillAccounts();document.getElementById("tarih").value=today();document.getElementById("transferDate").value=today();resetForm(false);refreshAll();
+</script>
+</body>
+</html>
