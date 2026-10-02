@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Hesabım</title>
+<style>
+*{box-sizing:border-box}:root{--blue:#0b6db8;--green:#11834f;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:980px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:40px;height:40px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:980px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.profile{display:flex;gap:14px;align-items:center}.avatar{width:76px;height:76px;border-radius:50%;background:#ddebfa;color:#0b61a8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;display:none}
+.profile h2{margin:0 0 3px}.muted{font-size:11px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:10px;background:#fff}.field textarea{min-height:72px}
+.actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.save{background:#0b76c5;color:#fff}.gray{background:#eef2f6;color:#405168}.red{background:#ffe8eb;color:#a21c2b}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.box{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px}
+.photoActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.note{font-size:10px;color:var(--muted);line-height:1.5}
+@media(max-width:700px){.grid,.status,.actions{grid-template-columns:1fr}.full{grid-column:auto}.profile{align-items:flex-start}.avatar{width:64px;height:64px}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Hesabım · Profil · Kullanıcı Bilgileri · Şifre</div></div></div></header>
+<div class="wrap">
+
+ <div class="card"><div class="body">
+  <div class="profile">
+   <div id="avatar" class="avatar"><span id="avatarText">K</span><img id="avatarImg" alt="Profil Fotoğrafı"></div>
+   <div><h2 id="profileName">Kullanıcı</h2><div id="profileRole" class="muted">Yönetici</div><div id="profileCompany" class="muted">MAU Oto Servis</div></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Profil Bilgileri</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Ad Soyad *</label><input id="adSoyad"></div>
+   <div class="field"><label>Kullanıcı Adı *</label><input id="kullaniciAdi"></div>
+   <div class="field"><label>Görev / Yetki</label><select id="rol"><option>Yönetici</option><option>Servis Danışmanı</option><option>Usta Başı</option><option>Muhasebe</option><option>Personel</option></select></div>
+   <div class="field"><label>Telefon</label><input id="telefon"></div>
+   <div class="field full"><label>E-posta</label><input id="eposta" type="email"></div>
+  </div>
+  <div class="photoActions">
+   <input id="photoFile" type="file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="selectPhoto()">
+   <button class="btn gray" onclick="document.getElementById('photoFile').click()">Profil Fotoğrafı Seç</button>
+   <button class="btn gray" onclick="removePhoto()">Fotoğrafı Kaldır</button>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Şifre Değiştir</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Yeni Şifre</label><input id="newPassword" type="password" placeholder="En az 4 karakter"></div>
+   <div class="field"><label>Yeni Şifre Tekrar</label><input id="newPassword2" type="password"></div>
+  </div>
+  <div class="note" style="margin-top:8px">Bu şifre kullanıcı hesabı için yerel cihazda tutulur. Ortak kullanıcı sistemi kurulunca merkezi yetkilendirmeye taşınacaktır.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Hesap Durumu</div><div class="body">
+  <div class="status">
+   <div class="box"><span>Hesap</span><b id="statusAccount">Aktif</b></div>
+   <div class="box"><span>Yetki</span><b id="statusRole">Yönetici</b></div>
+   <div class="box"><span>Son Güncelleme</span><b id="statusUpdated">-</b></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="body">
+  <div class="actions"><button class="btn save" onclick="saveProfile()">✓ Hesabı Kaydet</button><button class="btn gray" onclick="loadProfile()">Değişiklikleri Geri Al</button></div>
+ </div></div>
+
+</div>
+<script>
+const PROFILE_KEY="mau_hesabim",PASSWORD_KEY="mau_kullanici_sifresi",SETTINGS_KEY="mau_ayarlar";
+let pendingPhoto="";
+function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
+function defaults(){return {adSoyad:"Kullanıcı",kullaniciAdi:"admin",rol:"Yönetici",telefon:"",eposta:"",foto:"",aktif:true,updatedAt:""}}
+function initials(name){const a=String(name||"K").trim().split(/\s+/).filter(Boolean);return (a.slice(0,2).map(x=>x[0]).join("")||"K").toLocaleUpperCase("tr-TR")}
+function renderHeader(p){
+ document.getElementById("profileName").textContent=p.adSoyad||"Kullanıcı";
+ document.getElementById("profileRole").textContent=p.rol||"Yönetici";
+ const s=loadObj(SETTINGS_KEY);document.getElementById("profileCompany").textContent=s.firmaAdi||"MAU Oto Servis";
+ document.getElementById("avatarText").textContent=initials(p.adSoyad);
+ const img=document.getElementById("avatarImg");if(pendingPhoto){img.src=pendingPhoto;img.style.display="block";document.getElementById("avatarText").style.display="none"}else{img.removeAttribute("src");img.style.display="none";document.getElementById("avatarText").style.display="block"}
+ document.getElementById("statusRole").textContent=p.rol||"Yönetici";
+ document.getElementById("statusUpdated").textContent=p.updatedAt?new Date(p.updatedAt).toLocaleString("tr-TR"):"-"
+}
+function loadProfile(){
+ const p={...defaults(),...loadObj(PROFILE_KEY)};pendingPhoto=p.foto||"";
+ ["adSoyad","kullaniciAdi","rol","telefon","eposta"].forEach(id=>document.getElementById(id).value=p[id]??"");
+ document.getElementById("newPassword").value="";document.getElementById("newPassword2").value="";renderHeader(p)
+}
+function selectPhoto(){
+ const f=document.getElementById("photoFile").files[0];if(!f)return;
+ if(!f.type.startsWith("image/")){alert("Lütfen resim dosyası seçin.");return}
+ if(f.size>8*1024*1024){alert("Fotoğraf dosyası çok büyük. 8 MB altında bir görsel seçin.");return}
+ const r=new FileReader();r.onload=function(){const im=new Image();im.onload=function(){const size=240,canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;const ctx=canvas.getContext("2d"),scale=Math.max(size/im.width,size/im.height),w=im.width*scale,h=im.height*scale;ctx.drawImage(im,(size-w)/2,(size-h)/2,w,h);pendingPhoto=canvas.toDataURL("image/webp",0.85);renderHeader({...defaults(),...loadObj(PROFILE_KEY),adSoyad:document.getElementById("adSoyad").value,rol:document.getElementById("rol").value,foto:pendingPhoto})};im.src=r.result};r.readAsDataURL(f)
+}
+function removePhoto(){pendingPhoto="";document.getElementById("photoFile").value="";renderHeader({...defaults(),...loadObj(PROFILE_KEY),adSoyad:document.getElementById("adSoyad").value,rol:document.getElementById("rol").value,foto:""})}
+function saveProfile(){
+ const ad=document.getElementById("adSoyad").value.trim(),user=document.getElementById("kullaniciAdi").value.trim();if(!ad||!user){alert("Ad soyad ve kullanıcı adı zorunlu.");return}
+ const p1=document.getElementById("newPassword").value,p2=document.getElementById("newPassword2").value;if(p1||p2){if(p1.length<4){alert("Şifre en az 4 karakter olmalı.");return}if(p1!==p2){alert("Şifreler aynı değil.");return}}
+ const p={adSoyad:ad,kullaniciAdi:user,rol:document.getElementById("rol").value,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),foto:pendingPhoto,aktif:true,updatedAt:new Date().toISOString()};
+ localStorage.setItem(PROFILE_KEY,JSON.stringify(p));if(p1)localStorage.setItem(PASSWORD_KEY,p1);renderHeader(p);document.getElementById("newPassword").value="";document.getElementById("newPassword2").value="";alert("Hesap bilgileri kaydedildi.")
+}
+loadProfile();
+</script>
+</body>
+</html>
