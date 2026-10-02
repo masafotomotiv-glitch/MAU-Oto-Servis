@@ -122,7 +122,10 @@ async function saveFiles(){
    await dbPut({id,blob:file});
    all.push({id,claimId:String(claimId),fileName:file.name,mime:file.type||"application/octet-stream",size:file.size,category:cat,folder,stage,label,note,sendToExpert:send,order:++order,createdAt:new Date().toISOString()})
   }
-  saveMeta(all);resetAddForm();render();alert(files.length+" dosya arşive eklendi.")
+  saveMeta(all);
+  const flagMap={"Ruhsat / Resmi Evrak":"ruhsat","Kimlik":"kimlik","Kaza Tespit Tutanağı":"kazaTutanagi","IBAN":"iban","Vekalet / Yetki":"ortaklik","Şasi / VIN":"sasiKm","KM Göstergesi":"sasiKm","Olay Yeri":"olay","Onarım Aşaması":"tamir"};
+  const flag=flagMap[cat];if(flag){claims=load(CLAIM_KEY);const ci=claims.findIndex(x=>String(x.id)===String(claimId));if(ci>=0){claims[ci].evrak={...(claims[ci].evrak||{}),[flag]:true};put(CLAIM_KEY,claims);claim=claims[ci]}}
+  resetAddForm();render();alert(files.length+" dosya arşive eklendi.")
  }catch(e){alert("Dosya kaydedilemedi: "+(e.message||e))}
 }
 function requiredStatus(list){
