@@ -15,6 +15,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.TextRecognition;
@@ -23,7 +24,12 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import org.json.JSONObject;
 
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private static final int PICK_RUHSAT_IMAGE = 4021;
@@ -106,6 +112,11 @@ public class MainActivity extends Activity {
         public void shareText(String text) {
             runOnUiThread(() -> shareCurrentText(text));
         }
+
+        @JavascriptInterface
+        public void shareCsv(String fileName, String csvContent) {
+            runOnUiThread(() -> shareCsvFile(fileName, csvContent));
+        }
     }
 
     private void shareCurrentText(String text) {
@@ -113,8 +124,49 @@ public class MainActivity extends Activity {
         sendIntent.setType("text/plain");
         sendIntent.putExtra(Intent.EXTRA_TEXT, text == null ? "" : text);
 
-        Intent chooser = Intent.createChooser(sendIntent, "Teklifi paylaş");
+        Intent chooser = Intent.createChooser(sendIntent, "Raporu paylaş");
         startActivity(chooser);
+    }
+
+    private void shareCsvFile(String fileName, String csvContent) {
+        try {
+            File exportDir = new File(getCacheDir(), "exports");
+            if (!exportDir.exists() && !exportDir.mkdirs()) {
+                throw new IOException("Dışa aktarma klasörü oluşturulamadı.");
+            }
+
+            String safeName = fileName == null ? "MAU-Rapor.csv" : fileName;
+            safeName = safeName.replaceAll("[^a-zA-Z0-9._-]", "_");
+            if (!safeName.toLowerCase().endsWith(".csv")) {
+                safeName += ".csv";
+            }
+
+            File file = new File(exportDir, safeName);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                out.write((csvContent == null ? "" : csvContent)
+                        .getBytes(StandardCharsets.UTF_8));
+            }
+
+            Uri uri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider",
+                    file
+            );
+
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("text/csv");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(sendIntent, "CSV raporunu paylaş"));
+        } catch (Exception e) {
+            Toast.makeText(
+                    this,
+                    "CSV raporu oluşturulamadı: "
+                            + (e.getMessage() == null ? "dosya hatası" : e.getMessage()),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
 
     private void printCurrentPage() {
