@@ -101,7 +101,7 @@ function normalizeRow(row,kind){
  if(kind==="faturalar"){
   const no=pickByAliases(row,["fatura no","fatura numarası","fatura numarasi","belge no","no"]);if(!String(no).trim())return null;
   const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
-  const c=ensureCari(code,name,tel,vn);
+  const c=findCari(code,name,tel,vn);
   const total=num(pickByAliases(row,["genel toplam","toplam","tutar","fatura toplamı","fatura toplami"]));
   return{id:nextId(),faturaNo:String(no).trim(),faturaTarihi:excelDate(pickByAliases(row,["fatura tarihi","tarih","date"])),tarih:excelDate(pickByAliases(row,["fatura tarihi","tarih","date"])),tip:String(pickByAliases(row,["fatura tipi","tip","tür","tur"])||"Satış"),faturaTipi:String(pickByAliases(row,["fatura tipi","tip","tür","tur"])||"Satış"),durum:String(pickByAliases(row,["durum","status"])||"Aktif"),cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),genelToplam:total,toplam:total,tutar:total,aciklama:String(pickByAliases(row,["açıklama","aciklama","description"])||"Eski yedekten test aktarımı"),createdAt:new Date().toISOString()}
  }
@@ -109,13 +109,13 @@ function normalizeRow(row,kind){
   const no=pickByAliases(row,["makbuz no","tahsilat no","belge no","fiş no","fis no","no"]);
   const amount=num(pickByAliases(row,["tahsilat","tutar","ödenen","odenen","amount"]));if(!amount)return null;
   const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
-  const c=ensureCari(code,name,tel,vn);
+  const c=findCari(code,name,tel,vn);
   return{id:nextId(),makbuzNo:String(no||("TAH-"+String(Date.now()).slice(-8))),tarih:excelDate(pickByAliases(row,["tarih","tahsilat tarihi","date"])),tutar:amount,amount:amount,cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),yontem:String(pickByAliases(row,["ödeme yöntemi","odeme yontemi","yöntem","yontem"])||"Nakit"),odemeYontemi:String(pickByAliases(row,["ödeme yöntemi","odeme yontemi","yöntem","yontem"])||"Nakit"),aciklama:String(pickByAliases(row,["açıklama","aciklama"])||"Eski yedekten test aktarımı"),durum:"Aktif",createdAt:new Date().toISOString()}
  }
  if(kind==="isemirleri"){
   const no=pickByAliases(row,["iş emri no","is emri no","iş emri","is emri","emir no"]);if(!String(no).trim())return null;
   const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
-  const c=ensureCari(code,name,tel,vn);const total=num(pickByAliases(row,["genel toplam","toplam","tutar"]));
+  const c=findCari(code,name,tel,vn);const total=num(pickByAliases(row,["genel toplam","toplam","tutar"]));
   return{id:nextId(),isEmriNo:String(no).trim(),tarih:excelDate(pickByAliases(row,["tarih","kabul tarihi","date"])),cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),durum:String(pickByAliases(row,["durum","status"])||"Açık"),genelToplam:total,toplam:total,aciklama:String(pickByAliases(row,["açıklama","aciklama"])||"Eski yedekten test aktarımı"),createdAt:new Date().toISOString()}
  }
  return null
@@ -178,7 +178,9 @@ function renderPreview(){
  const keys=Object.keys(x).filter(function(k){return !["id","created","createdAt"].includes(k)}).slice(0,10);document.getElementById("previewHead").innerHTML="<tr>"+keys.map(function(k){return"<th>"+esc(k)+"</th>"}).join("")+"</tr>";document.getElementById("previewBody").innerHTML="<tr>"+keys.map(function(k){return"<td>"+esc(x[k])+"</td>"}).join("")+"</tr>"
 }
 function importOne(){
- if(!normalizedRows.length)return;const kind=document.getElementById("kind").value,t=TARGETS[kind],item=normalizedRows[0],list=loadArray(t.key),tk=token(item,kind),idx=list.findIndex(function(x){return token(x,kind)===tk});
+ if(!normalizedRows.length)return;const kind=document.getElementById("kind").value,t=TARGETS[kind],item=Object.assign({},normalizedRows[0]);
+ if(kind!=="cariler"&&!item.cariId&&(item.cariCode||item.cariAdi)){const c=ensureCari(item.cariCode,item.cariAdi,"","");if(c){item.cariId=c.id;item.cariCode=c.code;item.cariAdi=c.name}}
+ const list=loadArray(t.key),tk=token(item,kind),idx=list.findIndex(function(x){return token(x,kind)===tk});
  let action="eklendi";if(idx>=0){if(!confirm("Bu kayıt sistemde eşleşiyor. Test için mevcut kaydı güncelleyelim mi?"))return;item.id=list[idx].id||item.id;list[idx]=Object.assign({},list[idx],item,{updatedAt:new Date().toISOString()});action="güncellendi"}else list.unshift(item);
  saveArray(t.key,list);localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:kind,file:activeFileName,token:tk,at:new Date().toISOString()}));log("TEST BAŞARILI: "+t.title+" bölümüne 1 kayıt "+action+".\nToplu aktarım yapılmadı. İlgili ekrana gidip kaydı kontrol edin.");document.getElementById("importBtn").disabled=true;alert(t.title+" test aktarımı: 1 kayıt "+action+".")
 }
