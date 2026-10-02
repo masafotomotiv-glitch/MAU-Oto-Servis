@@ -20,6 +20,37 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text
 .movementTable th:nth-child(8),.movementTable td:nth-child(8){width:9%}
 .movementTable th:nth-child(9),.movementTable td:nth-child(9){width:9%}
 .movementTable th:nth-child(10),.movementTable td:nth-child(10){width:7%}
+.fitTable{width:100%;min-width:0!important;table-layout:fixed}
+.fitTable th,.fitTable td{font-size:10px;padding:5px 4px;overflow-wrap:anywhere;word-break:break-word}
+.vehiclesTable th:nth-child(1),.vehiclesTable td:nth-child(1){width:12%}
+.vehiclesTable th:nth-child(2),.vehiclesTable td:nth-child(2){width:23%}
+.vehiclesTable th:nth-child(3),.vehiclesTable td:nth-child(3){width:25%}
+.vehiclesTable th:nth-child(4),.vehiclesTable td:nth-child(4){width:18%}
+.vehiclesTable th:nth-child(5),.vehiclesTable td:nth-child(5){width:10%}
+.vehiclesTable th:nth-child(6),.vehiclesTable td:nth-child(6){width:12%}
+.workOrdersTable th:nth-child(1),.workOrdersTable td:nth-child(1){width:15%}
+.workOrdersTable th:nth-child(2),.workOrdersTable td:nth-child(2){width:13%}
+.workOrdersTable th:nth-child(3),.workOrdersTable td:nth-child(3){width:13%}
+.workOrdersTable th:nth-child(4),.workOrdersTable td:nth-child(4){width:16%}
+.workOrdersTable th:nth-child(5),.workOrdersTable td:nth-child(5){width:15%}
+.workOrdersTable th:nth-child(6),.workOrdersTable td:nth-child(6){width:28%}
+.invoiceLinesTable th:nth-child(1),.invoiceLinesTable td:nth-child(1){width:8%}
+.invoiceLinesTable th:nth-child(2),.invoiceLinesTable td:nth-child(2){width:35%}
+.invoiceLinesTable th:nth-child(3),.invoiceLinesTable td:nth-child(3){width:8%}
+.invoiceLinesTable th:nth-child(4),.invoiceLinesTable td:nth-child(4){width:9%}
+.invoiceLinesTable th:nth-child(5),.invoiceLinesTable td:nth-child(5){width:18%}
+.invoiceLinesTable th:nth-child(6),.invoiceLinesTable td:nth-child(6){width:22%}
+.claimsTable th:nth-child(1),.claimsTable td:nth-child(1){width:14%}
+.claimsTable th:nth-child(2),.claimsTable td:nth-child(2){width:14%}
+.claimsTable th:nth-child(3),.claimsTable td:nth-child(3){width:12%}
+.claimsTable th:nth-child(4),.claimsTable td:nth-child(4){width:23%}
+.claimsTable th:nth-child(5),.claimsTable td:nth-child(5){width:23%}
+.claimsTable th:nth-child(6),.claimsTable td:nth-child(6){width:14%}
+.docsTable th:nth-child(1),.docsTable td:nth-child(1){width:15%}
+.docsTable th:nth-child(2),.docsTable td:nth-child(2){width:12%}
+.docsTable th:nth-child(3),.docsTable td:nth-child(3){width:31%}
+.docsTable th:nth-child(4),.docsTable td:nth-child(4){width:18%}
+.docsTable th:nth-child(5),.docsTable td:nth-child(5){width:24%}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 header,.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
 header{padding:18px}.detailHead{padding:16px}
@@ -60,6 +91,8 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 @media(max-width:700px){
  .stats,.summary{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.formGrid,.roleGrid,.overviewGrid{grid-template-columns:1fr}
  .filters{grid-template-columns:1fr 1fr}.filters button{grid-column:1/-1;min-height:42px}
+ #panel .tableWrap{overflow:visible}
+ .fitTable th,.fitTable td,.movementTable th,.movementTable td{font-size:9px;padding:4px 3px;line-height:1.2}
 }
 </style>
 </head>
@@ -533,7 +566,7 @@ function panelAraclar(){
   '<tr><td colspan="6">Bu cariye bağlı araç yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Araçlar</div><div class="note"><b>Salt okunur.</b> Araç ekleme ve düzenleme ana ekrandaki <b>Araç Kayıt</b> bölümünden yapılır. Orada cari seçildiğinde araç bu listede otomatik görünür.</div>'+
  '<div class="quick"><button class="pdf" onclick="printSection(&quot;araclar&quot;)">📄 Araçlar / PDF</button></div>'+
- '<div class="tableWrap"><table><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>Motor No</th><th>KM</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ '<div class="tableWrap"><table class="fitTable vehiclesTable"><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>Motor No</th><th>KM</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelHareket(){
  const all=movementsWithBalance(buildMovements());
@@ -557,7 +590,7 @@ function panelIsEmri(){
   '<tr><td colspan="6">Bu cariye bağlı iş emri yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">İş Emirleri</div><div class="note"><b>Salt okunur.</b> İş emri kayıtları İş Emirleri bölümünden otomatik gelir.</div>'+
  '<div class="quick"><button class="pdf" onclick="printSection(&quot;isemri&quot;)">📄 İş Emirleri / PDF</button></div>'+
- '<div class="tableWrap"><table><thead><tr><th>İş Emri No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ '<div class="tableWrap"><table class="fitTable workOrdersTable"><thead><tr><th>İş Emri No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function invoiceLines(inv){
  let iscilikler=Array.isArray(inv.iscilikler)?inv.iscilikler:[],parcalar=Array.isArray(inv.parcalar)?inv.parcalar:[];
@@ -578,7 +611,7 @@ function invoiceDetailTable(inv){
   rows.push('<tr><td>Parça</td><td>'+esc(x.ad||x.name||"-")+(x.kod?' <small>('+esc(x.kod)+')</small>':'')+'</td><td>'+qty.toLocaleString("tr-TR")+'</td><td>'+esc(x.birim||"Adet")+'</td><td>'+money(price)+'</td><td>'+money(qty*price)+'</td></tr>');
  });
  return rows.length?
-  '<div class="tableWrap"><table><thead><tr><th>Tür</th><th>İşlem / Parça</th><th>Miktar</th><th>Birim</th><th>Birim Fiyat</th><th>Tutar</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>':
+  '<div class="tableWrap"><table class="fitTable invoiceLinesTable"><thead><tr><th>Tür</th><th>İşlem / Parça</th><th>Miktar</th><th>Birim</th><th>Birim Fiyat</th><th>Tutar</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>':
   '<div class="note">Bu faturada satır detayı bulunmuyor.</div>';
 }
 function invoiceCard(inv){
@@ -601,7 +634,7 @@ function panelHasar(){
   '<tr><td colspan="6">Bu cariye bağlı hasar / sigorta dosyası yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Hasar & Sigorta</div><div class="note"><b>Salt okunur.</b> Hasar, sigorta ve eksper dosyaları Hasar & Sigorta bölümünden otomatik gelir.</div>'+
  '<div class="quick"><button class="pdf" onclick="printSection(&quot;hasar&quot;)">📄 Hasar & Sigorta / PDF</button></div>'+
- '<div class="tableWrap"><table><thead><tr><th>Dosya No</th><th>Tarih</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ '<div class="tableWrap"><table class="fitTable claimsTable"><thead><tr><th>Dosya No</th><th>Tarih</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelBelge(){
  const a=activeDocs();
@@ -609,7 +642,7 @@ function panelBelge(){
   '<tr><td colspan="5">Bu cariye bağlı belge yok.</td></tr>';
  document.getElementById("panel").innerHTML='<div class="panelTitle">Belgeler</div><div class="note"><b>Salt okunur.</b> Fatura, iş emri, hasar, ruhsat ve diğer evraklar oluşturuldukları kaynak bölümden otomatik gelir.</div>'+
  '<div class="quick"><button class="pdf" onclick="printSection(&quot;belge&quot;)">📄 Belge Listesi / PDF</button></div>'+
- '<div class="tableWrap"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>Belge No</th><th>Kaynak</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ '<div class="tableWrap"><table class="fitTable docsTable"><thead><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>Belge No</th><th>Kaynak</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelNot(){
  document.getElementById("panel").innerHTML='<div class="panelTitle">Cari Notları</div><div class="note"><b>Bu bölüm cariye özel serbest not alanıdır.</b> Notlar sadece burada düzenlenir.</div>'+
