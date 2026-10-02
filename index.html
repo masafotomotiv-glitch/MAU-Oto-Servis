@@ -2,66 +2,73 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAU Oto Servis</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
 body{
   font-family:Arial,Helvetica,sans-serif;
   background:#e9eef4;
-  color:#10233e;
+  color:#172943;
 }
+
 .app{
   width:100%;
   max-width:1200px;
   min-height:100vh;
   margin:auto;
   background:#f7f9fc;
-  padding-bottom:18px;
+  padding-bottom:24px;
 }
 
 /* ÜST BAŞLIK */
 .header{
-  height:112px;
-  margin:0 18px;
-  padding:0 24px;
+  min-height:112px;
+  padding:18px 24px;
   background:linear-gradient(90deg,#073a70,#005298);
-  border-radius:0 0 15px 15px;
   color:white;
   display:grid;
-  grid-template-columns:220px 1fr 310px;
+  grid-template-columns:220px 1fr 300px;
   align-items:center;
-  gap:20px;
+  gap:18px;
 }
+
 .logo{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:10px;
 }
+
 .logo-mark{
-  width:55px;
-  height:55px;
-  color:#12d5f4;
-}
-.logo-main{
-  font-size:32px;
+  font-size:42px;
   font-weight:900;
-  line-height:1;
+  color:#2bd4e6;
 }
+
+.logo-title{
+  font-size:24px;
+  font-weight:900;
+}
+
 .logo-sub{
-  font-size:13px;
-  font-weight:800;
-  color:#17d9f4;
-  margin-top:6px;
+  font-size:12px;
+  opacity:.9;
 }
+
 .company-label{
   font-size:12px;
   font-weight:bold;
   margin-bottom:5px;
 }
+
 .company-box{
-  height:43px;
+  height:44px;
   max-width:320px;
   padding:0 14px;
   background:white;
@@ -71,28 +78,509 @@ body{
   align-items:center;
   justify-content:space-between;
   font-weight:bold;
-  font-size:14px;
 }
+
 .top-menu{
-  height:100%;
   display:grid;
   grid-template-columns:repeat(3,1fr);
+  gap:8px;
 }
+
 .top-item{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:5px;
+  text-align:center;
   font-size:12px;
   font-weight:bold;
 }
-.top-item svg{
-  width:29px;
-  height:29px;
-  fill:white;
+
+.top-icon{
+  font-size:25px;
+  margin-bottom:4px;
 }
 
 /* ARAMA */
 .toolbar{
-  margin:15
+  margin:16px 18px;
+  display:grid;
+  grid-template-columns:1fr 70px 210px;
+  gap:10px;
+}
+
+.search{
+  height:52px;
+  background:white;
+  border:1px solid #d5dce5;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  color:#718096;
+  font-size:15px;
+}
+
+.qr,
+.accept{
+  height:52px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.qr{
+  background:white;
+  border:1px solid #d5dce5;
+  font-size:25px;
+}
+
+.accept{
+  background:#13a05a;
+  color:white;
+  font-size:15px;
+}
+
+/* ANA 9 MENÜ */
+.menu-grid{
+  margin:0 18px 18px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.menu-card{
+  height:136px;
+  border-radius:14px;
+  padding:16px;
+  color:white;
+  position:relative;
+  box-shadow:0 3px 10px rgba(0,0,0,.10);
+}
+
+.menu-icon{
+  font-size:34px;
+  margin-bottom:13px;
+}
+
+.menu-title{
+  font-size:18px;
+  font-weight:800;
+}
+
+.menu-sub{
+  font-size:12px;
+  margin-top:5px;
+  opacity:.92;
+}
+
+.blue{background:#1976d2;}
+.green{background:#169b62;}
+.red{background:#df4452;}
+.orange{background:#ef8c23;}
+.purple{background:#7548b8;}
+.teal{background:#139b9b;}
+.sky{background:#328bd1;}
+.slate{background:#40556e;}
+.violet{background:#6848b5;}
+
+/* DURUM KARTLARI */
+.status-grid{
+  margin:0 18px 18px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.status{
+  min-height:94px;
+  background:white;
+  border:1px solid #e0e5ec;
+  border-radius:12px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.status-icon{
+  font-size:27px;
+}
+
+.status-title{
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:6px;
+}
+
+.status-value{
+  font-size:18px;
+  font-weight:800;
+}
+
+/* PANELLER */
+.panels{
+  margin:0 18px 14px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.panel{
+  background:white;
+  border:1px solid #e0e5ec;
+  border-radius:12px;
+  min-height:180px;
+  overflow:hidden;
+}
+
+.panel-head{
+  padding:14px 16px;
+  border-bottom:1px solid #edf0f4;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:800;
+  font-size:14px;
+}
+
+.all{
+  font-size:12px;
+  color:#1976d2;
+}
+
+.empty{
+  height:125px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#8a97a8;
+  font-size:13px;
+}
+
+/* AYLIK CİRO */
+.chart-panel{
+  margin:0 18px 14px;
+  background:white;
+  border:1px solid #e0e5ec;
+  border-radius:12px;
+}
+
+.chart{
+  height:160px;
+  padding:22px 18px 10px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.month{
+  flex:1;
+  text-align:center;
+  font-size:10px;
+  color:#64748b;
+}
+
+.bar{
+  width:70%;
+  max-width:28px;
+  margin:0 auto 7px;
+  background:#2f80c9;
+  border-radius:5px 5px 0 0;
+  min-height:12px;
+}
+
+/* ALT ÖZET */
+.summary{
+  padding:18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.summary-box{
+  border:1px solid #e5e9ef;
+  border-radius:10px;
+  padding:14px;
+}
+
+.summary-label{
+  color:#718096;
+  font-size:12px;
+  margin-bottom:7px;
+}
+
+.summary-value{
+  font-size:20px;
+  font-weight:800;
+}
+
+/* TABLET / TELEFON */
+@media(max-width:800px){
+  .header{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .company-box{
+    max-width:none;
+  }
+
+  .toolbar{
+    grid-template-columns:1fr 58px;
+  }
+
+  .accept{
+    grid-column:1 / -1;
+  }
+
+  .menu-card{
+    height:125px;
+    padding:12px;
+  }
+
+  .menu-title{
+    font-size:14px;
+  }
+
+  .menu-sub{
+    font-size:10px;
+  }
+
+  .status-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .panels{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark">M••</div>
+      <div>
+        <div class="logo-title">MAU</div>
+        <div class="logo-sub">OTO SERVİS</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="company-label">Firma</div>
+      <div class="company-box">
+        <span>Asaf Otomotiv</span>
+        <span>⌄</span>
+      </div>
+    </div>
+
+    <div class="top-menu">
+      <div class="top-item">
+        <div class="top-icon">👤</div>
+        Hesabım
+      </div>
+      <div class="top-item">
+        <div class="top-icon">⚙</div>
+        Ayarlar
+      </div>
+      <div class="top-item">
+        <div class="top-icon">↪</div>
+        Çıkış
+      </div>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <div class="search">⌕ &nbsp; Plaka, müşteri, telefon, dosya no ile ara...</div>
+    <div class="qr">▦</div>
+    <div class="accept">＋ Araç Kabul</div>
+  </section>
+
+  <section class="menu-grid">
+    <div class="menu-card blue">
+      <div class="menu-icon">🚘</div>
+      <div class="menu-title">Araç Kabul</div>
+      <div class="menu-sub">Yeni araç · İş emri</div>
+    </div>
+
+    <div class="menu-card green">
+      <div class="menu-icon">🔧</div>
+      <div class="menu-title">İş Emirleri</div>
+      <div class="menu-sub">Devam eden işler</div>
+    </div>
+
+    <div class="menu-card red">
+      <div class="menu-icon">🛡</div>
+      <div class="menu-title">Hasar &amp; Sigorta</div>
+      <div class="menu-sub">Eksper · Dosya takibi</div>
+    </div>
+
+    <div class="menu-card orange">
+      <div class="menu-icon">⚙</div>
+      <div class="menu-title">Parça &amp; Stok</div>
+      <div class="menu-sub">Yedek parça yönetimi</div>
+    </div>
+
+    <div class="menu-card purple">
+      <div class="menu-icon">👥</div>
+      <div class="menu-title">Müşteriler</div>
+      <div class="menu-sub">Cari · Araçlar · Geçmiş</div>
+    </div>
+
+    <div class="menu-card teal">
+      <div class="menu-icon">₺</div>
+      <div class="menu-title">Cari &amp; Kasa</div>
+      <div class="menu-sub">Tahsilat · Ödeme</div>
+    </div>
+
+    <div class="menu-card sky">
+      <div class="menu-icon">▥</div>
+      <div class="menu-title">Raporlar</div>
+      <div class="menu-sub">Ciro · Karlılık · Analiz</div>
+    </div>
+
+    <div class="menu-card slate">
+      <div class="menu-icon">👤</div>
+      <div class="menu-title">Personel / Ustalar</div>
+      <div class="menu-sub">Ekle · Düzenle · Bölüm</div>
+    </div>
+
+    <div class="menu-card violet">
+      <div class="menu-icon">⚙</div>
+      <div class="menu-title">Ayarlar</div>
+      <div class="menu-sub">Sistem · Yedekleme</div>
+    </div>
+  </section>
+
+  <section class="status-grid">
+    <div class="status">
+      <div class="status-icon">🚘</div>
+      <div>
+        <div class="status-title">Serviste</div>
+        <div class="status-value">0 Araç</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-icon">📋</div>
+      <div>
+        <div class="status-title">Eksper Onayı Bekleyen</div>
+        <div class="status-value">0 Araç</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-icon">📦</div>
+      <div>
+        <div class="status-title">Parça Bekleyen</div>
+        <div class="status-value">0 Araç</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-icon">📅</div>
+      <div>
+        <div class="status-title">Bugün Teslim</div>
+        <div class="status-value">0 Araç</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-icon">₺</div>
+      <div>
+        <div class="status-title">Tahsil Edilecek</div>
+        <div class="status-value">₺0</div>
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="status-icon">🛡</div>
+      <div>
+        <div class="status-title">Sigortadan Bekleyen</div>
+        <div class="status-value">₺0</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panels">
+    <div class="panel">
+      <div class="panel-head">
+        <span>BUGÜN SERVİSTE</span>
+        <span class="all">Tümü</span>
+      </div>
+      <div class="empty">Henüz araç kaydı yok</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span>SON İŞLEMLER</span>
+        <span class="all">Tümü</span>
+      </div>
+      <div class="empty">Henüz işlem yok</div>
+    </div>
+  </section>
+
+  <section class="chart-panel">
+    <div class="panel-head">
+      <span>AYLIK CİRO</span>
+      <span class="all">Tümü</span>
+    </div>
+
+    <div class="chart">
+      <div class="month"><div class="bar" style="height:25px"></div>Oca</div>
+      <div class="month"><div class="bar" style="height:38px"></div>Şub</div>
+      <div class="month"><div class="bar" style="height:30px"></div>Mar</div>
+      <div class="month"><div class="bar" style="height:50px"></div>Nis</div>
+      <div class="month"><div class="bar" style="height:43px"></div>May</div>
+      <div class="month"><div class="bar" style="height:65px"></div>Haz</div>
+      <div class="month"><div class="bar" style="height:58px"></div>Tem</div>
+      <div class="month"><div class="bar" style="height:75px"></div>Ağu</div>
+      <div class="month"><div class="bar" style="height:48px"></div>Eyl</div>
+      <div class="month"><div class="bar" style="height:20px"></div>Eki</div>
+      <div class="month"><div class="bar" style="height:12px"></div>Kas</div>
+      <div class="month"><div class="bar" style="height:12px"></div>Ara</div>
+    </div>
+  </section>
+
+  <section class="panels">
+    <div class="panel">
+      <div class="panel-head">
+        <span>TAHSİLAT / ÖDEME</span>
+        <span class="all">Tümü</span>
+      </div>
+      <div class="summary">
+        <div class="summary-box">
+          <div class="summary-label">Tahsilat</div>
+          <div class="summary-value">₺0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Ödeme</div>
+          <div class="summary-value">₺0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span>STOK DURUMU</span>
+        <span class="all">Tümü</span>
+      </div>
+      <div class="summary">
+        <div class="summary-box">
+          <div class="summary-label">Toplam Stok</div>
+          <div class="summary-value">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">Kritik Stok</div>
+          <div class="summary-value">0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+        </html>
