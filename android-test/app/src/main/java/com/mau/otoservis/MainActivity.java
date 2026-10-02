@@ -22,21 +22,27 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class MainActivity extends Activity {
     private static final int PICK_RUHSAT_IMAGE = 4021;
     private static final int CREATE_CSV_FILE = 4022;
+    private static final int CREATE_XLSX_FILE = 4023;
 
     private WebView webView;
     private TextRecognizer textRecognizer;
     private String pendingCsvContent = "";
     private String pendingCsvName = "MAU-Rapor.csv";
+    private String pendingXlsxRows = "[]";
+    private String pendingXlsxName = "MAU-Rapor.xlsx";
 
     private static final String START_URL =
             "https://masafotomotiv-glitch.github.io/MAU-Oto-Servis/";
@@ -118,6 +124,11 @@ public class MainActivity extends Activity {
         public void shareCsv(String fileName, String csvContent) {
             runOnUiThread(() -> shareCsvFile(fileName, csvContent));
         }
+
+        @JavascriptInterface
+        public void saveXlsx(String fileName, String rowsJson) {
+            runOnUiThread(() -> saveXlsxFile(fileName, rowsJson));
+        }
     }
 
     private void shareCurrentText(String text) {
@@ -144,6 +155,23 @@ public class MainActivity extends Activity {
         intent.setType("text/csv");
         intent.putExtra(Intent.EXTRA_TITLE, pendingCsvName);
         startActivityForResult(intent, CREATE_CSV_FILE);
+    }
+
+    private void saveXlsxFile(String fileName, String rowsJson) {
+        pendingXlsxRows = rowsJson == null || rowsJson.trim().isEmpty() ? "[]" : rowsJson;
+        pendingXlsxName = fileName == null || fileName.trim().isEmpty()
+                ? "MAU-Rapor.xlsx"
+                : fileName.trim();
+
+        if (!pendingXlsxName.toLowerCase().endsWith(".xlsx")) {
+            pendingXlsxName += ".xlsx";
+        }
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        intent.putExtra(Intent.EXTRA_TITLE, pendingXlsxName);
+        startActivityForResult(intent, CREATE_XLSX_FILE);
     }
 
     private void printCurrentPage() {
@@ -185,6 +213,27 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CREATE_XLSX_FILE) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(data.getData())) {
+                    if (out == null) {
+                        throw new IOException("Dosya açılamadı.");
+                    }
+                    writeXlsx(out, pendingXlsxRows);
+                    Toast.makeText(this, "Excel raporu kaydedildi.", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(
+                            this,
+                            "Excel kaydedilemedi: "
+                                    + (e.getMessage() == null ? "dosya hatası" : e.getMessage()),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+            pendingXlsxRows = "[]";
+            return;
+        }
 
         if (requestCode == CREATE_CSV_FILE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
@@ -261,6 +310,90 @@ public class MainActivity extends Activity {
                             + (e.getMessage() == null ? "dosya hatası" : e.getMessage())
             );
         }
+    }
+
+    private void writeXlsx(OutputStream outputStream, String rowsJson) throws Exception {
+        JSONArray rows = new JSONArray(rowsJson == null ? "[]" : rowsJson);
+
+        try (ZipOutputStream zip = new ZipOutputStream(outputStream)) {
+            putZipEntry(zip, "[Content_Types].xml",
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                            + "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
+                            + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>"
+                            + "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+                            + "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>"
+                            + "<Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+                            + "</Types>");
+
+            putZipEntry(zip, "_rels/.rels",
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                            + "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+                            + "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/>"
+                            + "</Relationships>");
+
+            putZipEntry(zip, "xl/workbook.xml",
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                            + "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" "
+                            + "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
+                            + "<sheets><sheet name=\"Rapor\" sheetId=\"1\" r:id=\"rId1\"/></sheets>"
+                            + "</workbook>");
+
+            putZipEntry(zip, "xl/_rels/workbook.xml.rels",
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                            + "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+                            + "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>"
+                            + "</Relationships>");
+
+            StringBuilder sheet = new StringBuilder();
+            sheet.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+            sheet.append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData>");
+
+            for (int r = 0; r < rows.length(); r++) {
+                JSONArray row = rows.optJSONArray(r);
+                if (row == null) {
+                    continue;
+                }
+                int rowNo = r + 1;
+                sheet.append("<row r=\"").append(rowNo).append("\">");
+                for (int col = 0; col < row.length(); col++) {
+                    String ref = excelColumn(col) + rowNo;
+                    String value = String.valueOf(row.opt(col) == null ? "" : row.opt(col));
+                    sheet.append("<c r=\"").append(ref).append("\" t=\"inlineStr\"><is><t xml:space=\"preserve\">")
+                            .append(xmlEscape(value))
+                            .append("</t></is></c>");
+                }
+                sheet.append("</row>");
+            }
+
+            sheet.append("</sheetData></worksheet>");
+            putZipEntry(zip, "xl/worksheets/sheet1.xml", sheet.toString());
+        }
+    }
+
+    private void putZipEntry(ZipOutputStream zip, String name, String content) throws IOException {
+        zip.putNextEntry(new ZipEntry(name));
+        zip.write(content.getBytes(StandardCharsets.UTF_8));
+        zip.closeEntry();
+    }
+
+    private String excelColumn(int index) {
+        StringBuilder out = new StringBuilder();
+        int n = index + 1;
+        while (n > 0) {
+            int rem = (n - 1) % 26;
+            out.insert(0, (char) ('A' + rem));
+            n = (n - 1) / 26;
+        }
+        return out.toString();
+    }
+
+    private String xmlEscape(String value) {
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 
     private void sendScanResult(String rawText) {
