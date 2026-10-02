@@ -65,7 +65,7 @@ input[type=file]{width:100%;padding:10px;border:1px solid #d8e0e8;border-radius:
 </div>
 <script>
 const PREFIX="mau_",LICENSE_PREFIX="mau_lisans";
-function isBusinessKey(k){return !!k&&k.startsWith(PREFIX)&&!k.startsWith(LICENSE_PREFIX)}
+function isBusinessKey(k){return !!k&&k.startsWith(PREFIX)&&!k.startsWith(LICENSE_PREFIX)&&!k.startsWith("mau_qa_")}
 function mauKeys(){const a=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(isBusinessKey(k))a.push(k)}return a.sort()}
 function parseAny(v){try{return JSON.parse(v)}catch(e){return null}}
 function sizeText(bytes){if(bytes<1024)return bytes+" B";return (bytes/1024).toLocaleString("tr-TR",{maximumFractionDigits:1})+" KB"}
