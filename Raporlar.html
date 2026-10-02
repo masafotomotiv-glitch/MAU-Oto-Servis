@@ -86,6 +86,7 @@ function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"
 function isoDate(v){if(!v)return"";const s=String(v);if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const d=new Date(v);if(Number.isNaN(d.getTime()))return"";return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function dateOf(o){return isoDate(pick(o,["tarih","faturaTarihi","islemTarihi","createdAt","created","dosyaTarihi","kabulTarihi","kapanisTarihi"],""))}
 function active(o){return !/iptal|pasif/i.test(String(o?.durum||""))}
+function invoiceActive(o){return active(o)&&!/taslak/i.test(String(o?.durum||""))}
 function inRange(o){const d=dateOf(o),f=document.getElementById("fromDate").value,t=document.getElementById("toDate").value;if(!d)return !f&&!t;return(!f||d>=f)&&(!t||d<=t)}
 function filt(arr){return arr.filter(x=>active(x)&&inRange(x))}
 function closed(w){return /teslim edildi|kapalı|kapali|tamamlandı|tamamlandi/i.test(String(w.durum||""))}
@@ -95,7 +96,10 @@ function sum(arr,fn=amount){return arr.reduce((s,x)=>s+n(fn(x)),0)}
 function roles(c){return Array.isArray(c.roles)?c.roles.join(" "):String(c.rol||c.role||"")}
 function workLabor(w){return n(pick(w,["iscilikToplam"],0))||sum(w.iscilikler||[],x=>n(x.tutar||x.toplam)||n(x.saat)*n(x.birimFiyat))}
 function workParts(w){return n(pick(w,["parcaToplam"],0))||sum(w.parcalar||[],x=>n(x.tutar||x.toplam)||n(x.adet)*n(x.birimFiyat))}
-function workCost(w){return sum(w.parcalar||[],x=>{const q=n(x.adet||x.miktar||1),c=n(x.maliyet||x.alisFiyati||x.birimMaliyet);return q*c})}
+function workCost(w){
+ const master=load(K.parts);
+ return sum(w.parcalar||[],x=>{const q=n(x.adet||x.miktar||1),m=master.find(p=>String(p.id)===String(x.parcaId||"")),c=n(x.maliyet||x.alisFiyati||x.birimMaliyet||m?.buyPrice||m?.alisFiyati||m?.maliyet);return q*c})
+}
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function setRange(type){
  const d=new Date(),fmt=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"),to=new Date(d),from=new Date(d);
@@ -116,7 +120,7 @@ function barList(items){
  return items.slice(0,10).map(x=>'<div class="barRow"><span>'+esc(x[0])+'</span><div class="barTrack"><div class="barFill" style="width:'+Math.max(2,n(x[1])/max*100)+'%"></div></div><div class="barVal">'+esc(x[2]??x[1])+'</div></div>').join("")
 }
 function data(){
- return {works:filt(load(K.works)),invoices:filt(load(K.invoices)),collections:filt(load(K.collections)),payments:filt(load(K.payments)),cash:filt(load(K.cash)),accounts:load(K.accounts).filter(active),cariler:load(K.cariler).filter(active),parts:load(K.parts).filter(active),stockMoves:filt(load(K.stockMoves)),personnel:load(K.personnel).filter(active),claims:filt(many(K.claims))}
+ return {works:filt(load(K.works)),invoices:filt(load(K.invoices)).filter(invoiceActive),collections:filt(load(K.collections)),payments:filt(load(K.payments)),cash:filt(load(K.cash)),accounts:load(K.accounts).filter(active),cariler:load(K.cariler).filter(active),parts:load(K.parts).filter(active),stockMoves:filt(load(K.stockMoves)),personnel:load(K.personnel).filter(active),claims:filt(many(K.claims))}
 }
 function renderGenel(d){
  const sales=d.invoices.filter(salesInvoice),purchases=d.invoices.filter(purchaseInvoice),closedW=d.works.filter(closed),openW=d.works.filter(w=>!closed(w));
@@ -183,8 +187,8 @@ function renderServis(d){
  return card("Servis · İş Emri Raporu",html)
 }
 function renderStok(d){
- const totalQty=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)),critical=d.parts.filter(p=>n(p.stock||p.stok||p.miktar)<=n(p.minStock||p.minStok||0)),stockValue=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)*n(p.alisFiyati||p.maliyet||p.birimMaliyet)),saleValue=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)*n(p.satisFiyati||p.birimFiyat));
- const rows=d.parts.map(p=>[p.kod||p.code||"-",p.ad||p.name||"-",String(n(p.stock||p.stok||p.miktar)),p.birim||"Adet",String(n(p.minStock||p.minStok||0)),money(n(p.alisFiyati||p.maliyet||p.birimMaliyet)),money(n(p.satisFiyati||p.birimFiyat))]);
+ const totalQty=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)),critical=d.parts.filter(p=>n(p.stock||p.stok||p.miktar)<=n(p.minStock||p.minStok||0)),stockValue=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)*n(p.buyPrice||p.alisFiyati||p.maliyet||p.birimMaliyet)),saleValue=sum(d.parts,p=>n(p.stock||p.stok||p.miktar)*n(p.salePrice||p.satisFiyati||p.birimFiyat));
+ const rows=d.parts.map(p=>[p.kod||p.code||"-",p.ad||p.name||"-",String(n(p.stock||p.stok||p.miktar)),p.birim||"Adet",String(n(p.minStock||p.minStok||0)),money(n(p.buyPrice||p.alisFiyati||p.maliyet||p.birimMaliyet)),money(n(p.salePrice||p.satisFiyati||p.birimFiyat))]);
  let html=sums([["Stok Kalemi",String(d.parts.length)],["Toplam Miktar",String(totalQty)],["Kritik Stok",String(critical.length),"warn"],["Kayıtlı Stok Maliyeti",money(stockValue)],["Tahmini Satış Değeri",money(saleValue)],["Potansiyel Fark",money(saleValue-stockValue),saleValue-stockValue>=0?"pos":"neg"]]);
  html+=rowsTable(["Kod","Parça","Stok","Birim","Min.","Maliyet","Satış"],rows);
  return card("Parça · Stok Raporu",html)
