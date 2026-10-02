@@ -6,10 +6,24 @@ on:
     paths:
       - "android-test/**"
       - ".github/workflows/build-tablet-test-apk.yml"
+      - "Raporlar.html"
+      - "Yedekleme.html"
+      - "HasarSigorta.html"
+      - "EkspertizDetay.html"
+      - "TeslimFatura.html"
+      - "Teklifler.html"
+      - "EksperArsivi.html"
   pull_request:
     paths:
       - "android-test/**"
       - ".github/workflows/build-tablet-test-apk.yml"
+      - "Raporlar.html"
+      - "Yedekleme.html"
+      - "HasarSigorta.html"
+      - "EkspertizDetay.html"
+      - "TeslimFatura.html"
+      - "Teklifler.html"
+      - "EksperArsivi.html"
 
 jobs:
   build:
@@ -19,6 +33,77 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate report and backup web code
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess, tempfile, sys
+
+          files = [
+              "Raporlar.html",
+              "Yedekleme.html",
+              "HasarSigorta.html",
+              "EkspertizDetay.html",
+              "TeslimFatura.html",
+              "Teklifler.html",
+              "EksperArsivi.html",
+          ]
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.external = False
+                  self.parts = []
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() == "script":
+                      self.in_script = True
+                      self.external = any(k.lower()=="src" for k,v in attrs)
+                      self.parts = []
+              def handle_data(self, data):
+                  if self.in_script and not self.external:
+                      self.parts.append(data)
+              def handle_endtag(self, tag):
+                  if tag.lower()=="script" and self.in_script:
+                      if not self.external:
+                          self.scripts.append("".join(self.parts))
+                      self.in_script = False
+                      self.external = False
+                      self.parts = []
+
+          for file in files:
+              p = Scripts()
+              p.feed(Path(file).read_text(encoding="utf-8"))
+              for i, js in enumerate(p.scripts, 1):
+                  with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False, encoding="utf-8") as tmp:
+                      tmp.write(js)
+                      name = tmp.name
+                  r = subprocess.run(["node", "--check", name], capture_output=True, text=True)
+                  if r.returncode:
+                      print(f"JS syntax error: {file} script {i}")
+                      print(r.stderr)
+                      sys.exit(1)
+
+          checks = {
+              "Raporlar.html": ["saveXlsx", "printPage", "shareText"],
+              "Yedekleme.html": ["MAU-FULL-BACKUP-1", "beginBinarySave", "inspectFullBackup", "restoreFullBackup"],
+              "HasarSigorta.html": ["printReportNative", "MAUAndroid.printPage"],
+              "EkspertizDetay.html": ["printReportNative", "MAUAndroid.printPage"],
+              "TeslimFatura.html": ["MAUAndroid.printPage"],
+              "Teklifler.html": ["MAUAndroid.printPage"],
+              "EksperArsivi.html": ["MAUAndroid.printPage"],
+          }
+          for file, needles in checks.items():
+              text = Path(file).read_text(encoding="utf-8")
+              for needle in needles:
+                  if needle not in text:
+                      print(f"Missing required integration: {file}: {needle}")
+                      sys.exit(1)
+          print("Web output/backup checks passed.")
+          PY
 
       - name: Java 17
         uses: actions/setup-java@v4
