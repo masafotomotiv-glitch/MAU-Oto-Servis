@@ -811,6 +811,37 @@ function ensureReportViewer(){
   "#reportViewer table{width:100%;border-collapse:collapse;margin-top:8px}"+
   "#reportViewer th,#reportViewer td{border:1px solid #d8dde3;padding:6px;font-size:10px;text-align:left;vertical-align:top}"+
   "#reportViewer th{background:#eef2f6}"+
+  "#reportViewer.rvFit{overflow-x:hidden}"+
+  "#reportViewer.rvFit .rvWrap{padding:10px 8px;width:100%;max-width:100%;overflow-x:hidden;box-sizing:border-box}"+
+  "#reportViewer.rvFit table{table-layout:fixed;width:100%;max-width:100%;box-sizing:border-box;margin:8px 0 0}"+
+  "#reportViewer.rvFit th,#reportViewer.rvFit td{font-size:8.4px;padding:4px 3px;line-height:1.18;overflow-wrap:anywhere;word-break:break-word;white-space:normal}"+
+
+  "#reportViewer.rvVehicles th:nth-child(1),#reportViewer.rvVehicles td:nth-child(1){width:12%}"+
+  "#reportViewer.rvVehicles th:nth-child(2),#reportViewer.rvVehicles td:nth-child(2){width:23%}"+
+  "#reportViewer.rvVehicles th:nth-child(3),#reportViewer.rvVehicles td:nth-child(3){width:25%}"+
+  "#reportViewer.rvVehicles th:nth-child(4),#reportViewer.rvVehicles td:nth-child(4){width:18%}"+
+  "#reportViewer.rvVehicles th:nth-child(5),#reportViewer.rvVehicles td:nth-child(5){width:10%}"+
+  "#reportViewer.rvVehicles th:nth-child(6),#reportViewer.rvVehicles td:nth-child(6){width:12%}"+
+
+  "#reportViewer.rvWorkOrders th:nth-child(1),#reportViewer.rvWorkOrders td:nth-child(1){width:15%}"+
+  "#reportViewer.rvWorkOrders th:nth-child(2),#reportViewer.rvWorkOrders td:nth-child(2){width:13%}"+
+  "#reportViewer.rvWorkOrders th:nth-child(3),#reportViewer.rvWorkOrders td:nth-child(3){width:13%}"+
+  "#reportViewer.rvWorkOrders th:nth-child(4),#reportViewer.rvWorkOrders td:nth-child(4){width:16%}"+
+  "#reportViewer.rvWorkOrders th:nth-child(5),#reportViewer.rvWorkOrders td:nth-child(5){width:15%}"+
+  "#reportViewer.rvWorkOrders th:nth-child(6),#reportViewer.rvWorkOrders td:nth-child(6){width:28%}"+
+
+  "#reportViewer.rvClaims th:nth-child(1),#reportViewer.rvClaims td:nth-child(1){width:14%}"+
+  "#reportViewer.rvClaims th:nth-child(2),#reportViewer.rvClaims td:nth-child(2){width:14%}"+
+  "#reportViewer.rvClaims th:nth-child(3),#reportViewer.rvClaims td:nth-child(3){width:12%}"+
+  "#reportViewer.rvClaims th:nth-child(4),#reportViewer.rvClaims td:nth-child(4){width:23%}"+
+  "#reportViewer.rvClaims th:nth-child(5),#reportViewer.rvClaims td:nth-child(5){width:23%}"+
+  "#reportViewer.rvClaims th:nth-child(6),#reportViewer.rvClaims td:nth-child(6){width:14%}"+
+
+  "#reportViewer.rvDocs th:nth-child(1),#reportViewer.rvDocs td:nth-child(1){width:15%}"+
+  "#reportViewer.rvDocs th:nth-child(2),#reportViewer.rvDocs td:nth-child(2){width:12%}"+
+  "#reportViewer.rvDocs th:nth-child(3),#reportViewer.rvDocs td:nth-child(3){width:31%}"+
+  "#reportViewer.rvDocs th:nth-child(4),#reportViewer.rvDocs td:nth-child(4){width:18%}"+
+  "#reportViewer.rvDocs th:nth-child(5),#reportViewer.rvDocs td:nth-child(5){width:24%}"+
   "#reportViewer.rvMovement .rvWrap{padding:10px;font-size:11px}"+
   "#reportViewer.rvMovement table{table-layout:fixed;width:100%}"+
   "#reportViewer.rvMovement th,#reportViewer.rvMovement td{font-size:8px;padding:4px 3px;line-height:1.2;overflow-wrap:anywhere;word-break:break-word}"+
@@ -852,8 +883,14 @@ function openReportViewer(title,bodyHtml){
  const viewer=ensureReportViewer();
  const cariName=activeCari?activeCari.name:"";
  const cariCode=activeCari?activeCari.code:"";
+ const tableReportTitles=["Cari Hesap Ekstresi","Araçlar","İş Emirleri","Faturalar","Hasar & Sigorta","Belgeler"];
+ viewer.classList.toggle("rvFit",tableReportTitles.includes(title));
  viewer.classList.toggle("rvMovement",title==="Cari Hesap Ekstresi");
+ viewer.classList.toggle("rvVehicles",title==="Araçlar");
+ viewer.classList.toggle("rvWorkOrders",title==="İş Emirleri");
  viewer.classList.toggle("rvInvoices",title==="Faturalar");
+ viewer.classList.toggle("rvClaims",title==="Hasar & Sigorta");
+ viewer.classList.toggle("rvDocs",title==="Belgeler");
  document.getElementById("rvContent").innerHTML=
   '<h1>MAU OTO SERVİS</h1><h2>'+esc(title)+'</h2>'+
   '<div class="meta"><b>'+esc(cariName)+'</b> · '+esc(cariCode||"-")+'</div>'+
