@@ -767,12 +767,23 @@ function printReportViewer(){
  const viewer=document.getElementById("reportViewer");
  if(!viewer||viewer.style.display==="none"){alert("Açık rapor bulunamadı.");return;}
  document.body.classList.add("report-printing");
+
+ if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){
+  window.MAUAndroid.printPage();
+  setTimeout(function(){document.body.classList.remove("report-printing");},1200);
+  return;
+ }
+
  try{
   window.print();
  }finally{
-  setTimeout(function(){document.body.classList.remove("report-printing");},500);
+  setTimeout(function(){document.body.classList.remove("report-printing");},800);
  }
 }
+window.onMauPrintError=function(message){
+ document.body.classList.remove("report-printing");
+ alert(message||"PDF / yazdırma işlemi başlatılamadı.");
+};
 
 window.addEventListener("storage",function(e){
  const watched=[KEYS.cariler].concat(KEYS.araclar,KEYS.isEmirleri,KEYS.faturalar,KEYS.tahsilatlar,KEYS.odemeler,KEYS.hasarlar,KEYS.belgeler,KEYS.legacyHareket);
