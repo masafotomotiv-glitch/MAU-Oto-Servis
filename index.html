@@ -50,6 +50,7 @@ body{
   font-weight:900;
   color:#2bd4e6;
 }
+.logo-img{max-width:88px;max-height:64px;object-fit:contain;display:none}
 
 .logo-title{
   font-size:24px;
@@ -376,7 +377,7 @@ body{
 
   <header class="header">
     <div class="logo">
-      <div class="logo-mark">M••</div>
+      <div id="defaultLogoMark" class="logo-mark">M••</div><img id="companyLogo" class="logo-img" alt="Firma Logosu">
       <div>
         <div class="logo-title">MAU</div>
         <div class="logo-sub">OTO SERVİS</div>
@@ -663,7 +664,7 @@ window.addEventListener("storage",renderDashboard);
 window.addEventListener("pageshow",renderDashboard);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
 renderDashboard();
-try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi}catch(e){}
+try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi;if(_mauSettings.logoData){const _logo=document.getElementById("companyLogo"),_mark=document.getElementById("defaultLogoMark");if(_logo){_logo.src=_mauSettings.logoData;_logo.style.display="block"}if(_mark)_mark.style.display="none"}}catch(e){}
 </script>
 </body>
 </html>
