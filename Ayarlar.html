@@ -79,6 +79,8 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
    <button onclick="location.href='Lisans.html'">Lisans / Abonelik</button>
    <button onclick="location.href='CariKasa.html'">Kasa / Banka Hesapları</button>
    <button onclick="location.href='Personel.html'">Personel / Yetkiler</button>
+   <button id="qaTestBtn" onclick="location.href='TestMerkezi.html'">20 Günlük Test Merkezi</button>
+   <button id="qaLicenseBtn" onclick="location.href='LisansYonetim.html'">Lisans Test Yönetimi</button>
   </div>
  </div></div>
 
@@ -131,6 +133,10 @@ function saveSettings(){
 }
 loadSettings();
 if(window.MAULicense&&document.getElementById("licenseStatus"))document.getElementById("licenseStatus").textContent=MAULicense.statusText();
+if(window.MAULicense&&MAULicense.config().mode==="production"){
+ const a=document.getElementById("qaTestBtn"),b=document.getElementById("qaLicenseBtn");
+ if(a)a.style.display="none";if(b)b.style.display="none"
+}
 </script>
 </body>
 </html>
