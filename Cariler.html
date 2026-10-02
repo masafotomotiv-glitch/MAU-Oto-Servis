@@ -568,7 +568,7 @@ function printCari(){
  '<h2>Faturalar</h2><table><tr><th>No</th><th>Tarih</th><th>Tip</th><th>Tutar</th></tr>'+simpleRows(invoices,[f=>pick(f,["faturaNo","no"],"-"),f=>dateVal(f)||"-",f=>pick(f,["tip","tur"],"-"),f=>money(num(f,["genelToplam","toplam","tutar"]))])+'</table>'+
  '<h2>Hasar & Sigorta</h2><table><tr><th>Dosya No</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr>'+simpleRows(claims,[h=>pick(h,["dosyaNo","no"],"-"),h=>pick(h,["plaka"],"-"),h=>pick(h,["sigorta","sigortaSirketi"],"-"),h=>pick(h,["eksper","eksperFirma"],"-"),h=>pick(h,["durum"],"-")])+'</table>'+
  '<h2>Belgeler</h2><table><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>No</th></tr>'+simpleRows(docs,[d=>dateVal(d)||"-",d=>pick(d,["tur","tip"],"-"),d=>pick(d,["belgeAdi","ad"],"-"),d=>pick(d,["belgeNo","no"],"-")])+'</table>'+
- '<h2>Notlar</h2><div class="box">'+esc(activeCari.notlar||"Not yok.")+'</div><script>window.onload=function(){window.print();};</script></body></html>';
+ '<h2>Notlar</h2><div class="box">'+esc(activeCari.notlar||"Not yok.")+'</div><script>window.onload=function(){window.print();};<\/script></body></html>';
  const w=window.open("","_blank");if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
  w.document.open();w.document.write(html);w.document.close();
 }
