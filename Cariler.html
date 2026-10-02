@@ -138,7 +138,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
   <div class="detailTabs">
    <button class="dtab on" data-panel="ozet" onclick="showPanel('ozet')">Genel Bakış</button>
    <button class="dtab" data-panel="araclar" onclick="showPanel('araclar')">Araçlar</button>
-   <button class="dtab" data-panel="hareket" onclick="showPanel('hareket')">Cari Hareketler</button>
+   <button class="dtab" data-panel="hareket" onclick="showPanel(&quot;hareket&quot;)">Cari Hareketler</button>
    <button class="dtab" data-panel="isemri" onclick="showPanel('isemri')">İş Emirleri</button>
    <button class="dtab" data-panel="fatura" onclick="showPanel('fatura')">Faturalar</button>
    <button class="dtab" data-panel="hasar" onclick="showPanel('hasar')">Hasar & Sigorta</button>
@@ -191,7 +191,7 @@ function pick(o,names,def=""){
 }
 function num(o,names){
  const v=pick(o,names,0);
- const n=Number(String(v).replace(/./g,"").replace(",","."));
+ const n=Number(String(v).replaceAll(".","").replace(",","."));
  return Number.isFinite(n)?n:0;
 }
 function dateVal(o){return String(pick(o,["tarih","date","createdAt","created","islemTarihi","faturaTarihi"],""));}
@@ -324,10 +324,10 @@ function render(){
   return '<div class="card" style="'+(c.active===false?'opacity:.55':'')+'"><div class="name">'+esc(c.name)+'</div>'+
    '<div class="code">'+esc(c.code)+' • '+esc(c.type||"")+(c.active===false?' • PASİF':'')+'</div>'+
    '<div class="badges">'+badges+'<span class="badge type">'+esc(c.type||"")+'</span></div><div class="info">'+info+'</div>'+
-   '<div class="actions"><button class="open" onclick="openDetail(''+String(c.id)+'')">Cariyi Aç</button>'+
-   '<button class="edit" onclick="openForm(''+String(c.id)+'')">Düzenle</button>'+
-   '<button class="pass" onclick="toggleActive(''+String(c.id)+'')">'+(c.active===false?'Aktif Et':'Pasife Al')+'</button>'+
-   '<button class="del" onclick="deleteCari(''+String(c.id)+'')">Sil</button></div></div>';
+   '<div class="actions"><button class="open" onclick="openDetail(&quot;'+String(c.id)+'&quot;)">Cariyi Aç</button>'+
+   '<button class="edit" onclick="openForm(&quot;'+String(c.id)+'&quot;)">Düzenle</button>'+
+   '<button class="pass" onclick="toggleActive(&quot;'+String(c.id)+'&quot;)">'+(c.active===false?'Aktif Et':'Pasife Al')+'</button>'+
+   '<button class="del" onclick="deleteCari(&quot;'+String(c.id)+'&quot;)">Sil</button></div></div>';
  }).join("");
 }
 
@@ -476,7 +476,7 @@ function panelOzet(){
   '<br><small>'+esc(h.tarih||"")+' • '+esc(h.aciklama||"")+' • '+(h.borc?money(h.borc):h.alacak?money(h.alacak):"Bilgi")+'</small></div>').join(""):"Henüz otomatik cari hareketi yok.";
  document.getElementById("panel").innerHTML=
   '<div class="panelTitle">Cari Genel Bakış</div>'+
-  '<div class="quick"><button onclick="showPanel('hareket')">Cari Ekstre</button><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div>'+
+  '<div class="quick"><button onclick="showPanel(&quot;hareket&quot;)">Cari Ekstre</button><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div>'+
   '<div class="note"><b>Bu ekran merkez görünümüdür.</b> Araçlar Araç Kayıt bölümünden; iş emirleri İş Emirleri bölümünden; faturalar Faturalar bölümünden; tahsilat ve ödemeler Cari & Kasa bölümünden; hasar, sigorta ve belgeler kendi kaynak bölümlerinden otomatik gelir. Buradan yalnızca cari kartı ve notlar düzenlenir.</div>'+
   '<div class="overviewGrid"><div class="overCard"><h3>Cari Bilgileri</h3><b>'+esc(activeCari.name)+'</b><br><br>'+
   'Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>E-posta: '+esc(activeCari.mail||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+
