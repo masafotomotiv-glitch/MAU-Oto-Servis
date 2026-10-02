@@ -115,6 +115,10 @@ textarea{min-height:80px}.save{width:100%;background:var(--green);color:#fff;bor
     <button type="button" class="scanBtn" onclick="startRuhsatScan()">📷 Ruhsattan Tara</button>
     <div id="scanStatus" class="scanStatus">Ruhsat fotoğrafını seçin. APK içinde metin cihazda okunur; bulunan alanlar forma doldurulur ve kaydetmeden önce siz kontrol edersiniz.</div>
    </div>
+   <div id="ocrDebugWrap" style="display:none;background:#fff;border:1px solid #d9e1ea;border-radius:10px;padding:10px;margin:-4px 0 12px">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px"><b style="font-size:12px">OCR Ham Okuma</b><button type="button" class="linkbtn" onclick="toggleOcrDebug()">Göster / Gizle</button></div>
+    <pre id="ocrDebug" style="display:none;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;max-height:260px;overflow:auto;background:#f7f9fc;padding:9px;border-radius:7px;margin:0"></pre>
+   </div>
 
    <div class="sectionTitle">3. Araç Teknik Bilgileri</div>
    <div class="formGrid">
@@ -285,6 +289,7 @@ function setScanStatus(msg,ok){
 
 function startRuhsatScan(){
  setScanStatus("Ruhsat fotoğrafı seçiliyor ve okunuyor...",null);
+ document.getElementById("ocrDebugWrap").style.display="none";
  if(window.MAUAndroid&&typeof window.MAUAndroid.scanRuhsat==="function"){
   window.MAUAndroid.scanRuhsat();
   return;
@@ -413,7 +418,7 @@ function parseRuhsatText(rawText){
 
  const marka=extractField(lines,/^\s*\(?D\s*[.]?\s*1\)?(?:\s|$)/,/(?:MARKASI|MARKA)/,validText);
  const versiyon=extractField(lines,/^\s*\(?D\s*[.]?\s*2\)?(?:\s|$)/,/(?:TİPİ|TIPI)/,validText);
- const model=extractField(lines,/^\s*\(?D\s*[.]?\s*3\)?(?:\s|$)/,/(?:TİCARİ\s*ADI|TICARI\s*ADI|MODELİ|MODELI|MODEL)/,validText);
+ const model=extractField(lines,/^\s*\(?D\s*[.]?\s*3\)?(?:\s|$)/,/(?:TİCARİ\s*ADI|TICARI\s*ADI|MODELİ|MODELI|MODEL)/,v=>validText(v)&&/[A-ZÇĞİÖŞÜ]/i.test(v));
  const modelYili=extractField(lines,/^\s*\(?D\s*[.]?\s*4\)?(?:\s|$)/,/(?:MODEL\s*YILI)/,v=>/\b(19|20)\d{2}\b/.test(v));
  const tescil=extractField(lines,/^\s*\(?B\)?(?:\s|$)/,/(?:İLK\s*TESCİL|ILK\s*TESCIL)/,v=>!!parseDateTR(v));
  const yakit=extractField(lines,/^\s*\(?P\s*[.]?\s*3\)?(?:\s|$)/,/(?:YAKIT\s*CİNSİ|YAKIT\s*CINSI)/,v=>!!normalizeFuel(v));
@@ -445,7 +450,16 @@ function fillIf(id,value){
  el.dispatchEvent(new Event("change",{bubbles:true}));
  return true;
 }
+function toggleOcrDebug(){
+ const el=document.getElementById("ocrDebug");
+ el.style.display=el.style.display==="none"?"block":"none";
+}
 function onRuhsatScanResult(rawText){
+ const dbg=document.getElementById("ocrDebug");
+ const wrap=document.getElementById("ocrDebugWrap");
+ dbg.textContent=String(rawText||"");
+ dbg.style.display="none";
+ wrap.style.display="block";
  const data=parseRuhsatText(rawText);
  let count=0;
  ["plaka","sasi","motorNo","ruhsatSeriNo","marka","model","versiyon","tescilTarihi","yil","yakit","motorBilgi"].forEach(function(k){
