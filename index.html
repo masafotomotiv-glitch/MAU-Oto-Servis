@@ -386,7 +386,7 @@ body{
     <div>
       <div class="company-label">Firma</div>
       <div class="company-box">
-        <span>Asaf Otomotiv</span>
+        <span id="companyName">Asaf Otomotiv</span>
         <span>⌄</span>
       </div>
     </div>
@@ -396,9 +396,9 @@ body{
         <div class="top-icon">👤</div>
         Hesabım
       </div>
-      <div class="top-item" onclick="window.location.href='Yedekleme.html'" style="cursor:pointer">
+      <div class="top-item" onclick="window.location.href='Ayarlar.html'" style="cursor:pointer">
         <div class="top-icon">⚙</div>
-        Ayarlar / Yedek
+        Ayarlar
       </div>
       <div class="top-item">
         <div class="top-icon">↪</div>
@@ -464,10 +464,10 @@ body{
       <div class="menu-sub">Ekle · Düzenle · Bölüm</div>
     </div>
 
-    <div class="menu-card violet">
+    <div class="menu-card violet" onclick="window.location.href='Ayarlar.html'">
       <div class="menu-icon">⚙</div>
       <div class="menu-title">Ayarlar</div>
-      <div class="menu-sub">Sistem · Yedekleme</div>
+      <div class="menu-sub">Firma · Sistem · Yedekleme</div>
     </div>
   </section>
 
@@ -663,6 +663,7 @@ window.addEventListener("storage",renderDashboard);
 window.addEventListener("pageshow",renderDashboard);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
 renderDashboard();
+try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi}catch(e){}
 </script>
 </body>
 </html>
