@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAU · Lisans Test Yönetimi</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#11834f;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}button,input,select{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:1000px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1b;color:white;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:21px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1000px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.box{border:1px solid #e2e8ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px;overflow-wrap:anywhere}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.btn{border:0;border-radius:9px;padding:11px;font-weight:900}.blue{background:#0b76c5;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.red{background:#ffe8eb;color:#a21c2b}.orange{background:#fff1d7;color:#855500}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:4px}.field input,.field select{width:100%;padding:10px;border:1px solid #d7e0e9;border-radius:8px;background:#fff}
+.note{font-size:10px;color:var(--muted);line-height:1.55}.warn{background:#fff6e4;border:1px solid #edd8a7;color:#795300;border-radius:9px;padding:10px;font-size:10px;line-height:1.55}.good{background:#eaf8ef;border:1px solid #cce8d7;color:#126b40;border-radius:9px;padding:10px;font-size:10px}
+table{width:100%;border-collapse:collapse;font-size:10px}th,td{border-bottom:1px solid #e7ecf1;padding:8px;text-align:left}th{background:#f7f9fb}
+@media(max-width:720px){.stats,.actions,.grid{grid-template-columns:1fr 1fr}}@media(max-width:480px){.stats,.actions,.grid{grid-template-columns:1fr}}
+</style>
+<script src="lisans.js"></script>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='Ayarlar.html'">‹</button><div><div class="title">MAU Lisans · Test Yönetimi</div><div class="sub">İç kullanım · Demo · Aylık/Yıllık lisans · Tahsilat simülasyonu</div></div></div></header>
+<div class="wrap">
+ <div class="warn"><b>Bu ekran yalnız geliştirme/test içindir.</b> Satış APK'sında müşteriye gösterilmeyecek. Buradaki tahsilatlar gerçek para hareketi değildir; iyzico bağlantısı yapılana kadar ödeme akışını simüle eder.</div>
+
+ <div class="card"><div class="cardHead">Mevcut Lisans</div><div class="body">
+  <div class="stats">
+   <div class="box"><span>Durum</span><b id="sStatus">-</b></div>
+   <div class="box"><span>Paket</span><b id="sPlan">-</b></div>
+   <div class="box"><span>Bitiş</span><b id="sExpire">-</b></div>
+   <div class="box"><span>Cihaz</span><b id="sDevice">-</b></div>
+  </div>
+  <div id="detail" class="note" style="margin-top:9px"></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Demo / Lisans Senaryoları</div><div class="body">
+  <div class="actions">
+   <button class="btn green" onclick="demo()">15 Gün Demo Başlat</button>
+   <button class="btn blue" onclick="paid(30,'Aylık Lisans')">Aylık Ödeme Başarılı</button>
+   <button class="btn blue" onclick="paid(365,'Yıllık Lisans')">Yıllık Ödeme Başarılı</button>
+   <button class="btn red" onclick="expire()">Süreyi Dolmuş Göster</button>
+  </div>
+  <div class="actions" style="margin-top:8px">
+   <button class="btn gray" onclick="addDays(7)">+7 Gün</button>
+   <button class="btn gray" onclick="addDays(15)">+15 Gün</button>
+   <button class="btn gray" onclick="addDays(30)">+30 Gün</button>
+   <button class="btn orange" onclick="resetAll()">Lisans Testini Sıfırla</button>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Tahsilat Simülasyonu</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Test Tutarı (TL)</label><input id="amount" type="number" min="0" step="0.01" value="1000"></div>
+   <div class="field"><label>Ödeme Yöntemi</label><select id="method"><option>iyzico Test</option><option>Havale Test</option><option>Manuel Test</option></select></div>
+   <div class="field"><label>Referans</label><input id="ref" placeholder="TEST-0001"></div>
+  </div>
+  <div class="actions" style="margin-top:9px"><button class="btn green" onclick="recordPayment()">Başarılı Tahsilat Kaydet</button><button class="btn red" onclick="failedPayment()">Başarısız Tahsilat Kaydet</button><button class="btn gray" onclick="clearPayments()">Test Tahsilatlarını Temizle</button><button class="btn gray" onclick="location.href='Lisans.html'">Müşteri Lisans Ekranı</button></div>
+  <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Tarih</th><th>Durum</th><th>Tutar</th><th>Yöntem</th><th>Referans</th></tr></thead><tbody id="payRows"></tbody></table></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Üretime Geçişte Bağlanacaklar</div><div class="body">
+  <div class="good">Müşteri verileri yine cihazda kalacak. Merkezde yalnız lisans, cihaz, paket, bitiş ve ödeme sonucu tutulacak. Canlı iyzico webhook'u bağlandığında yukarıdaki “Aylık/Yıllık Ödeme Başarılı” işlemini sistem otomatik yapacak.</div>
+ </div></div>
+</div>
+<script>
+const PKEY="mau_lisans_test_tahsilatlar";
+function arr(){try{const v=JSON.parse(localStorage.getItem(PKEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function save(v){localStorage.setItem(PKEY,JSON.stringify(v))}
+function fmt(v){return v?new Date(v).toLocaleString("tr-TR"):"-"}
+function refresh(){
+ const a=MAULicense.assess(),s=MAULicense.state();
+ document.getElementById("sStatus").textContent=s.status==="demo"?"Demo":MAULicense.statusText();
+ document.getElementById("sPlan").textContent=s.plan||"-";
+ document.getElementById("sExpire").textContent=fmt(s.validUntil);
+ document.getElementById("sDevice").textContent=MAULicense.deviceId();
+ document.getElementById("detail").textContent="Lisans kodu: "+(s.licenseKey||"-")+" · Kalan gün: "+(a.daysLeft==null?"-":a.daysLeft)+" · Ödeme: "+(s.paymentStatus||"-");
+ const p=arr();document.getElementById("payRows").innerHTML=p.length?p.slice().reverse().map(x=>'<tr><td>'+fmt(x.date)+'</td><td>'+x.status+'</td><td>'+Number(x.amount||0).toLocaleString("tr-TR",{minimumFractionDigits:2})+' TL</td><td>'+x.method+'</td><td>'+x.ref+'</td></tr>').join(""):'<tr><td colspan="5">Test tahsilatı yok.</td></tr>'
+}
+function demo(){MAULicense.setConfig({mode:"production"});MAULicense.startDemo(15);refresh();alert("15 günlük demo başlatıldı. Uygulama artık lisans kurallarını gerçekmiş gibi uygular.")}
+function paid(days,plan){const amount=Number(document.getElementById("amount").value||0);MAULicense.setConfig({mode:"production"});MAULicense.setTestState({status:"active",days,plan,paymentStatus:"paid",amount});logPayment("Başarılı");refresh()}
+function expire(){MAULicense.setConfig({mode:"production"});MAULicense.expireTest();refresh();alert("Lisans süresi dolmuş senaryoya alındı. Ana menüyü açıp salt okunur davranışı test edin.")}
+function addDays(n){const s=MAULicense.state(),base=Math.max(Date.now(),Date.parse(s.validUntil||"")||0),d=new Date(base+n*86400000);MAULicense.setTestState({status:s.status==="demo"?"demo":"active",days:Math.ceil((d-Date.now())/86400000),plan:s.plan||"Manuel Uzatma",paymentStatus:s.paymentStatus||"manual"});refresh()}
+function resetAll(){if(!confirm("Lisans test durumu ve test tahsilatları sıfırlansın mı?"))return;MAULicense.resetTestLicense();localStorage.removeItem(PKEY);refresh()}
+function logPayment(status){const p=arr(),amount=Number(document.getElementById("amount").value||0),method=document.getElementById("method").value,ref=document.getElementById("ref").value.trim()||("TEST-"+Date.now());p.push({date:new Date().toISOString(),status,amount,method,ref});save(p)}
+function recordPayment(){logPayment("Başarılı");paid(30,"Aylık Lisans");}
+function failedPayment(){logPayment("Başarısız");refresh()}
+function clearPayments(){if(confirm("Test tahsilatları temizlensin mi?")){localStorage.removeItem(PKEY);refresh()}}
+refresh();
+</script>
+</body></html>
