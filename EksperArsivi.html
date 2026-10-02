@@ -204,6 +204,20 @@ async function makeZip(entries){
  const centralData=concat(centrals),localData=concat(locals),end=concat([u32(0x06054b50),u16(0),u16(0),u16(entries.length),u16(entries.length),u32(centralData.length),u32(localData.length),u16(0)]);
  return new Blob([localData,centralData,end],{type:"application/zip"})
 }
+function bytesToBase64(bytes){let out="";const step=0x8000;for(let i=0;i<bytes.length;i+=step){const sub=bytes.subarray(i,Math.min(i+step,bytes.length));let s="";for(let j=0;j<sub.length;j++)s+=String.fromCharCode(sub[j]);out+=btoa(s)}return out}
+async function saveBlob(blob,fileName,mime){
+ if(window.MAUAndroid&&typeof window.MAUAndroid.beginBinarySave==="function"&&typeof window.MAUAndroid.appendBinaryChunk==="function"&&typeof window.MAUAndroid.finishBinarySave==="function"){
+  const bytes=new Uint8Array(await blob.arrayBuffer()),chunk=196608;
+  window.MAUAndroid.beginBinarySave(fileName,mime||"application/octet-stream");
+  for(let i=0;i<bytes.length;i+=chunk){
+   window.MAUAndroid.appendBinaryChunk(bytesToBase64(bytes.subarray(i,Math.min(i+chunk,bytes.length))));
+   await new Promise(r=>setTimeout(r,0))
+  }
+  window.MAUAndroid.finishBinarySave();
+  return
+ }
+ const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)
+}
 async function downloadZip(){
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
  const selected=metaForClaim().filter(x=>x.sendToExpert);if(!selected.length){alert("Eksper paketine dahil edilmiş dosya yok.");return}
@@ -214,8 +228,8 @@ async function downloadZip(){
  entries.unshift({name:"00_Dosya_Ozeti.txt",blob:new Blob([summaryText(selected)],{type:"text/plain;charset=utf-8"})});
  entries.unshift({name:"00_Manifest.json",blob:new Blob([JSON.stringify({claimId,claimNo:claim.dosyaNo||claim.sigortaDosyaNo,plate:claim.plaka,generatedAt:new Date().toISOString(),files:manifest},null,2)],{type:"application/json;charset=utf-8"})});
  try{
-  const zip=await makeZip(entries),u=URL.createObjectURL(zip),a=document.createElement("a"),base=safeName((claim.plaka||"ARAC")+"_"+(claim.dosyaNo||claim.sigortaDosyaNo||"DOSYA"));
-  a.href=u;a.download="EKSPER_"+base+".zip";a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
+  const zip=await makeZip(entries),base=safeName((claim.plaka||"ARAC")+"_"+(claim.dosyaNo||claim.sigortaDosyaNo||"DOSYA"));
+  await saveBlob(zip,"EKSPER_"+base+".zip","application/zip");
   claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claimId));if(i>=0){claims[i].eksperPaketSonTarih=new Date().toISOString();claims[i].eksperPaketDosyaSayisi=selected.length;put(CLAIM_KEY,claims);claim=claims[i]}render()
  }catch(e){alert("ZIP paketi hazırlanamadı: "+(e.message||e))}
 }
