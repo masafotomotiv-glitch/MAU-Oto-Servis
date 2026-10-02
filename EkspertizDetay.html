@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Ekspertiz Detayı</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
+.head{max-width:1120px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}
+.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9;margin-top:3px}
+.wrap{max-width:1120px;margin:14px auto;padding:0 12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.sum{border:1px solid #e4eaf0;border-radius:9px;padding:10px;background:#f9fbfd}.sum span{display:block;font-size:10px;color:var(--muted)}.sum b{font-size:14px}
+.sectionTitle{font-weight:900;margin:0 0 10px}.note{font-size:10px;color:var(--muted);line-height:1.5}
+.lineCard{border:1px solid #e2e8ef;border-radius:11px;padding:11px;margin-bottom:10px}.lineHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:9px;background:#fff;font:inherit}.field textarea{min-height:68px}
+.btn{border:0;border-radius:8px;padding:9px 11px;font-weight:800;cursor:pointer}.add{background:#eaf2ff;color:#0756a5}.remove{background:#ffe8eb;color:#a21c2b}.save{background:var(--g);color:#fff}.pdf{background:#1478c9;color:#fff}.backBtn{background:#eef2f6;color:#43536a}
+.actions{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tot{border:1px solid #dfe7ef;border-radius:9px;padding:10px;background:#f8fbfe}.tot span{display:block;font-size:10px;color:#718096}.tot b{font-size:15px}
+.badge{display:inline-block;padding:4px 7px;border-radius:9px;background:#eaf3ff;color:#0b5fa8;font-size:10px;font-weight:800}
+#report{display:none;position:fixed;inset:0;background:#fff;z-index:99;overflow:auto;padding:12px}.reportTop{display:flex;gap:8px;position:sticky;top:0;background:#fff;padding-bottom:8px}.reportWrap{max-width:850px;margin:auto;font-size:10px}.reportWrap table{width:100%;border-collapse:collapse;table-layout:fixed}.reportWrap th,.reportWrap td{border:1px solid #dfe5eb;padding:5px;overflow-wrap:anywhere}.reportWrap th{background:#f2f6fa}
+@media(max-width:850px){.summary,.totals{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.full{grid-column:1/-1}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media print{body>*:not(#report){display:none!important}#report{display:block!important;position:static}.reportTop{display:none}.reportWrap{max-width:none}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="goBack()">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Ekspertiz Detayı · Parça · İşçilik · Eksper Mutabakatı</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="cardHead">Hasar Dosyası</div><div class="body">
+  <div id="claimInfo" class="summary"></div>
+  <div class="note" style="margin-top:8px">Bu ekran servis ön tespitinin ikinci aşamasıdır. Burada hangi parça değişecek/onarıma girecek ve hangi işçilik yapılacak satır satır kaydedilir. Bu aşamada stoktan fiziksel düşüm yapılmaz.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">1. Parça / Hasar Kalemleri</div><div class="body">
+  <div id="partLines"></div>
+  <button class="btn add" onclick="addPart()">+ Parça / Hasar Kalemi Ekle</button>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. İşçilik Kalemleri</div><div class="body">
+  <div id="laborLines"></div>
+  <button class="btn add" onclick="addLabor()">+ İşçilik Ekle</button>
+ </div></div>
+
+ <div class="card"><div class="cardHead">3. Boya / Malzeme / Sarf</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Servis Talep Tutarı (TL)</label><input id="sarfTalep" type="number" min="0" step="0.01" oninput="calc()"></div>
+   <div class="field"><label>Eksper Onay Tutarı (TL)</label><input id="sarfOnay" type="number" min="0" step="0.01" oninput="calc()"></div>
+   <div class="field full"><label>Açıklama</label><textarea id="sarfNot" placeholder="Boya, macun, sarf, klips vb. açıklama..."></textarea></div>
+  </div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">4. Ekspertiz Özeti</div><div class="body">
+  <div class="grid" style="margin-bottom:10px">
+   <div class="field"><label>KDV (%)</label><input id="kdv" type="number" min="0" step="0.01" value="20" oninput="calc()"></div>
+   <div class="field"><label>Ekspertiz Durumu</label><select id="ekspertizDurumu"><option>Hazırlanıyor</option><option>Eksper İncelemesinde</option><option>Mutabakat Bekliyor</option><option>Mutabık Kalındı</option><option>Red / İtiraz</option></select></div>
+   <div class="field full"><label>Ekspertiz Notu</label><textarea id="genelNot"></textarea></div>
+  </div>
+  <div class="totals">
+   <div class="tot"><span>Servis Parça Talebi</span><b id="tReqParts">0,00 ₺</b></div>
+   <div class="tot"><span>Servis İşçilik Talebi</span><b id="tReqLabor">0,00 ₺</b></div>
+   <div class="tot"><span>Servis Genel Talebi</span><b id="tReqGrand">0,00 ₺</b></div>
+   <div class="tot"><span>Eksper Onaylanan Genel</span><b id="tAppGrand">0,00 ₺</b></div>
+  </div>
+ </div></div>
+
+ <div class="actions">
+  <button class="btn save" onclick="saveDetail()">✓ Ekspertiz Detayını Kaydet</button>
+  <button class="btn pdf" onclick="openReport()">PDF / Yazdır</button>
+  <button class="btn backBtn" onclick="goBack()">Hasar Dosyasına Dön</button>
+ </div>
+</div>
+
+<div id="report"><div class="reportTop"><button class="btn backBtn" onclick="closeReport()">← Uygulamaya Dön</button><button class="btn pdf" onclick="window.print()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
+
+<script>
+const CLAIM_KEY="mau_hasar_dosyalari",PART_KEY="mau_stok_parcalar",LABOR_KEY="mau_iscilik_tanimlari";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function num(v){const n=Number(v||0);return Number.isFinite(n)?n:0}
+const claimId=new URLSearchParams(location.search).get("dosyaId");
+let claims=load(CLAIM_KEY),claim=claims.find(x=>String(x.id)===String(claimId));
+let parts=load(PART_KEY),labors=load(LABOR_KEY);
+
+function goBack(){location.href="HasarSigorta.html"}
+function partOptions(id){return '<option value="">Stoktan seç / manuel yaz</option>'+parts.filter(x=>x.active!==false&&x.status!=="Pasif").map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(id||"")?'selected':'')+'>'+esc(x.code||"")+' · '+esc(x.name||"")+' · '+Number(x.stock||0).toLocaleString("tr-TR")+' '+esc(x.unit||"")+'</option>').join("")}
+function laborOptions(id){return '<option value="">Tanımdan seç / manuel yaz</option>'+labors.filter(x=>x.active!==false&&x.status!=="Pasif").map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(id||"")?'selected':'')+'>'+esc(x.code||"")+' · '+esc(x.department||"")+' · '+esc(x.name||"")+'</option>').join("")}
+function decisionOptions(v){return ["Beklemede","Kabul","Red","Fiyat Revize","Kısmi Kabul"].map(x=>'<option '+(x===v?'selected':'')+'>'+x+'</option>').join("")}
+function actionOptions(v){return ["Değişim","Onarım","Boya","Sök-Tak","Kontrol","Diğer"].map(x=>'<option '+(x===v?'selected':'')+'>'+x+'</option>').join("")}
+
+function addPart(x={}){
+ const id=Date.now()+"_"+Math.random().toString(36).slice(2,6),box=document.createElement("div");box.className="lineCard";box.dataset.id=id;
+ box.innerHTML='<div class="lineHead"><span>Parça / Hasar Kalemi</span><button class="btn remove" onclick="this.closest(\'.lineCard\').remove();calc()">Sil</button></div>'+
+ '<div class="grid">'+
+ '<div class="field full"><label>Stoktan Parça Seç</label><select class="pDef" onchange="applyPart(this)">'+partOptions(x.parcaId)+'</select></div>'+
+ '<div class="field"><label>İşlem Türü</label><select class="pAction">'+actionOptions(x.islemTuru||"Değişim")+'</select></div>'+
+ '<div class="field"><label>Parça / Kalem Adı</label><input class="pName" value="'+esc(x.ad||"")+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Parça Kodu / OEM</label><input class="pCode" value="'+esc(x.kod||"")+'"></div>'+
+ '<div class="field"><label>Miktar</label><input class="pQty" type="number" min="0" step="0.01" value="'+(x.miktar??1)+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Birim</label><input class="pUnit" value="'+esc(x.birim||"Adet")+'"></div>'+
+ '<div class="field"><label>Servis Birim Fiyatı (TL)</label><input class="pPrice" type="number" min="0" step="0.01" value="'+num(x.birimFiyat)+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Servis Talep Tutarı</label><input class="pReq" readonly></div>'+
+ '<div class="field"><label>Eksper Kararı</label><select class="pDecision" onchange="decisionChanged(this);calc()">'+decisionOptions(x.karar||"Beklemede")+'</select></div>'+
+ '<div class="field"><label>Eksper Onay Tutarı (TL)</label><input class="pApproved" type="number" min="0" step="0.01" value="'+num(x.onayTutar)+'" oninput="calc()"></div>'+
+ '<div class="field full"><label>Not</label><input class="pNote" value="'+esc(x.not||"")+'"></div></div>';
+ document.getElementById("partLines").appendChild(box);
+ calc();
+}
+function applyPart(sel){const box=sel.closest(".lineCard"),p=parts.find(x=>String(x.id)===String(sel.value));if(!p)return;box.querySelector(".pName").value=p.name||"";box.querySelector(".pCode").value=p.oem||p.code||"";box.querySelector(".pUnit").value=p.unit||"Adet";box.querySelector(".pPrice").value=num(p.salePrice);box.dataset.partId=p.id;calc()}
+function decisionChanged(sel){const box=sel.closest(".lineCard"),d=sel.value;if(d==="Red")box.querySelector(".pApproved").value=0;if(d==="Kabul")box.querySelector(".pApproved").value=box.querySelector(".pReq").value||0}
+
+function addLabor(x={}){
+ const box=document.createElement("div");box.className="lineCard";
+ box.innerHTML='<div class="lineHead"><span>İşçilik Kalemi</span><button class="btn remove" onclick="this.closest(\'.lineCard\').remove();calc()">Sil</button></div>'+
+ '<div class="grid">'+
+ '<div class="field full"><label>İşçilik Tanımından Seç</label><select class="lDef" onchange="applyLabor(this)">'+laborOptions(x.hizmetId)+'</select></div>'+
+ '<div class="field"><label>Bölüm</label><input class="lDept" value="'+esc(x.bolum||"")+'"></div>'+
+ '<div class="field"><label>İşçilik / İşlem</label><input class="lName" value="'+esc(x.islem||"")+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Saat</label><input class="lHours" type="number" min="0" step="0.25" value="'+num(x.saat)+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Saat / Birim Fiyatı (TL)</label><input class="lPrice" type="number" min="0" step="0.01" value="'+num(x.birimFiyat)+'" oninput="calc()"></div>'+
+ '<div class="field"><label>Servis Talep Tutarı</label><input class="lReq" readonly></div>'+
+ '<div class="field"><label>Eksper Kararı</label><select class="lDecision" onchange="laborDecisionChanged(this);calc()">'+decisionOptions(x.karar||"Beklemede")+'</select></div>'+
+ '<div class="field"><label>Eksper Onay Tutarı (TL)</label><input class="lApproved" type="number" min="0" step="0.01" value="'+num(x.onayTutar)+'" oninput="calc()"></div>'+
+ '<div class="field full"><label>Not</label><input class="lNote" value="'+esc(x.not||"")+'"></div></div>';
+ document.getElementById("laborLines").appendChild(box);calc();
+}
+function applyLabor(sel){const box=sel.closest(".lineCard"),l=labors.find(x=>String(x.id)===String(sel.value));if(!l)return;box.querySelector(".lDept").value=l.department||"";box.querySelector(".lName").value=l.name||"";box.querySelector(".lHours").value=num(l.hours);box.querySelector(".lPrice").value=num(l.price);box.dataset.laborId=l.id;calc()}
+function laborDecisionChanged(sel){const box=sel.closest(".lineCard"),d=sel.value;if(d==="Red")box.querySelector(".lApproved").value=0;if(d==="Kabul")box.querySelector(".lApproved").value=box.querySelector(".lReq").value||0}
+
+function collectParts(){return Array.from(document.querySelectorAll("#partLines .lineCard")).map(box=>({parcaId:box.dataset.partId||box.querySelector(".pDef").value||"",islemTuru:box.querySelector(".pAction").value,ad:box.querySelector(".pName").value.trim(),kod:box.querySelector(".pCode").value.trim(),miktar:num(box.querySelector(".pQty").value),birim:box.querySelector(".pUnit").value.trim()||"Adet",birimFiyat:num(box.querySelector(".pPrice").value),talepTutar:num(box.querySelector(".pReq").value),karar:box.querySelector(".pDecision").value,onayTutar:num(box.querySelector(".pApproved").value),not:box.querySelector(".pNote").value.trim()})).filter(x=>x.ad||x.kod)}
+function collectLabors(){return Array.from(document.querySelectorAll("#laborLines .lineCard")).map(box=>({hizmetId:box.dataset.laborId||box.querySelector(".lDef").value||"",bolum:box.querySelector(".lDept").value.trim(),islem:box.querySelector(".lName").value.trim(),saat:num(box.querySelector(".lHours").value),birimFiyat:num(box.querySelector(".lPrice").value),talepTutar:num(box.querySelector(".lReq").value),karar:box.querySelector(".lDecision").value,onayTutar:num(box.querySelector(".lApproved").value),not:box.querySelector(".lNote").value.trim()})).filter(x=>x.islem)}
+function calc(){
+ let reqP=0,appP=0;document.querySelectorAll("#partLines .lineCard").forEach(box=>{const t=num(box.querySelector(".pQty").value)*num(box.querySelector(".pPrice").value);box.querySelector(".pReq").value=t.toFixed(2);reqP+=t;appP+=num(box.querySelector(".pApproved").value)});
+ let reqL=0,appL=0;document.querySelectorAll("#laborLines .lineCard").forEach(box=>{const t=num(box.querySelector(".lHours").value)*num(box.querySelector(".lPrice").value);box.querySelector(".lReq").value=t.toFixed(2);reqL+=t;appL+=num(box.querySelector(".lApproved").value)});
+ const reqS=num(document.getElementById("sarfTalep").value),appS=num(document.getElementById("sarfOnay").value),kdv=num(document.getElementById("kdv").value);
+ const reqNet=reqP+reqL+reqS,appNet=appP+appL+appS,reqGrand=reqNet*(1+kdv/100),appGrand=appNet*(1+kdv/100);
+ document.getElementById("tReqParts").textContent=money(reqP);document.getElementById("tReqLabor").textContent=money(reqL);document.getElementById("tReqGrand").textContent=money(reqGrand);document.getElementById("tAppGrand").textContent=money(appGrand);
+ return {reqP,appP,reqL,appL,reqS,appS,kdv,reqNet,appNet,reqGrand,appGrand};
+}
+function saveDetail(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const partsData=collectParts(),laborData=collectLabors(),t=calc();
+ claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claim.id));if(i<0)return;
+ claims[i].ekspertizDetay={parcalar:partsData,iscilikler:laborData,sarfTalep:t.reqS,sarfOnay:t.appS,sarfNot:document.getElementById("sarfNot").value.trim(),kdvOrani:t.kdv,durum:document.getElementById("ekspertizDurumu").value,not:document.getElementById("genelNot").value.trim(),servisTalepToplam:t.reqGrand,eksperOnayToplam:t.appGrand,updatedAt:new Date().toISOString()};
+ claims[i].parcaToplam=t.reqP;claims[i].iscilikToplam=t.reqL;claims[i].sarfToplam=t.reqS;claims[i].kdvOrani=t.kdv;claims[i].kdvTutar=t.reqNet*t.kdv/100;claims[i].genelHasarToplam=t.reqGrand;claims[i].eksperTespitTutar=t.appGrand;
+ if(document.getElementById("ekspertizDurumu").value==="Mutabık Kalındı"&&claims[i].durum==="Açık")claims[i].durum="Sigorta Onayı Bekleniyor";
+ claims[i].updatedAt=new Date().toISOString();put(CLAIM_KEY,claims);claim=claims[i];renderClaim();alert("Ekspertiz detayı kaydedildi.");
+}
+function renderClaim(){
+ if(!claim){document.getElementById("claimInfo").innerHTML='<div class="note">Hasar dosyası bulunamadı.</div>';return}
+ document.getElementById("claimInfo").innerHTML='<div class="sum"><span>Dosya No</span><b>'+esc(claim.dosyaNo||"-")+'</b></div><div class="sum"><span>Plaka</span><b>'+esc(claim.plaka||"-")+'</b></div><div class="sum"><span>Müşteri</span><b>'+esc(claim.cariAdi||"-")+'</b></div><div class="sum"><span>Sigorta / Eksper</span><b>'+esc(claim.sigortaSirketi||claim.sigorta||"-")+'</b><br><span>'+esc(claim.eksperFirma||claim.eksper||"-")+'</span></div>';
+}
+function loadDetail(){
+ if(!claim){renderClaim();return}
+ renderClaim();const d=claim.ekspertizDetay||{};(d.parcalar||[]).forEach(addPart);if(!(d.parcalar||[]).length)addPart();(d.iscilikler||[]).forEach(addLabor);if(!(d.iscilikler||[]).length)addLabor();
+ document.getElementById("sarfTalep").value=d.sarfTalep??claim.sarfToplam??0;document.getElementById("sarfOnay").value=d.sarfOnay??0;document.getElementById("sarfNot").value=d.sarfNot||"";document.getElementById("kdv").value=d.kdvOrani??claim.kdvOrani??20;document.getElementById("ekspertizDurumu").value=d.durum||"Hazırlanıyor";document.getElementById("genelNot").value=d.not||"";calc();
+}
+function reportTable(headers,rows){return '<table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'}
+function openReport(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const p=collectParts(),l=collectLabors(),t=calc();
+ const pr=p.length?p.map(x=>'<tr><td>'+esc(x.islemTuru)+'</td><td>'+esc(x.ad)+'</td><td>'+esc(x.kod||"-")+'</td><td>'+x.miktar+' '+esc(x.birim)+'</td><td>'+money(x.talepTutar)+'</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>').join(""):'<tr><td colspan="7">Parça kalemi yok.</td></tr>';
+ const lr=l.length?l.map(x=>'<tr><td>'+esc(x.bolum||"-")+'</td><td>'+esc(x.islem)+'</td><td>'+x.saat+'</td><td>'+money(x.talepTutar)+'</td><td>'+esc(x.karar)+'</td><td>'+money(x.onayTutar)+'</td></tr>').join(""):'<tr><td colspan="6">İşçilik kalemi yok.</td></tr>';
+ document.getElementById("reportBody").innerHTML='<h2>MAU OTO SERVİS</h2><h3>Ekspertiz Detay Raporu</h3><p><b>'+esc(claim.dosyaNo||"-")+'</b> · '+esc(claim.plaka||"-")+' · '+esc(claim.cariAdi||"-")+'<br>'+esc(claim.sigortaSirketi||"-")+' · '+esc(claim.eksperFirma||claim.eksper||"-")+'</p><h4>Parça / Hasar Kalemleri</h4>'+reportTable(["İşlem","Parça","Kod/OEM","Miktar","Servis Talep","Eksper Kararı","Onay"],pr)+'<h4>İşçilik</h4>'+reportTable(["Bölüm","İşlem","Saat","Servis Talep","Eksper Kararı","Onay"],lr)+'<h4>Özet</h4><p>Servis Genel Talebi: <b>'+money(t.reqGrand)+'</b><br>Eksper Onaylanan Genel: <b>'+money(t.appGrand)+'</b><br>KDV: %'+t.kdv+'</p><p>Not: '+esc(document.getElementById("genelNot").value||"-")+'</p>';
+ document.getElementById("report").style.display="block";window.scrollTo(0,0);
+}
+function closeReport(){document.getElementById("report").style.display="none"}
+loadDetail();
+</script>
+</body>
+</html>
