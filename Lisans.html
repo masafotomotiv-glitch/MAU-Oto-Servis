@@ -35,7 +35,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 
  <div id="devBox" class="card"><div class="cardHead">Geliştirme Testi</div><div class="body">
   <div class="warn">Bu bölüm sadece geliştirme modunda görünür. Satış APK'sında kapatılacaktır.</div>
-  <button class="btn green" style="margin-top:8px;width:100%" onclick="devLicense()">30 Günlük Test Lisansı Oluştur</button>
+  <button class="btn green" style="margin-top:8px;width:100%" onclick="devLicense()">15 Günlük Demo Başlat</button>
  </div></div>
 
  <div class="card"><div class="cardHead">Veri Gizliliği</div><div class="body">
@@ -64,7 +64,7 @@ async function verify(){
  try{await MAULicense.verifyOnline(key);el.className="good";el.textContent="Lisans aktif. Süre bilgisi güncellendi.";refresh()}
  catch(e){el.className="warn";el.textContent=e.message||String(e)}
 }
-function devLicense(){try{MAULicense.activateDevelopment(30);refresh();document.getElementById("verifyResult").className="good";document.getElementById("verifyResult").textContent="30 günlük test lisansı oluşturuldu."}catch(e){alert(e.message||e)}}
+function devLicense(){try{MAULicense.setConfig({mode:"production"});MAULicense.startDemo(15);refresh();document.getElementById("verifyResult").className="good";document.getElementById("verifyResult").textContent="15 günlük demo başlatıldı. Veriler cihazda kalır."}catch(e){alert(e.message||e)}}
 refresh();
 </script>
 </body>
