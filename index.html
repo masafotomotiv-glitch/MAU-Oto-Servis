@@ -107,15 +107,16 @@ body{
 
 .search{
   height:52px;
-  background:red;
+  background:white;
   border:1px solid #d5dce5;
   border-radius:10px;
-  display:flex;
-  align-items:center;
   padding:0 16px;
   color:#172943;
   font-size:15px;
+  width:100%;
+  outline:none;
 }
+.search:focus{border-color:#1976d2;box-shadow:0 0 0 2px #1976d222}
 
 .qr,
 .accept{
@@ -248,13 +249,26 @@ body{
 }
 
 .empty{
-  height:125px;
+  min-height:125px;
   display:flex;
   align-items:center;
   justify-content:center;
   color:#8a97a8;
   font-size:13px;
 }
+.dash-list{padding:8px 12px}
+.dash-row{padding:9px 4px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dash-row:last-child{border-bottom:0}
+.dash-main{font-size:12px;font-weight:800;color:#24364d}
+.dash-sub{font-size:10px;color:#7b8794;margin-top:3px}
+.dash-val{font-size:11px;font-weight:800;white-space:nowrap}
+.clickable{cursor:pointer}
+.clickable:active{opacity:.78}
+.search-results{margin:-8px 18px 14px;background:white;border:1px solid #dfe5ec;border-radius:10px;overflow:hidden;display:none}
+.search-results.show{display:block}
+.search-result{padding:10px 12px;border-bottom:1px solid #edf0f4;cursor:pointer}
+.search-result:last-child{border-bottom:0}
+.search-result b{font-size:12px}.search-result span{display:block;font-size:10px;color:#718096;margin-top:3px}
 
 /* AYLIK CİRO */
 .chart-panel{
@@ -394,10 +408,11 @@ body{
   </header>
 
   <section class="toolbar">
-    <div class="search">⌕ &nbsp; Plaka, müşteri, telefon, dosya no ile ara...</div>
+    <input id="globalSearch" class="search" placeholder="⌕  Plaka, müşteri, telefon, dosya no ile ara..." oninput="renderGlobalSearch()">
     <div class="qr">▦</div>
     <div class="accept" onclick="window.location.href='Araclar.html'">＋ Araç Kayıt</div>
   </section>
+  <div id="searchResults" class="search-results"></div>
 
   <section class="menu-grid">
     <div class="menu-card blue" onclick="window.location.href=&quot;AracKabul.html&quot;">
@@ -431,7 +446,7 @@ body{
 </div>
       
 
-    <div class="menu-card teal">
+    <div class="menu-card teal" onclick="window.location.href='Cariler.html'">
       <div class="menu-icon">₺</div>
       <div class="menu-title">Cari &amp; Kasa</div>
       <div class="menu-sub">Tahsilat · Ödeme</div>
@@ -457,51 +472,51 @@ body{
   </section>
 
   <section class="status-grid">
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='IsEmirleri.html'">
       <div class="status-icon">🚘</div>
       <div>
         <div class="status-title">Serviste</div>
-        <div class="status-value">0 Araç</div>
+        <div id="statService" class="status-value">0 Araç</div>
       </div>
     </div>
 
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='Cariler.html'">
       <div class="status-icon">📋</div>
       <div>
         <div class="status-title">Eksper Onayı Bekleyen</div>
-        <div class="status-value">0 Araç</div>
+        <div id="statExpert" class="status-value">0 Araç</div>
       </div>
     </div>
 
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='IsEmirleri.html'">
       <div class="status-icon">📦</div>
       <div>
         <div class="status-title">Parça Bekleyen</div>
-        <div class="status-value">0 Araç</div>
+        <div id="statPartsWaiting" class="status-value">0 Araç</div>
       </div>
     </div>
 
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='IsEmirleri.html'">
       <div class="status-icon">📅</div>
       <div>
         <div class="status-title">Bugün Teslim</div>
-        <div class="status-value">0 Araç</div>
+        <div id="statTodayDelivery" class="status-value">0 Araç</div>
       </div>
     </div>
 
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='Cariler.html'">
       <div class="status-icon">₺</div>
       <div>
         <div class="status-title">Tahsil Edilecek</div>
-        <div class="status-value">₺0</div>
+        <div id="statReceivable" class="status-value">₺0</div>
       </div>
     </div>
 
-    <div class="status">
+    <div class="status clickable" onclick="window.location.href='Cariler.html'">
       <div class="status-icon">🛡</div>
       <div>
         <div class="status-title">Sigortadan Bekleyen</div>
-        <div class="status-value">₺0</div>
+        <div id="statInsurance" class="status-value">₺0</div>
       </div>
     </div>
   </section>
@@ -510,56 +525,43 @@ body{
     <div class="panel">
       <div class="panel-head">
         <span>BUGÜN SERVİSTE</span>
-        <span class="all">Tümü</span>
+        <span class="all clickable" onclick="window.location.href='IsEmirleri.html'">Tümü</span>
       </div>
-      <div class="empty">Henüz araç kaydı yok</div>
+      <div id="todayService" class="empty">Henüz araç kaydı yok</div>
     </div>
 
     <div class="panel">
       <div class="panel-head">
         <span>SON İŞLEMLER</span>
-        <span class="all">Tümü</span>
+        <span class="all clickable" onclick="window.location.href='IsEmirleri.html'">Tümü</span>
       </div>
-      <div class="empty">Henüz işlem yok</div>
+      <div id="recentOps" class="empty">Henüz işlem yok</div>
     </div>
   </section>
 
   <section class="chart-panel">
     <div class="panel-head">
       <span>AYLIK CİRO</span>
-      <span class="all">Tümü</span>
+      <span class="all clickable" onclick="window.location.href='Cariler.html'">Tümü</span>
     </div>
 
-    <div class="chart">
-      <div class="month"><div class="bar" style="height:25px"></div>Oca</div>
-      <div class="month"><div class="bar" style="height:38px"></div>Şub</div>
-      <div class="month"><div class="bar" style="height:30px"></div>Mar</div>
-      <div class="month"><div class="bar" style="height:50px"></div>Nis</div>
-      <div class="month"><div class="bar" style="height:43px"></div>May</div>
-      <div class="month"><div class="bar" style="height:65px"></div>Haz</div>
-      <div class="month"><div class="bar" style="height:58px"></div>Tem</div>
-      <div class="month"><div class="bar" style="height:75px"></div>Ağu</div>
-      <div class="month"><div class="bar" style="height:48px"></div>Eyl</div>
-      <div class="month"><div class="bar" style="height:20px"></div>Eki</div>
-      <div class="month"><div class="bar" style="height:12px"></div>Kas</div>
-      <div class="month"><div class="bar" style="height:12px"></div>Ara</div>
-    </div>
+    <div id="monthlyChart" class="chart"></div>
   </section>
 
   <section class="panels">
     <div class="panel">
       <div class="panel-head">
         <span>TAHSİLAT / ÖDEME</span>
-        <span class="all">Tümü</span>
+        <span class="all clickable" onclick="window.location.href='Cariler.html'">Tümü</span>
       </div>
       <div class="summary">
         <div class="summary-box">
           <div class="summary-label">Tahsilat</div>
-          <div class="summary-value">₺0</div>
+          <div id="sumCollections" class="summary-value">₺0</div>
         </div>
         <div class="summary-box">
           <div class="summary-label">Ödeme</div>
-          <div class="summary-value">₺0</div>
+          <div id="sumPayments" class="summary-value">₺0</div>
         </div>
       </div>
     </div>
@@ -567,21 +569,100 @@ body{
     <div class="panel">
       <div class="panel-head">
         <span>STOK DURUMU</span>
-        <span class="all">Tümü</span>
+        <span class="all clickable" onclick="window.location.href='ParcaStok.html'">Tümü</span>
       </div>
       <div class="summary">
         <div class="summary-box">
           <div class="summary-label">Toplam Stok</div>
-          <div class="summary-value">0</div>
+          <div id="sumStock" class="summary-value">0</div>
         </div>
         <div class="summary-box">
           <div class="summary-label">Kritik Stok</div>
-          <div class="summary-value">0</div>
+          <div id="sumCriticalStock" class="summary-value">0</div>
         </div>
       </div>
     </div>
   </section>
 
 </div>
+<script>
+const DASH_KEYS={
+ works:"mau_is_emirleri", invoices:"mau_faturalar", collections:"mau_tahsilatlar",
+ payments:"mau_odemeler", parts:"mau_stok_parcalar", vehicles:"mau_araclar",
+ cariler:"mau_cariler", hasar:["mau_hasar_dosyalari","mau_hasarlari"]
+};
+function dload(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function dmany(keys){const out=[],seen=new Set();(keys||[]).forEach(k=>dload(k).forEach(x=>{const id=String(x.id??x.dosyaNo??JSON.stringify(x));if(!seen.has(id)){seen.add(id);out.push(x)}}));return out}
+function dmoney(n){return "₺"+Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:0,maximumFractionDigits:2})}
+function ddate(v){if(!v)return"";const s=String(v);return s.slice(0,10)}
+function todayLocal(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function closedWork(w){return ["Teslim Edildi","Kapalı"].includes(w.durum)}
+function itemAmount(x){return Number(x.tutar??x.toplam??x.genelToplam??x.amount??x.sigortaTutar??x.beklenenTutar??0)||0}
+function escd(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+function renderDashboard(){
+ const works=dload(DASH_KEYS.works), invoices=dload(DASH_KEYS.invoices), cols=dload(DASH_KEYS.collections),
+  pays=dload(DASH_KEYS.payments), parts=dload(DASH_KEYS.parts), hasar=dmany(DASH_KEYS.hasar);
+ const today=todayLocal();
+ const openWorks=works.filter(w=>!closedWork(w));
+ const partWaiting=openWorks.filter(w=>(w.parcalar||[]).some(p=>["Sipariş Verilecek","Bekleniyor"].includes(p.durum)));
+ const todayDelivery=works.filter(w=>{
+   const planned=ddate(w.tahminiTeslim),actual=ddate(w.teslimTarihi);
+   return planned===today||actual===today;
+ });
+ const expertWaiting=hasar.filter(h=>/bekle|onay/i.test(String(h.durum||h.status||"")));
+ const insWaiting=hasar.filter(h=>!/kapal|ödendi|tamam/i.test(String(h.durum||h.status||""))).reduce((s,h)=>s+itemAmount(h),0);
+ const invoiced=invoices.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
+ const collected=cols.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
+ const paid=pays.filter(x=>String(x.durum||"Aktif")!=="İptal").reduce((s,x)=>s+itemAmount(x),0);
+ const receivable=Math.max(0,invoiced-collected);
+ document.getElementById("statService").textContent=openWorks.length+" Araç";
+ document.getElementById("statExpert").textContent=expertWaiting.length+" Araç";
+ document.getElementById("statPartsWaiting").textContent=partWaiting.length+" Araç";
+ document.getElementById("statTodayDelivery").textContent=todayDelivery.length+" Araç";
+ document.getElementById("statReceivable").textContent=dmoney(receivable);
+ document.getElementById("statInsurance").textContent=dmoney(insWaiting);
+ document.getElementById("sumCollections").textContent=dmoney(collected);
+ document.getElementById("sumPayments").textContent=dmoney(paid);
+ const stockTotal=parts.reduce((s,p)=>s+Number(p.stock||0),0);
+ const critical=parts.filter(p=>String(p.status||"Aktif")!=="Pasif"&&Number(p.stock||0)<=Number(p.minStock||0)).length;
+ document.getElementById("sumStock").textContent=stockTotal.toLocaleString("tr-TR");
+ document.getElementById("sumCriticalStock").textContent=critical.toLocaleString("tr-TR");
+
+ const svc=document.getElementById("todayService");
+ const svcList=openWorks.slice().sort((a,b)=>String(b.updatedAt||b.createdAt||"").localeCompare(String(a.updatedAt||a.createdAt||""))).slice(0,5);
+ svc.className=svcList.length?"dash-list":"empty";
+ svc.innerHTML=svcList.length?svcList.map(w=>'<div class="dash-row clickable" onclick="location.href=\'IsEmirleri.html\'"><div><div class="dash-main">'+escd(w.plaka||"-")+' · '+escd(w.isEmriNo||"-")+'</div><div class="dash-sub">'+escd(w.cariAdi||"-")+' · '+escd(w.durum||"-")+'</div></div><div class="dash-val">'+dmoney(w.genelToplam||0)+'</div></div>').join(""):"Henüz araç kaydı yok";
+
+ const events=[];
+ works.forEach(x=>events.push({t:x.updatedAt||x.createdAt||x.tarih||"",title:(x.isEmriNo||"İş Emri")+" · "+(x.plaka||""),sub:x.durum||"İş Emri",url:"IsEmirleri.html"}));
+ invoices.forEach(x=>events.push({t:x.updatedAt||x.createdAt||x.faturaTarihi||x.tarih||"",title:(x.faturaNo||"Fatura")+" · "+(x.plaka||""),sub:"Fatura · "+dmoney(itemAmount(x)),url:"Cariler.html"}));
+ cols.forEach(x=>events.push({t:x.createdAt||x.tarih||"",title:(x.makbuzNo||"Tahsilat")+" · "+(x.plaka||""),sub:"Tahsilat · "+dmoney(itemAmount(x)),url:"Cariler.html"}));
+ events.sort((a,b)=>String(b.t||"").localeCompare(String(a.t||"")));
+ const recent=events.slice(0,6),re=document.getElementById("recentOps");
+ re.className=recent.length?"dash-list":"empty";
+ re.innerHTML=recent.length?recent.map(e=>'<div class="dash-row clickable" onclick="location.href=\''+e.url+'\'"><div><div class="dash-main">'+escd(e.title)+'</div><div class="dash-sub">'+escd(e.sub)+'</div></div><div class="dash-val">'+escd(ddate(e.t)||"")+'</div></div>').join(""):"Henüz işlem yok";
+
+ const year=new Date().getFullYear(), months=Array(12).fill(0);
+ invoices.forEach(x=>{const d=ddate(x.faturaTarihi||x.tarih||x.createdAt);if(!d||Number(d.slice(0,4))!==year)return;const m=Number(d.slice(5,7))-1;if(m>=0&&m<12)months[m]+=itemAmount(x)});
+ const max=Math.max(...months,1),names=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+ document.getElementById("monthlyChart").innerHTML=months.map((v,i)=>'<div class="month" title="'+dmoney(v)+'"><div class="bar" style="height:'+Math.max(12,Math.round(v/max*95))+'px"></div>'+names[i]+'</div>').join("");
+}
+function renderGlobalSearch(){
+ const box=document.getElementById("searchResults"),q=(document.getElementById("globalSearch").value||"").toLocaleLowerCase("tr-TR").trim();
+ if(q.length<2){box.className="search-results";box.innerHTML="";return}
+ const cars=dload(DASH_KEYS.vehicles),caris=dload(DASH_KEYS.cariler),works=dload(DASH_KEYS.works);
+ const results=[];
+ cars.filter(x=>[x.plaka,x.marka,x.model,x.sasi,x.motorNo].join(" ").toLocaleLowerCase("tr-TR").includes(q)).slice(0,4).forEach(x=>results.push({title:(x.plaka||"-")+" · "+[x.marka,x.model].filter(Boolean).join(" "),sub:"Araç",url:"Araclar.html"}));
+ caris.filter(x=>[x.name,x.code,x.tel,x.mail].join(" ").toLocaleLowerCase("tr-TR").includes(q)).slice(0,4).forEach(x=>results.push({title:(x.name||"-")+" · "+(x.code||""),sub:"Cari",url:"Cariler.html"}));
+ works.filter(x=>[x.isEmriNo,x.plaka,x.cariAdi,x.kabulNo,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q)).slice(0,4).forEach(x=>results.push({title:(x.isEmriNo||"-")+" · "+(x.plaka||""),sub:"İş Emri · "+(x.durum||""),url:"IsEmirleri.html"}));
+ box.innerHTML=results.length?results.slice(0,8).map(r=>'<div class="search-result" onclick="location.href=\''+r.url+'\'"><b>'+escd(r.title)+'</b><span>'+escd(r.sub)+'</span></div>').join(""):'<div class="search-result"><b>Sonuç bulunamadı</b></div>';
+ box.className="search-results show";
+}
+window.addEventListener("storage",renderDashboard);
+window.addEventListener("pageshow",renderDashboard);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
+renderDashboard();
+</script>
 </body>
-        </html>
+</html>
