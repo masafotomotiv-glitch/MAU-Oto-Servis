@@ -5,7 +5,7 @@ const APP_VERSION="2026.10";
 const STATE_KEY="mau_lisans";
 const DEVICE_KEY="mau_lisans_cihaz";
 const CONFIG_KEY="mau_lisans_config";
-const BUILD={mode:"development",verifyUrl:"",graceDays:7,warningDays:7};
+const BUILD={mode:"development",verifyUrl:"",graceDays:7,warningDays:7,demoDays:15};
 
 function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
 function saveObj(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -16,7 +16,7 @@ function config(){
 }
 function uid(){return "MAU-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,10).toUpperCase()}
 function deviceId(){let v=localStorage.getItem(DEVICE_KEY);if(!v){v=uid();localStorage.setItem(DEVICE_KEY,v)}return v}
-function state(){return Object.assign({status:"development",licenseKey:"",plan:"",customer:"",validUntil:"",lastVerifiedAt:"",lastSeenAt:"",token:""},loadObj(STATE_KEY))}
+function state(){return Object.assign({status:"development",licenseKey:"",plan:"",customer:"",validUntil:"",lastVerifiedAt:"",lastSeenAt:"",token:"",startedAt:"",paymentStatus:"",amount:0},loadObj(STATE_KEY))}
 function persist(s){saveObj(STATE_KEY,s)}
 function now(){return Date.now()}
 function parseDate(v){const t=Date.parse(v||"");return Number.isFinite(t)?t:0}
@@ -30,15 +30,17 @@ function assess(){
  const exp=parseDate(s.validUntil),verified=parseDate(s.lastVerifiedAt),seen=parseDate(s.lastSeenAt);
  const rollback=seen&&n+10*60000<seen;
  const graceMs=Math.max(1,Number(cfg.graceDays||7))*86400000;
- const verificationFresh=verified&&n-verified<=graceMs;
- const notExpired=exp&&n<=exp;
- let active=!!(s.licenseKey&&s.status==="active"&&notExpired&&verificationFresh&&!rollback);
+ const isDemo=s.status==="demo";
+ const verificationFresh=isDemo?true:!!(verified&&n-verified<=graceMs);
+ const notExpired=!!(exp&&n<=exp);
+ const statusOK=isDemo||s.status==="active";
+ let active=!!(s.licenseKey&&statusOK&&notExpired&&verificationFresh&&!rollback);
  let reason="";
  if(!s.licenseKey)reason="Lisans anahtarı yok.";
  else if(rollback)reason="Cihaz tarihi geriye alınmış görünüyor. İnternet doğrulaması gerekli.";
  else if(!notExpired)reason="Lisans süresi dolmuş.";
  else if(!verificationFresh)reason="Çevrimdışı doğrulama süresi dolmuş. İnternet doğrulaması gerekli.";
- else if(s.status!=="active")reason="Lisans aktif değil.";
+ else if(!(s.status==="active"||s.status==="demo"))reason="Lisans aktif değil.";
  return {mode:"production",write:active,active,status:active?"active":"readonly",daysLeft:daysLeft(s.validUntil),reason,state:s,config:cfg}
 }
 
@@ -86,8 +88,30 @@ async function verifyOnline(licenseKey){
 }
 function activateDevelopment(days){
  const cfg=config();if(cfg.mode==="production")throw new Error("Üretim modunda test lisansı oluşturulamaz.");
- const s=state(),d=new Date();d.setDate(d.getDate()+Number(days||30));s.licenseKey=s.licenseKey||"DEV-"+deviceId().slice(-8);s.status="active";s.plan="Geliştirme";s.customer=s.customer||"MAU Test";s.validUntil=d.toISOString();s.lastVerifiedAt=new Date().toISOString();s.lastSeenAt=s.lastVerifiedAt;persist(s);return s
+ const s=state(),d=new Date();d.setDate(d.getDate()+Number(days||30));s.licenseKey=s.licenseKey||"DEV-"+deviceId().slice(-8);s.status="active";s.plan="Geliştirme";s.customer=s.customer||"MAU Test";s.startedAt=s.startedAt||new Date().toISOString();s.validUntil=d.toISOString();s.lastVerifiedAt=new Date().toISOString();s.lastSeenAt=s.lastVerifiedAt;s.paymentStatus="test";persist(s);return s
 }
+function qaOnly(){if(BUILD.mode!=="development")throw new Error("Bu işlem yalnız geliştirme yapısında kullanılabilir.")}
+function setTestState(opts){
+ qaOnly();const s=state(),o=opts||{},d=new Date();
+ if(o.days!=null)d.setDate(d.getDate()+Number(o.days||0));
+ if(o.status!=null)s.status=o.status;
+ if(o.days!=null)s.validUntil=d.toISOString();
+ if(o.plan!=null)s.plan=o.plan;
+ if(o.customer!=null)s.customer=o.customer;
+ if(o.licenseKey!=null)s.licenseKey=o.licenseKey;
+ if(!s.licenseKey)s.licenseKey="QA-"+deviceId().slice(-8);
+ s.startedAt=o.startedAt||s.startedAt||new Date().toISOString();
+ s.lastVerifiedAt=new Date().toISOString();s.lastSeenAt=s.lastVerifiedAt;
+ if(o.paymentStatus!=null)s.paymentStatus=o.paymentStatus;
+ if(o.amount!=null)s.amount=Number(o.amount||0);
+ persist(s);return s
+}
+function startDemo(days){
+ qaOnly();const n=Number(days||config().demoDays||15);
+ return setTestState({status:"demo",days:n,plan:"15 Gün Demo",paymentStatus:"demo",amount:0})
+}
+function expireTest(){qaOnly();const s=state(),d=new Date(Date.now()-86400000);s.validUntil=d.toISOString();s.lastSeenAt=new Date().toISOString();persist(s);return s}
+function resetTestLicense(){qaOnly();localStorage.removeItem(STATE_KEY);localStorage.removeItem(CONFIG_KEY);return state()}
 function setConfig(next){const c=Object.assign({},config(),next||{});saveObj(CONFIG_KEY,c);return c}
 function touch(){
  const a=assess(),s=a.state;s.lastSeenAt=new Date().toISOString();try{persist(s)}catch(e){}
@@ -102,7 +126,7 @@ function touch(){
 document.addEventListener("DOMContentLoaded",touch);
 
 window.MAULicense={
- appId:APP_ID,version:APP_VERSION,state,config,assess,deviceId,verifyOnline,activateDevelopment,setConfig,
+ appId:APP_ID,version:APP_VERSION,state,config,assess,deviceId,verifyOnline,activateDevelopment,setConfig,startDemo,setTestState,expireTest,resetTestLicense,
  canWrite:function(){return assess().write},
  requireWrite:function(){if(assess().write)return true;showLockNotice();return false},
  statusText:function(){const a=assess();if(a.mode==="development")return"Geliştirme";if(a.active)return"Aktif";return"Salt Okunur"},
