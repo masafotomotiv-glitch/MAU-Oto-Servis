@@ -115,17 +115,36 @@ body{
 }
 
 .company-box{
-  height:44px;
+  height:48px;
   max-width:320px;
-  padding:0 14px;
+  padding:0 18px;
   background:white;
-  color:#172943;
-  border-radius:8px;
+  color:#0b4b78;
+  border-radius:10px;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  font-weight:bold;
+  justify-content:center;
+  text-align:center;
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:.35px;
+  position:relative;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  cursor:default;
 }
+.company-box::after{
+  content:"";
+  position:absolute;
+  left:22%;
+  right:22%;
+  bottom:6px;
+  height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#16c7d9,#1976d2);
+}
+#companyName{pointer-events:none;}
 
 .top-menu{
   display:grid;
@@ -161,6 +180,11 @@ body{
   background:#13a05a;
   color:white;
   font-size:15px;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
 
 /* ANA 9 MENÜ */
@@ -178,6 +202,16 @@ body{
   color:white;
   position:relative;
   box-shadow:0 3px 10px rgba(0,0,0,.10);
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.menu-card *{
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
 }
 
 .menu-icon{
@@ -418,9 +452,8 @@ body{
 
     <div>
       <div class="company-label">Firma</div>
-      <div class="company-box">
-        <span id="companyName">Asaf Otomotiv</span>
-        <span>⌄</span>
+      <div class="company-box" aria-label="Firma adı">
+        <span id="companyName">ASIM OTO SERVİS</span>
       </div>
     </div>
 
