@@ -430,27 +430,78 @@ function fallbackVin(lines){
 }
 function fallbackMotor(lines){
  const candidates=[];
+ const badWords=/(?:NOTER|SATIŞ|SATIS|TESCİL|TESCIL|BELGE|PLAKA|ŞASE|ŞASİ|SASE|SASI|VIN|MARKA|MODEL|YAKIT|RENK|TARİH|TARIH)/;
+
+ function addCandidate(raw,score){
+  const compact=compactValue(raw);
+  if(!compact)return;
+  if(compact.length<5||compact.length>25)return;
+  if(badWords.test(upperTR(raw)))return;
+  if(validVin(compact))return;
+  if(!/\d/.test(compact))return;
+  // Tarih, yıl ve kısa alan kodlarını motor no sanma.
+  if(/^(19|20)\d{2}$/.test(compact))return;
+  if(/^\d{6,8}$/.test(compact)&&String(raw).match(/[.\/\-]/))return;
+  candidates.push({v:compact,score:score});
+ }
+
  for(let i=0;i<lines.length;i++){
   const u=upperTR(lines[i]);
-  const anchor=/(?:MOTOR\s*(?:NO|NUMARASI)|^\s*\(?P\s*[.\-]?\s*[5S]\)?(?:\s|$))/.test(u);
+  const anchor=/(?:MOTOR\s*(?:NO|NUMARASI|NUMARASI\s*\/\s*ENGINE)|ENGINE\s*(?:NO|NUMBER)|^\s*\(?P\s*[.\-]?\s*[5S]\)?(?:\s|$))/.test(u);
   if(!anchor)continue;
 
-  for(let j=i;j<Math.min(lines.length,i+5);j++){
-   const cleaned=lineWithoutCriticalLabels(lines[j]);
-   const tokens=upperTR(cleaned).match(/[A-Z0-9]{5,25}/g)||[];
-   for(const token of tokens){
-    if(!validMotorNo(token))continue;
-    if(validVin(token))continue;
-    let score=10-(j-i);
-    if(j===i)score+=4;
-    candidates.push({v:compactValue(token),score:score});
+  // Aynı satırdaki "Motor No: XXXXX" biçimi.
+  const same=lineWithoutCriticalLabels(lines[i]);
+  if(same)addCandidate(same,30);
+
+  // OCR bazen iki sütunlu ruhsatta değeri birkaç satır sonra döndürüyor.
+  for(let j=i+1;j<Math.min(lines.length,i+9);j++){
+   const raw=lines[j];
+   const cleaned=lineWithoutCriticalLabels(raw);
+   if(!cleaned)continue;
+
+   // Tam satırı önce dene; "G4FG EU123456" gibi aralıklı motor no için.
+   addCandidate(cleaned,24-(j-i));
+
+   // Sonra tek tek alfanümerik parçaları dene.
+   const tokens=upperTR(cleaned).match(/[A-Z0-9][A-Z0-9.\-\/]{4,24}/g)||[];
+   for(const token of tokens)addCandidate(token,20-(j-i));
+
+   // Çok uzaklaşınca yeni alan başlığına geçtiysek dur.
+   if(j>=i+3&&isFieldHeader(raw))break;
+  }
+ }
+
+ // "P.5" etiketi OCR'da kaybolmuşsa, MOTOR kelimesinin çevresini ayrıca tara.
+ if(!candidates.length){
+  for(let i=0;i<lines.length;i++){
+   const u=upperTR(lines[i]);
+   if(!/MOTOR/.test(u))continue;
+   for(let j=Math.max(0,i-1);j<Math.min(lines.length,i+6);j++){
+    const cleaned=lineWithoutCriticalLabels(lines[j]);
+    if(!cleaned)continue;
+    addCandidate(cleaned,12-Math.abs(j-i));
    }
   }
  }
- candidates.sort((a,b)=>b.score-a.score);
- if(!candidates.length)return "";
- if(candidates.length===1||candidates[0].score>candidates[1].score)return candidates[0].v;
- if(candidates.filter(x=>x.v===candidates[0].v).length>1)return candidates[0].v;
+
+ // Aynı aday birden çok kez görülürse güvenini artır.
+ const grouped={};
+ for(const x of candidates){
+  if(!grouped[x.v])grouped[x.v]={v:x.v,score:0,count:0};
+  grouped[x.v].score=Math.max(grouped[x.v].score,x.score);
+  grouped[x.v].count++;
+  if(x.v.length>=8)grouped[x.v].score+=2;
+  if(/[A-Z]/.test(x.v)&&/\d/.test(x.v))grouped[x.v].score+=2;
+ }
+ const list=Object.values(grouped);
+ list.forEach(x=>x.score+=Math.min(4,x.count-1));
+ list.sort((a,b)=>b.score-a.score);
+
+ if(!list.length)return "";
+ if(list.length===1)return list[0].v;
+ if(list[0].score>=list[1].score+2)return list[0].v;
+ if(list[0].count>list[1].count)return list[0].v;
  return "";
 }
 function parseRuhsatText(rawText){
@@ -539,7 +590,7 @@ function onRuhsatScanResult(rawText){
   if(fillIf(k,data[k]))count++;
  });
  if(count){
-  setScanStatus("Okuma: Plaka "+(data.plaka?"✓":"—")+" • Şase "+(data.sasi?"✓":"—")+" • Motor "+(data.motorNo?"✓":"—")+" • Toplam "+count+" alan dolduruldu.",true);
+  setScanStatus("Okuma: Plaka "+(data.plaka?"✓":"—")+" • Şase "+(data.sasi?"✓":"—")+" • Motor "+(data.motorNo?"✓":"—")+" • Toplam "+count+" alan dolduruldu."+(data.sasi&&!data.motorNo?" Motor No için OCR ham okumayı açıp P.5/Motor satırını kontrol edin.":""),true);
  }else{
   setScanStatus("Ruhsat okundu fakat güvenilir alan bulunamadı. Daha net, düz ve ışıklı bir fotoğraf deneyin.",false);
  }
