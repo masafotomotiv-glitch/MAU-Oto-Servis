@@ -1,4 +1,4 @@
-name: Build MAU Tablet Test APK
+name: Build MAU Oto Servis APK
 
 on:
   workflow_dispatch:
@@ -50,12 +50,12 @@ jobs:
         run: gradle -p android-test assembleDebug --stacktrace
 
       - name: Rename APK
-        run: cp android-test/app/build/outputs/apk/debug/app-debug.apk MAU-Oto-Servis-Tablet-Test.apk
+        run: cp android-test/app/build/outputs/apk/debug/app-debug.apk MAU-Oto-Servis.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MAU-Oto-Servis-Tablet-Test-APK
-          path: MAU-Oto-Servis-Tablet-Test.apk
+          name: MAU-Oto-Servis-APK
+          path: MAU-Oto-Servis.apk
           if-no-files-found: error
           retention-days: 7
