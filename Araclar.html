@@ -9,55 +9,74 @@
 :root{--blue:#0874d1;--blue2:#083fa7;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--green:#08a451;--red:#b42335;--amber:#9b6200}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
-header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;padding:18px}
-.head{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}
-.back{background:#ffffff18;border:0;color:white;width:42px;height:42px;border-radius:10px;font-size:22px}
+header,.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+header{padding:18px}.detailHead{padding:16px}
+.head,.detailTop{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}
+.back{background:#ffffff18;border:0;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}
 .logo{font-size:23px;font-weight:800}.sub{font-size:13px;opacity:.85;margin-top:3px}
 .container{max-width:1200px;margin:auto;padding:18px}
 .toolbar{display:flex;gap:10px;margin-bottom:14px}.search{flex:1;padding:14px;border:1px solid var(--line);border-radius:12px}
-.add{border:0;background:var(--green);color:white;font-weight:700;padding:0 20px;border-radius:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
-.stat{background:white;border-radius:13px;padding:14px;text-align:center;box-shadow:0 2px 10px #0000000b}
+.add{border:0;background:var(--green);color:#fff;font-weight:700;padding:0 20px;border-radius:12px}
+.filterRow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.filterBtn{border:0;background:#fff;padding:9px 14px;border-radius:20px}.filterBtn.on{background:var(--blue);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+.stat{background:#fff;border-radius:13px;padding:14px;text-align:center;box-shadow:0 2px 10px #0000000b}
 .stat b{display:block;font-size:24px;color:#0864b8}.stat span{font-size:13px;color:var(--muted)}
 .note{background:#eef6ff;border:1px solid #d7eaff;color:#3f5369;padding:12px;border-radius:10px;margin-bottom:14px;line-height:1.5}
-.card{background:white;border-radius:15px;padding:17px;margin-bottom:12px;box-shadow:0 3px 14px #0000000c}
+.warn{background:#fff6df;border-color:#f4dc9a}
+.card{background:#fff;border-radius:15px;padding:17px;margin-bottom:12px;box-shadow:0 3px 14px #0000000c}
 .title{display:flex;justify-content:space-between;gap:10px;align-items:start}.plate{font-size:20px;font-weight:800}.code{font-size:12px;color:#7b8794;margin-top:4px}
-.badge{display:inline-block;padding:5px 9px;border-radius:10px;background:#e9f3ff;color:#075ca8;font-size:12px;margin:2px}
-.badge.passive{background:#ffe8eb;color:#a21c2b}
+.badge{display:inline-block;padding:5px 9px;border-radius:10px;background:#e9f3ff;color:#075ca8;font-size:12px;margin:2px}.badge.passive{background:#ffe8eb;color:#a21c2b}.badge.due{background:#fff2df;color:#9b6200}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.cell{border:1px solid #edf0f3;border-radius:10px;padding:10px}.cell span{display:block;font-size:11px;color:#64748b;margin-bottom:4px}.cell b{font-size:13px}
-.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}.actions button{border:0;padding:11px 5px;border-radius:9px;font-weight:700}
-.edit{background:#eaf2ff;color:#0756a5}.pass{background:#fff2df;color:var(--amber)}.del{background:#ffe8eb;color:var(--red)}
-.empty{background:white;text-align:center;padding:50px 15px;border-radius:15px;color:var(--muted)}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}.actions button{border:0;padding:11px 5px;border-radius:9px;font-weight:700}
+.open{background:var(--blue);color:#fff}.edit{background:#eaf2ff;color:#0756a5}.pass{background:#fff2df;color:var(--amber)}.del{background:#ffe8eb;color:var(--red)}
+.empty{background:#fff;text-align:center;padding:50px 15px;border-radius:15px;color:var(--muted)}
 .modal{display:none;position:fixed;inset:0;background:#0008;z-index:1000;overflow:auto;padding:15px}
-.box{max-width:820px;background:white;margin:20px auto;border-radius:16px;overflow:hidden}
-.boxHead{background:var(--blue);color:white;padding:17px;font-size:19px;font-weight:800;display:flex;justify-content:space-between}
-.boxBody{padding:17px}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:11px}.field.full{grid-column:1/-1}
+.box{max-width:900px;background:#fff;margin:20px auto;border-radius:16px;overflow:hidden}
+.boxHead{background:var(--blue);color:#fff;padding:17px;font-size:19px;font-weight:800;display:flex;justify-content:space-between}
+.boxBody{padding:17px}.sectionTitle{font-size:14px;font-weight:800;margin:8px 0 12px;padding-bottom:7px;border-bottom:1px solid #e8edf2}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:11px}.field.full{grid-column:1/-1}
 label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#4c5968}input,textarea,select{width:100%;border:1px solid var(--line);padding:12px;border-radius:9px;font-size:14px}
-textarea{min-height:80px}.save{width:100%;background:var(--green);color:white;border:0;padding:14px;border-radius:10px;font-size:16px;font-weight:800}
+textarea{min-height:80px}.save{width:100%;background:var(--green);color:#fff;border:0;padding:14px;border-radius:10px;font-size:16px;font-weight:800}
 .helper{font-size:12px;color:#64748b;margin-top:5px}.linkbtn{border:0;background:#eaf3ff;color:#075ba8;padding:10px 12px;border-radius:8px;font-weight:700}
-@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.formGrid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+.detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;overflow:auto}.detailTitle{font-size:21px;font-weight:800}.detailCode{font-size:12px;opacity:.85}
+.detailGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 12px #0000000b}.panel h3{margin:0 0 12px;font-size:16px}
+.row{display:grid;grid-template-columns:150px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid #edf0f3}.row:last-child{border-bottom:0}.row span{color:#64748b;font-size:12px}.row b{font-size:13px}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.quick button{border:0;background:#eaf3ff;color:#075ba8;padding:10px 13px;border-radius:8px;font-weight:700}.quick .pdf{background:#ffe9ec;color:#a11e30}
+.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;border-bottom:1px solid #edf0f3;padding:9px 7px;font-size:12px;vertical-align:top}th{background:#f7f9fc}
+@media(max-width:700px){
+ .stats{grid-template-columns:1fr 1fr}.grid,.detailGrid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.formGrid{grid-template-columns:1fr}.field.full{grid-column:auto}.row{grid-template-columns:120px 1fr}
+}
 </style>
 </head>
 <body>
+
 <header>
  <div class="head">
   <button class="back" onclick="location.href='index.html'">‹</button>
-  <div><div class="logo">M•• MAU OTO SERVİS</div><div class="sub">Araç Kayıt · Cari Bağlantısı · Araç Ana Kartı</div></div>
+  <div><div class="logo">M•• MAU OTO SERVİS</div><div class="sub">Araç Kayıt · Araç Ana Kartı · Servis Geçmişi</div></div>
  </div>
 </header>
 
 <div class="container">
- <div class="note"><b>Araç ana kartı burada oluşturulur.</b> Her araç mutlaka bir cariye bağlanır. Burada kaydedilen araç, ilgili carinin <b>Araçlar</b> sekmesine otomatik düşer; aynı araç servis gelişlerinde tekrar kaydedilmez.</div>
+ <div class="note"><b>Araç ana kartı burada bir kez oluşturulur.</b> Araç mutlaka bir cariye bağlanır. Aynı araç tekrar geldiğinde yeniden kayıt açılmaz; Araç Kabul ve İş Emri bu ana kartı kullanır.</div>
 
  <div class="toolbar">
-  <input id="search" class="search" placeholder="Plaka, cari, marka, model, şasi ile ara..." oninput="render()">
+  <input id="search" class="search" placeholder="Plaka, cari, marka, model, şasi, motor no ile ara..." oninput="render()">
   <button class="add" onclick="openForm()">+ Yeni Araç</button>
+ </div>
+
+ <div class="filterRow">
+  <button class="filterBtn on" onclick="setFilter('Tümü',this)">Tümü</button>
+  <button class="filterBtn" onclick="setFilter('Aktif',this)">Aktif</button>
+  <button class="filterBtn" onclick="setFilter('Pasif',this)">Pasif</button>
+  <button class="filterBtn" onclick="setFilter('Yaklaşan',this)">Yaklaşan Bakım / Muayene</button>
  </div>
 
  <div class="stats">
   <div class="stat"><b id="toplam">0</b><span>Toplam Araç</span></div>
   <div class="stat"><b id="aktif">0</b><span>Aktif</span></div>
-  <div class="stat"><b id="pasif">0</b><span>Pasif</span></div>
+  <div class="stat"><b id="bakim">0</b><span>Bakım Yaklaşan</span></div>
+  <div class="stat"><b id="muayene">0</b><span>Muayene Yaklaşan</span></div>
  </div>
 
  <div id="list"></div>
@@ -67,25 +86,38 @@ textarea{min-height:80px}.save{width:100%;background:var(--green);color:white;bo
  <div class="box">
   <div class="boxHead"><span id="formTitle">Yeni Araç Kartı</span><span onclick="closeForm()" style="cursor:pointer">×</span></div>
   <div class="boxBody">
+
+   <div class="sectionTitle">1. Cari Bağlantısı</div>
    <div class="formGrid">
     <div class="field full">
      <label>Araç Sahibi / Cari *</label>
      <select id="cariId"></select>
-     <div class="helper">Cari listede yoksa önce Cariler bölümünden oluşturun.</div>
+     <div class="helper">Araç kaydı hangi cariye bağlıysa Cariler ekranında o carinin Araçlar sekmesine otomatik düşer.</div>
     </div>
+   </div>
 
+   <div class="sectionTitle">2. Kimlik ve Ruhsat Bilgileri</div>
+   <div class="formGrid">
     <div class="field"><label>Plaka *</label><input id="plaka" placeholder="06 ABC 123"></div>
     <div class="field"><label>Araç Kodu</label><input id="aracCode" readonly placeholder="Otomatik"></div>
 
+    <div class="field"><label>Araç Türü</label>
+     <select id="aracTuru"><option value="">Seçiniz</option><option>Binek</option><option>Hafif Ticari</option><option>Ticari</option><option>Minibüs</option><option>Kamyonet</option><option>Kamyon</option><option>Motosiklet</option><option>Diğer</option></select>
+    </div>
+    <div class="field"><label>Ruhsat Seri No</label><input id="ruhsatSeriNo"></div>
+
+    <div class="field full"><label>Şasi / VIN</label><input id="sasi" maxlength="40" placeholder="Şasi numarası"></div>
+    <div class="field"><label>Motor No</label><input id="motorNo"></div>
+    <div class="field"><label>İlk Tescil Tarihi</label><input id="tescilTarihi" type="date"></div>
+   </div>
+
+   <div class="sectionTitle">3. Araç Teknik Bilgileri</div>
+   <div class="formGrid">
     <div class="field"><label>Marka</label><input id="marka" placeholder="Mercedes-Benz"></div>
     <div class="field"><label>Model</label><input id="model" placeholder="Sprinter"></div>
 
+    <div class="field"><label>Versiyon / Kasa</label><input id="versiyon" placeholder="316 CDI / W907"></div>
     <div class="field"><label>Model Yılı</label><input id="yil" type="number" min="1900" max="2100"></div>
-    <div class="field"><label>KM</label><input id="km" type="number" min="0"></div>
-
-    <div class="field full"><label>Şasi / VIN</label><input id="sasi" maxlength="40"></div>
-    <div class="field"><label>Motor No</label><input id="motorNo"></div>
-    <div class="field"><label>Ruhsat Seri No</label><input id="ruhsatSeriNo"></div>
 
     <div class="field"><label>Yakıt</label>
      <select id="yakit"><option value="">Seçiniz</option><option>Benzin</option><option>Dizel</option><option>LPG</option><option>Hibrit</option><option>Elektrik</option></select>
@@ -95,9 +127,30 @@ textarea{min-height:80px}.save{width:100%;background:var(--green);color:white;bo
     </div>
 
     <div class="field"><label>Renk</label><input id="renk"></div>
-    <div class="field"><label>Durum</label><select id="durum"><option>Aktif</option><option>Pasif</option></select></div>
+    <div class="field"><label>Motor Hacmi / Güç</label><input id="motorBilgi" placeholder="2.0 CDI / 163 hp"></div>
 
-    <div class="field full"><label>Araç Notları</label><textarea id="notlar" placeholder="Araçla ilgili kalıcı not..."></textarea></div>
+    <div class="field"><label>Lastik Ebadı</label><input id="lastikEbadi" placeholder="225/55 R17"></div>
+    <div class="field"><label>Güncel KM</label><input id="km" type="number" min="0"></div>
+   </div>
+
+   <div class="sectionTitle">4. Bakım, Muayene ve Sigorta Takibi</div>
+   <div class="formGrid">
+    <div class="field"><label>Son Bakım Tarihi</label><input id="sonBakimTarihi" type="date"></div>
+    <div class="field"><label>Son Bakım KM</label><input id="sonBakimKm" type="number" min="0"></div>
+
+    <div class="field"><label>Sonraki Bakım Tarihi</label><input id="sonrakiBakimTarihi" type="date"></div>
+    <div class="field"><label>Sonraki Bakım KM</label><input id="sonrakiBakimKm" type="number" min="0"></div>
+
+    <div class="field"><label>Muayene Bitiş Tarihi</label><input id="muayeneTarihi" type="date"></div>
+    <div class="field"><label>Trafik Sigortası Bitiş</label><input id="trafikSigortaTarihi" type="date"></div>
+
+    <div class="field"><label>Kasko Bitiş Tarihi</label><input id="kaskoTarihi" type="date"></div>
+    <div class="field"><label>Durum</label><select id="durum"><option>Aktif</option><option>Pasif</option></select></div>
+   </div>
+
+   <div class="sectionTitle">5. Notlar</div>
+   <div class="formGrid">
+    <div class="field full"><label>Araç Notları</label><textarea id="notlar" placeholder="Araca ait kalıcı notlar, özel uyarılar, müşteri talepleri..."></textarea></div>
    </div>
 
    <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -109,10 +162,24 @@ textarea{min-height:80px}.save{width:100%;background:var(--green);color:white;bo
  </div>
 </div>
 
+<div id="detail" class="detail">
+ <div class="detailHead">
+  <div class="detailTop">
+   <button class="back" onclick="closeDetail()">‹</button>
+   <div><div id="detailPlate" class="detailTitle"></div><div id="detailCode" class="detailCode"></div></div>
+  </div>
+ </div>
+ <div class="container">
+  <div id="detailBody"></div>
+ </div>
+</div>
+
 <script>
 const VEHICLE_KEY="mau_araclar";
 const CARI_KEY="mau_cariler";
-const RELATED_KEYS=["mau_is_emirleri","mau_hasar_dosyalari","mau_faturalar"];
+const WORK_KEY="mau_is_emirleri";
+const CLAIM_KEY="mau_hasar_dosyalari";
+const INVOICE_KEY="mau_faturalar";
 
 function loadArray(key){
  try{
@@ -123,6 +190,14 @@ function loadArray(key){
 function saveVehicles(){localStorage.setItem(VEHICLE_KEY,JSON.stringify(araclar));}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function normPlate(v){return String(v||"").toLocaleUpperCase("tr-TR").replace(/\s+/g," ").trim();}
+function normVin(v){return String(v||"").toUpperCase().replace(/\s+/g,"").trim();}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function daysUntil(dateStr){
+ if(!dateStr)return null;
+ const t=new Date(dateStr+"T00:00:00");
+ const n=new Date(todayISO()+"T00:00:00");
+ return Math.round((t-n)/86400000);
+}
 function codeCreate(){
  let max=0;
  araclar.forEach(a=>{
@@ -133,10 +208,30 @@ function codeCreate(){
 }
 function findCari(id){return cariler.find(c=>String(c.id)===String(id));}
 function findVehicle(id){return araclar.find(a=>String(a.id)===String(id));}
+function relatedByVehicle(key,a){
+ return loadArray(key).filter(x=>{
+  if(x.aracId!=null&&String(x.aracId)===String(a.id))return true;
+  if(x.vehicleId!=null&&String(x.vehicleId)===String(a.id))return true;
+  return x.plaka&&normPlate(x.plaka)===normPlate(a.plaka);
+ });
+}
+function isMaintenanceDue(a){
+ const km=Number(a.km||0), target=Number(a.sonrakiBakimKm||0);
+ const byKm=target>0&&km>0&&(target-km)<=1000;
+ const d=daysUntil(a.sonrakiBakimTarihi);
+ const byDate=d!=null&&d<=30;
+ return byKm||byDate;
+}
+function isInspectionDue(a){
+ const d=daysUntil(a.muayeneTarihi);
+ return d!=null&&d<=30;
+}
 
 let cariler=loadArray(CARI_KEY);
 let araclar=loadArray(VEHICLE_KEY);
 let editId=null;
+let activeVehicle=null;
+let currentFilter="Tümü";
 
 function refreshCariler(){
  cariler=loadArray(CARI_KEY);
@@ -148,9 +243,10 @@ function refreshCariler(){
  if(active.some(c=>String(c.id)===String(current)))sel.value=current;
 }
 
+const fields=["plaka","aracCode","aracTuru","ruhsatSeriNo","sasi","motorNo","tescilTarihi","marka","model","versiyon","yil","yakit","vites","renk","motorBilgi","lastikEbadi","km","sonBakimTarihi","sonBakimKm","sonrakiBakimTarihi","sonrakiBakimKm","muayeneTarihi","trafikSigortaTarihi","kaskoTarihi","durum","notlar"];
+
 function clearForm(){
- ["plaka","aracCode","marka","model","yil","km","sasi","motorNo","ruhsatSeriNo","renk","notlar"].forEach(id=>document.getElementById(id).value="");
- ["yakit","vites"].forEach(id=>document.getElementById(id).value="");
+ fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
  document.getElementById("durum").value="Aktif";
  document.getElementById("cariId").value="";
 }
@@ -158,18 +254,19 @@ function clearForm(){
 function openForm(id){
  if(typeof id==="undefined")id=null;
  editId=id;refreshCariler();clearForm();
+
  if(id!==null){
   const a=findVehicle(id);if(!a)return;
   document.getElementById("formTitle").innerText="Araç Kartını Düzenle";
   document.getElementById("cariId").value=String(a.cariId||"");
-  ["plaka","marka","model","yil","km","sasi","motorNo","ruhsatSeriNo","yakit","vites","renk","notlar","durum"].forEach(k=>{
-   if(document.getElementById(k))document.getElementById(k).value=a[k]||"";
-  });
+  fields.forEach(k=>{const el=document.getElementById(k);if(el)el.value=a[k]||"";});
   document.getElementById("aracCode").value=a.aracCode||a.code||"";
+  document.getElementById("durum").value=a.durum||((a.active===false)?"Pasif":"Aktif");
  }else{
   document.getElementById("formTitle").innerText="Yeni Araç Kartı";
   document.getElementById("aracCode").value=codeCreate();
  }
+
  document.getElementById("modal").style.display="block";
 }
 function closeForm(){document.getElementById("modal").style.display="none";}
@@ -178,50 +275,83 @@ function saveVehicle(){
  const cariId=document.getElementById("cariId").value;
  const cari=findCari(cariId);
  const plaka=normPlate(document.getElementById("plaka").value);
+ const sasi=normVin(document.getElementById("sasi").value);
+
  if(!cari){alert("Araç sahibi / cari seçiniz.");return;}
  if(!plaka){alert("Plaka giriniz.");return;}
 
- const dup=araclar.find(a=>normPlate(a.plaka)===plaka&&String(a.id)!==String(editId));
- if(dup){alert("Bu plaka zaten kayıtlı: "+dup.plaka);return;}
+ const dupPlate=araclar.find(a=>normPlate(a.plaka)===plaka&&String(a.id)!==String(editId));
+ if(dupPlate){alert("Bu plaka zaten kayıtlı: "+dupPlate.plaka);return;}
+
+ if(sasi){
+  const dupVin=araclar.find(a=>normVin(a.sasi)===sasi&&String(a.id)!==String(editId));
+  if(dupVin){alert("Bu şasi / VIN zaten başka bir araçta kayıtlı.");return;}
+ }
 
  const old=editId!==null?findVehicle(editId):null;
  const data={
   id:old?old.id:Date.now(),
   aracCode:old?(old.aracCode||old.code||codeCreate()):codeCreate(),
+
   cariId:cari.id,
   cariCode:cari.code||"",
   cariAdi:cari.name||"",
+
   plaka:plaka,
+  aracTuru:document.getElementById("aracTuru").value,
+  ruhsatSeriNo:document.getElementById("ruhsatSeriNo").value.trim(),
+  sasi:sasi,
+  motorNo:document.getElementById("motorNo").value.trim(),
+  tescilTarihi:document.getElementById("tescilTarihi").value,
+
   marka:document.getElementById("marka").value.trim(),
   model:document.getElementById("model").value.trim(),
+  versiyon:document.getElementById("versiyon").value.trim(),
   yil:document.getElementById("yil").value,
-  km:document.getElementById("km").value,
-  sasi:document.getElementById("sasi").value.trim().toUpperCase(),
-  motorNo:document.getElementById("motorNo").value.trim(),
-  ruhsatSeriNo:document.getElementById("ruhsatSeriNo").value.trim(),
   yakit:document.getElementById("yakit").value,
   vites:document.getElementById("vites").value,
   renk:document.getElementById("renk").value.trim(),
+  motorBilgi:document.getElementById("motorBilgi").value.trim(),
+  lastikEbadi:document.getElementById("lastikEbadi").value.trim(),
+  km:document.getElementById("km").value,
+
+  sonBakimTarihi:document.getElementById("sonBakimTarihi").value,
+  sonBakimKm:document.getElementById("sonBakimKm").value,
+  sonrakiBakimTarihi:document.getElementById("sonrakiBakimTarihi").value,
+  sonrakiBakimKm:document.getElementById("sonrakiBakimKm").value,
+  muayeneTarihi:document.getElementById("muayeneTarihi").value,
+  trafikSigortaTarihi:document.getElementById("trafikSigortaTarihi").value,
+  kaskoTarihi:document.getElementById("kaskoTarihi").value,
+
   notlar:document.getElementById("notlar").value.trim(),
   durum:document.getElementById("durum").value,
   active:document.getElementById("durum").value!=="Pasif",
+
   createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),
   updatedAt:new Date().toISOString()
  };
+
  if(old){
-  const i=araclar.findIndex(a=>String(a.id)===String(old.id));araclar[i]=data;
- }else{araclar.unshift(data);}
- saveVehicles();closeForm();render();
+  const i=araclar.findIndex(a=>String(a.id)===String(old.id));
+  araclar[i]=data;
+ }else{
+  araclar.unshift(data);
+ }
+
+ saveVehicles();
+ closeForm();
+ render();
+}
+
+function setFilter(filter,btn){
+ currentFilter=filter;
+ document.querySelectorAll(".filterBtn").forEach(x=>x.classList.remove("on"));
+ btn.classList.add("on");
+ render();
 }
 
 function relatedCount(a){
- return RELATED_KEYS.reduce((total,key)=>{
-  return total+loadArray(key).filter(x=>{
-   if(x.aracId!=null&&String(x.aracId)===String(a.id))return true;
-   if(x.vehicleId!=null&&String(x.vehicleId)===String(a.id))return true;
-   return normPlate(x.plaka)===normPlate(a.plaka)&&!!x.plaka;
-  }).length;
- },0);
+ return relatedByVehicle(WORK_KEY,a).length+relatedByVehicle(CLAIM_KEY,a).length+relatedByVehicle(INVOICE_KEY,a).length;
 }
 function toggleVehicle(id){
  const a=findVehicle(id);if(!a)return;
@@ -239,41 +369,124 @@ function deleteVehicle(id){
 }
 
 function render(){
- cariler=loadArray(CARI_KEY);araclar=loadArray(VEHICLE_KEY);
+ cariler=loadArray(CARI_KEY);
+ araclar=loadArray(VEHICLE_KEY);
+
  const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
  const filtered=araclar.filter(a=>{
-  const text=[a.plaka,a.aracCode,a.cariAdi,a.cariCode,a.marka,a.model,a.sasi,a.motorNo].join(" ").toLocaleLowerCase("tr-TR");
-  return !q||text.includes(q);
+  const active=a.active!==false&&a.durum!=="Pasif";
+  const filterOK=
+   currentFilter==="Tümü"||
+   (currentFilter==="Aktif"&&active)||
+   (currentFilter==="Pasif"&&!active)||
+   (currentFilter==="Yaklaşan"&&(isMaintenanceDue(a)||isInspectionDue(a)));
+
+  const text=[a.plaka,a.aracCode,a.cariAdi,a.cariCode,a.marka,a.model,a.versiyon,a.sasi,a.motorNo,a.ruhsatSeriNo,a.aracTuru].join(" ").toLocaleLowerCase("tr-TR");
+  return filterOK&&(!q||text.includes(q));
  });
+
  document.getElementById("toplam").innerText=araclar.length;
  document.getElementById("aktif").innerText=araclar.filter(a=>a.active!==false&&a.durum!=="Pasif").length;
- document.getElementById("pasif").innerText=araclar.filter(a=>a.active===false||a.durum==="Pasif").length;
+ document.getElementById("bakim").innerText=araclar.filter(isMaintenanceDue).length;
+ document.getElementById("muayene").innerText=araclar.filter(isInspectionDue).length;
 
  const list=document.getElementById("list");
+
  if(!filtered.length){
   list.innerHTML='<div class="empty"><div style="font-size:42px">🚘</div><h3>Araç kaydı bulunamadı</h3><div>İlk araç için <b>+ Yeni Araç</b> düğmesine basın.</div></div>';return;
  }
+
  list.innerHTML=filtered.map(a=>{
   const c=findCari(a.cariId);
   const cariAdi=c?c.name:(a.cariAdi||"-");
-  return '<div class="card" style="'+((a.active===false||a.durum==="Pasif")?'opacity:.58':'')+'">'+
-   '<div class="title"><div><div class="plate">'+esc(a.plaka)+'</div><div class="code">'+esc(a.aracCode||"")+' • '+esc(cariAdi)+'</div></div>'+
-   '<div><span class="badge '+((a.active===false||a.durum==="Pasif")?'passive':'')+'">'+esc(a.durum||"Aktif")+'</span></div></div>'+
+  const passive=a.active===false||a.durum==="Pasif";
+  const badges=[
+   a.aracTuru?'<span class="badge">'+esc(a.aracTuru)+'</span>':'',
+   isMaintenanceDue(a)?'<span class="badge due">Bakım Yaklaşıyor</span>':'',
+   isInspectionDue(a)?'<span class="badge due">Muayene Yaklaşıyor</span>':'',
+   passive?'<span class="badge passive">Pasif</span>':''
+  ].join("");
+
+  return '<div class="card" style="'+(passive?'opacity:.58':'')+'">'+
+   '<div class="title"><div><div class="plate">'+esc(a.plaka)+'</div><div class="code">'+esc(a.aracCode||"")+' • '+esc(cariAdi)+'</div></div><div>'+badges+'</div></div>'+
    '<div class="grid">'+
     '<div class="cell"><span>Cari</span><b>'+esc(cariAdi)+'</b></div>'+
-    '<div class="cell"><span>Marka / Model</span><b>'+esc([a.marka,a.model].filter(Boolean).join(" ")||"-")+'</b></div>'+
-    '<div class="cell"><span>Model Yılı</span><b>'+esc(a.yil||"-")+'</b></div>'+
+    '<div class="cell"><span>Marka / Model</span><b>'+esc([a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+'</b></div>'+
     '<div class="cell"><span>Şasi / VIN</span><b>'+esc(a.sasi||"-")+'</b></div>'+
-    '<div class="cell"><span>KM</span><b>'+esc(a.km||"-")+'</b></div>'+
-    '<div class="cell"><span>Yakıt / Vites</span><b>'+esc([a.yakit,a.vites].filter(Boolean).join(" / ")||"-")+'</b></div>'+
+    '<div class="cell"><span>Güncel KM</span><b>'+esc(a.km||"-")+'</b></div>'+
+    '<div class="cell"><span>Sonraki Bakım</span><b>'+esc(a.sonrakiBakimKm||"-")+' km / '+esc(a.sonrakiBakimTarihi||"-")+'</b></div>'+
+    '<div class="cell"><span>Muayene Bitiş</span><b>'+esc(a.muayeneTarihi||"-")+'</b></div>'+
    '</div>'+
-   '<div class="actions"><button class="edit" onclick="openForm(&quot;'+esc(a.id)+'&quot;)">Düzenle</button>'+
-   '<button class="pass" onclick="toggleVehicle(&quot;'+esc(a.id)+'&quot;)">'+((a.active===false||a.durum==="Pasif")?'Aktif Et':'Pasife Al')+'</button>'+
-   '<button class="del" onclick="deleteVehicle(&quot;'+esc(a.id)+'&quot;)">Sil</button></div></div>';
+   '<div class="actions">'+
+    '<button class="open" onclick="openDetail(&quot;'+esc(a.id)+'&quot;)">Araç Kartını Aç</button>'+
+    '<button class="edit" onclick="openForm(&quot;'+esc(a.id)+'&quot;)">Düzenle</button>'+
+    '<button class="pass" onclick="toggleVehicle(&quot;'+esc(a.id)+'&quot;)">'+(passive?'Aktif Et':'Pasife Al')+'</button>'+
+    '<button class="del" onclick="deleteVehicle(&quot;'+esc(a.id)+'&quot;)">Sil</button>'+
+   '</div></div>';
  }).join("");
 }
 
-window.addEventListener("storage",function(e){if(e.key===CARI_KEY||e.key===VEHICLE_KEY)render();});
+function openDetail(id){
+ const a=findVehicle(id);if(!a)return;
+ activeVehicle=a;
+ const c=findCari(a.cariId);
+ const cariAdi=c?c.name:(a.cariAdi||"-");
+ const works=relatedByVehicle(WORK_KEY,a);
+ const claims=relatedByVehicle(CLAIM_KEY,a);
+ const invoices=relatedByVehicle(INVOICE_KEY,a);
+
+ document.getElementById("detailPlate").innerText=a.plaka||"Araç";
+ document.getElementById("detailCode").innerText=(a.aracCode||"")+" • "+cariAdi;
+
+ const serviceRows=works.length?works.map(w=>'<tr><td>'+esc(w.tarih||w.createdAt||"-")+'</td><td>'+esc(w.isEmriNo||w.no||"-")+'</td><td>'+esc(w.durum||"-")+'</td><td>'+esc(w.aciklama||w.islemOzeti||"-")+'</td></tr>').join(""):'<tr><td colspan="4">Henüz iş emri geçmişi yok.</td></tr>';
+
+ document.getElementById("detailBody").innerHTML=
+  '<div class="quick"><button onclick="openForm(&quot;'+esc(a.id)+'&quot;)">Düzenle</button><button class="pdf" onclick="printVehicle()">📄 Araç Kartı / PDF</button></div>'+
+  '<div class="detailGrid">'+
+   '<div class="panel"><h3>Araç Kimliği</h3>'+
+    row("Cari",cariAdi)+row("Araç Kodu",a.aracCode||"-")+row("Plaka",a.plaka||"-")+row("Araç Türü",a.aracTuru||"-")+row("Marka / Model",[a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+row("Model Yılı",a.yil||"-")+row("Renk",a.renk||"-")+row("Yakıt / Vites",[a.yakit,a.vites].filter(Boolean).join(" / ")||"-")+
+   '</div>'+
+   '<div class="panel"><h3>Ruhsat / Teknik</h3>'+
+    row("Şasi / VIN",a.sasi||"-")+row("Motor No",a.motorNo||"-")+row("Ruhsat Seri",a.ruhsatSeriNo||"-")+row("İlk Tescil",a.tescilTarihi||"-")+row("Motor",a.motorBilgi||"-")+row("Lastik",a.lastikEbadi||"-")+row("Güncel KM",a.km||"-")+
+   '</div>'+
+   '<div class="panel"><h3>Bakım / Muayene / Sigorta</h3>'+
+    row("Son Bakım",[(a.sonBakimTarihi||"-"),(a.sonBakimKm? a.sonBakimKm+" km":"-")].join(" / "))+row("Sonraki Bakım",[(a.sonrakiBakimTarihi||"-"),(a.sonrakiBakimKm? a.sonrakiBakimKm+" km":"-")].join(" / "))+row("Muayene Bitiş",a.muayeneTarihi||"-")+row("Trafik Sigortası",a.trafikSigortaTarihi||"-")+row("Kasko",a.kaskoTarihi||"-")+
+   '</div>'+
+   '<div class="panel"><h3>Bağlı Kayıtlar</h3>'+
+    row("İş Emri",works.length)+row("Fatura",invoices.length)+row("Hasar Dosyası",claims.length)+row("Durum",a.durum||"Aktif")+row("Not",a.notlar||"-")+
+   '</div>'+
+  '</div>'+
+  '<div class="panel" style="margin-top:12px"><h3>Servis Geçmişi</h3><div class="tableWrap"><table><thead><tr><th>Tarih</th><th>İş Emri</th><th>Durum</th><th>Açıklama</th></tr></thead><tbody>'+serviceRows+'</tbody></table></div></div>'+
+  '<div class="note" style="margin-top:12px"><b>Bu araç kaydı otomatik olarak:</b> Cariler → Araçlar, Araç Kabul araç seçimi, İş Emirleri araç seçimi, Hasar & Sigorta araç seçimi ve Faturalar araç bağlantısında kullanılacak.</div>';
+
+ document.getElementById("detail").style.display="block";
+}
+function closeDetail(){document.getElementById("detail").style.display="none";activeVehicle=null;}
+function row(label,value){return '<div class="row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';}
+
+function printVehicle(){
+ if(!activeVehicle)return;
+ const a=activeVehicle;
+ const c=findCari(a.cariId);
+ const cariAdi=c?c.name:(a.cariAdi||"-");
+ const works=relatedByVehicle(WORK_KEY,a);
+ const html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>'+esc(a.plaka)+' - Araç Kartı</title><style>@page{size:A4;margin:12mm}body{font-family:Arial;color:#222;font-size:12px}h1{color:#075ca8}h2{font-size:16px;border-bottom:2px solid #075ca8;padding-bottom:5px}.box{padding:12px;background:#f5f7fa;margin-bottom:12px;line-height:1.7}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px;font-size:10px;text-align:left}th{background:#eee}</style></head><body>'+
+ '<h1>MAU OTO SERVİS</h1><h2>Araç Kartı</h2><div class="box"><b>'+esc(a.plaka)+'</b><br>Araç Kodu: '+esc(a.aracCode||"-")+'<br>Cari: '+esc(cariAdi)+'<br>Marka / Model: '+esc([a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+'<br>Şasi: '+esc(a.sasi||"-")+'<br>Motor No: '+esc(a.motorNo||"-")+'<br>KM: '+esc(a.km||"-")+'<br>Muayene: '+esc(a.muayeneTarihi||"-")+'<br>Sonraki Bakım: '+esc(a.sonrakiBakimTarihi||"-")+' / '+esc(a.sonrakiBakimKm||"-")+' km</div>'+
+ '<h2>Servis Geçmişi</h2><table><tr><th>Tarih</th><th>İş Emri</th><th>Durum</th><th>Açıklama</th></tr>'+
+ (works.length?works.map(w=>'<tr><td>'+esc(w.tarih||w.createdAt||"-")+'</td><td>'+esc(w.isEmriNo||w.no||"-")+'</td><td>'+esc(w.durum||"-")+'</td><td>'+esc(w.aciklama||w.islemOzeti||"-")+'</td></tr>').join(""):'<tr><td colspan="4">Servis geçmişi yok.</td></tr>')+
+ '</table><script>window.onload=function(){window.print();};<\/script></body></html>';
+ const w=window.open("","_blank");if(!w){alert("PDF ekranı için açılır pencereye izin verin.");return;}w.document.open();w.document.write(html);w.document.close();
+}
+
+window.addEventListener("storage",function(e){
+ if([CARI_KEY,VEHICLE_KEY,WORK_KEY,CLAIM_KEY,INVOICE_KEY].includes(e.key)){
+  render();
+  if(activeVehicle){
+   activeVehicle=findVehicle(activeVehicle.id);
+   if(activeVehicle)openDetail(activeVehicle.id);else closeDetail();
+  }
+ }
+});
 window.addEventListener("click",function(e){if(e.target===document.getElementById("modal"))closeForm();});
 refreshCariler();render();
 </script>
