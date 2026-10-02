@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MAU Oto Servis - Cariler</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f3f6fb;
+ color:#172033
+}
+header{
+ background:linear-gradient(135deg,#0759b8,#064298);
+ color:white;
+ padding:18px
+}
+.head{display:flex;align-items:center;gap:12px}
+.back{
+ width:44px;height:44px;border:0;border-radius:11px;
+ background:#ffffff25;color:white;font-size:25px
+}
+.logo{font-size:24px;font-weight:bold}
+.logo span{color:#35d4df}
+.sub{font-size:13px;opacity:.85;margin-top:3px}
+
+main{max-width:950px;margin:auto;padding:15px}
+
+.toolbar{display:flex;gap:9px}
+.search{
+ flex:1;padding:14px;border:1px solid #d8dee8;
+ border-radius:12px;font-size:15px
+}
+.add{
+ border:0;background:#08ad69;color:white;
+ border-radius:12px;padding:14px 18px;
+ font-weight:bold;font-size:15px
+}
+
+.tabs{
+ display:flex;gap:7px;overflow-x:auto;
+ margin:14px 0;padding-bottom:3px
+}
+.tab{
+ white-space:nowrap;padding:10px 13px;
+ border:1px solid #dce2ea;background:white;
+ border-radius:20px;font-weight:bold;color:#4f5968
+}
+.tab.on{background:#0759b8;color:white;border-color:#0759b8}
+
+.stats{
+ display:grid;grid-template-columns:repeat(4,1fr);
+ gap:8px;margin-bottom:15px
+}
+.stat{
+ background:white;padding:12px 7px;
+ border-radius:12px;text-align:center;
+ box-shadow:0 2px 8px #0000000d
+}
+.stat b{
+ display:block;font-size:22px;color:#0759b8;
+ margin-bottom:3px
+}
+.stat small{color:#687384}
+
+.card{
+ background:white;border-radius:14px;padding:15px;
+ margin-bottom:10px;box-shadow:0 2px 9px #00000012
+}
+.name{font-size:18px;font-weight:bold}
+.code{font-size:12px;color:#7b8492;margin-top:4px}
+
+.badges{
+ display:flex;flex-wrap:wrap;gap:5px;
+ margin:10px 0
+}
+.badge{
+ background:#e8f1ff;color:#0759b8;
+ padding:5px 8px;border-radius:14px;
+ font-size:12px;font-weight:bold
+}
+.type{
+ background:#e9f8f1;color:#07814e
+}
+
+.info{
+ font-size:14px;color:#5d6777;
+ line-height:1.65
+}
+
+.actions{
+ display:flex;gap:6px;margin-top:12px
+}
+.actions button{
+ flex:1;border:0;border-radius:8px;
+ padding:10px 4px;font-weight:bold
+}
+.edit{background:#e8f1ff;color:#0759b8}
+.pass{background:#fff1d7;color:#a56300}
+.del{background:#ffe4e7;color:#b92332}
+
+.empty{
+ background:white;border-radius:14px;
+ padding:45px 15px;text-align:center;color:#778190
+}
+
+/* FORM */
+.modal{
+ display:none;position:fixed;inset:0;
+ background:#0008;z-index:1000;
+ overflow:auto;padding:15px
+}
+.box{
+ background:white;max-width:720px;
+ margin:auto;border-radius:16px;overflow:hidden
+}
+.mhead{
+ background:#0759b8;color:white;
+ padding:16px;display:flex;
+ justify-content:space-between;align-items:center
+}
+.mhead h2{margin:0;font-size:20px}
+.close{
+ border:0;background:none;color:white;
+ font-size:28px
+}
+.form{padding:16px}
+
+.section{
+ font-weight:bold;color:#0759b8;
+ margin:12px 0 8px
+}
+
+.choice{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:8px
+}
+.choice button{
+ padding:14px;border:2px solid #dce2ea;
+ background:white;border-radius:10px;
+ font-weight:bold
+}
+.choice button.selected{
+ border-color:#0759b8;
+ background:#eaf3ff;color:#0759b8
+}
+
+.roles{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:8px
+}
+.role{
+ border:1px solid #dce2ea;
+ border-radius:9px;padding:11px
+}
+.role input{transform:scale(1.2);margin-right:7px}
+
+.grid{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:9px
+}
+.field label{
+ display:block;font-size:12px;font-weight:bold;
+ color:#5d6675;margin:5px 3px
+}
+.field input,.field textarea{
+ width:100%;padding:12px;
+ border:1px solid #d7dde6;
+ border-radius:9px;font-size:15px
+}
+.field textarea{min-height:70px}
+.full{grid-column:1/-1}
+
+.save{
+ width:100%;border:0;background:#08ad69;
+ color:white;border-radius:10px;
+ padding:14px;font-size:16px;
+ font-weight:bold;margin-top:14px
+}
+
+@media(max-width:600px){
+ .stats{grid-template-columns:1fr 1fr}
+ .grid,.roles{grid-template-columns:1fr}
+ .full{grid-column:auto}
+ .toolbar{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="head">
+  <button class="back" onclick="location.href='index.html'">‹</button>
+  <div>
+   <div class="logo"><span>M••</span> MAU OTO SERVİS</div>
+   <div class="sub">Cariler • Müşteri • Tedarikçi • Sigorta • Eksper</div>
+  </div>
+ </div>
+</header>
+
+<main>
+
+<div class="toolbar">
+ <input id="search" class="search"
+ placeholder="Ad, firma, telefon, vergi no, cari kodu ara..."
+ oninput="render()">
+
+ <button class="add" onclick="openForm()">+ Yeni Cari</button>
+</div>
+
+<div class="tabs">
+ <button class="tab on" onclick="setFilter('Tümü',this)">Tümü</button>
+ <button class="tab" onclick="setFilter('Müşteri',this)">Müşteriler</button>
+ <button class="tab" onclick="setFilter('Tedarikçi',this)">Tedarikçiler</button>
+ <button class="tab" onclick="setFilter('Sigorta Şirketi',this)">Sigorta Şirketleri</button>
+ <button class="tab" onclick="setFilter('Eksper Firması',this)">Eksper Firmaları</button>
+</div>
+
+<div class="stats">
+ <div class="stat"><b id="m">0</b><small>Müşteri</small></div>
+ <div class="stat"><b id="t">0</b><small>Tedarikçi</small></div>
+ <div class="stat"><b id="s">0</b><small>Sigorta</small></div>
+ <div class="stat"><b id="e">0</b><small>Eksper</small></div>
+</div>
+
+<div id="list"></div>
+
+</main>
+
+<div id="modal" class="modal">
+<div class="box">
+
+<div class="mhead">
+ <h2 id="formTitle">Yeni Cari Kartı</h2>
+ <button class="close" onclick="closeForm()">×</button>
+</div>
+
+<div class="form">
+
+<div class="section">Cari Tipi</div>
+
+<div class="choice">
+ <button id="b1" class="selected"
+ onclick="selectType('Bireysel')">👤 Bireysel</button>
+
+ <button id="b2"
+ onclick="selectType('Kurumsal')">🏢 Kurumsal</button>
+</div>
+
+<div class="section">Cari Rolü</div>
+
+<div class="roles">
+ <label class="role">
+  <input class="roleC" type="checkbox" value="Müşteri">
+  Müşteri
+ </label>
+
+ <label class="role">
+  <input class="roleC" type="checkbox" value="Tedarikçi">
+  Tedarikçi
+ </label>
+
+ <label class="role">
+  <input class="roleC" type="checkbox" value="Sigorta Şirketi">
+  Sigorta Şirketi
+ </label>
+
+ <label class="role">
+  <input class="roleC" type="checkbox" value="Eksper Firması">
+  Eksper Firması
+ </label>
+</div>
+
+<div class="section">Cari Bilgileri</div>
+
+<div class="grid">
+
+ <div class="field full">
+  <label id="nameLabel">Ad Soyad</label>
+  <input id="name" placeholder="Ad Soyad">
+ </div>
+
+ <div class="field" id="tcBox">
+  <label>T.C. Kimlik No</label>
+  <input id="tc" inputmode="numeric">
+ </div>
+
+ <div class="field" id="vdBox" style="display:none">
+  <label>Vergi Dairesi</label>
+  <input id="vd">
+ </div>
+
+ <div class="field" id="vnBox" style="display:none">
+  <label>Vergi No</label>
+  <input id="vn" inputmode="numeric">
+ </div>
+
+ <div class="field" id="yetBox" style="display:none">
+  <label>Yetkili Kişi</label>
+  <input id="yet">
+ </div>
+
+ <div class="field">
+  <label>Telefon</label>
+  <input id="tel" type="tel" placeholder="05xx xxx xx xx">
+ </div>
+
+ <div class="field">
+  <label>E-posta</label>
+  <input id="mail" type="email">
+ </div>
+
+ <div class="field full">
+  <label>Adres</label>
+  <textarea id="adres"></textarea>
+ </div>
+
+ <div class="field full">
+  <label>Notlar</label>
+  <textarea id="notlar" placeholder="Cari hakkında not..."></textarea>
+ </div>
+
+</div>
+
+<button class="save" onclick="saveCari()">
+ ✓ Cari Kartını Kaydet
+</button>
+
+</div>
+</div>
+</div>
+
+<script>
+
+let cariler =
+ JSON.parse(localStorage.getItem("mau_cariler") || "[]");
+
+let currentFilter="Tümü";
+let currentType="Bireysel";
+let editId=null;
+
+function saveData(){
+ localStorage.setItem("mau_cariler",JSON.stringify(cariler));
+}
+
+function codeCreate(){
+ let max=0;
+
+ cariler.forEach(c=>{
+  let n=parseInt((c.code||"").replace(/\D/g,""));
+  if(n>max) max=n;
+ });
+
+ return "CR-"+String(max+1).padStart(5,"0");
+}
+
+function selectType(type){
+
+ currentType=type;
+
+ document.getElementById("b1").classList.toggle(
+  "selected",type==="Bireysel"
+ );
+
+ document.getElementById("b2").classList.toggle(
+  "selected",type==="Kurumsal"
+ );
+
+ let kurumsal=type==="Kurumsal";
+
+ document.getElementById("nameLabel").innerText=
+  kurumsal ? "Firma / Ticari Unvan" : "Ad Soyad";
+
+ document.getElementById("name").placeholder=
+  kurumsal ? "Firma veya ticari unvan" : "Ad Soyad";
+
+ document.getElementById("tcBox").style.display=
+  kurumsal ? "none":"block";
+
+ document.getElementById("vdBox").style.display=
+  kurumsal ? "block":"none";
+
+ document.getElementById("vnBox").style.display=
+  kurumsal ? "block":"none";
+
+ document.getElementById("yetBox").style.display=
+  kurumsal ? "block":"none";
+}
+
+function clearForm(){
+
+ ["name","tc","vd","vn","yet","tel","mail","adres","notlar"]
+ .forEach(x=>{
+  document.getElementById(x).value="";
+ });
+
+ document.querySelectorAll(".roleC")
+ .forEach(x=>x.checked=false);
+}
+
+function openForm(id=null){
+
+ editId=id;
+ clearForm();
+
+ if(id){
+
+  let c=cariler.find(x=>x.id===id);
+  if(!c)return;
+
+  document.getElementById("formTitle").innerText=
+   "Cari Kartını Düzenle";
+
+  selectType(c.type);
+
+  document.getElementById("name").value=c.name||"";
+  document.getElementById("tc").value=c.tc||"";
+  document.getElementById("vd").value=c.vd||"";
+  document.getElementById("vn").value=c.vn||"";
+  document.getElementById("yet").value=c.yet||"";
+  document.getElementById("tel").value=c.tel||"";
+  document.getElementById("mail").value=c.mail||"";
+  document.getElementById("adres").value=c.adres||"";
+  document.getElementById("notlar").value=c.notlar||"";
+
+  document.querySelectorAll(".roleC").forEach(x=>{
+   x.checked=(c.roles||[]).includes(x.value);
+  });
+
+ }else{
+
+  document.getElementById("formTitle").innerText=
+   "Yeni Cari Kartı";
+
+  selectType("Bireysel");
+ }
+
+ document.getElementById("modal").style.display="block";
+}
+
+function closeForm(){
+ document.getElementById("modal").style.display="none";
+}
+
+function saveCari(){
+
+ let name=document.getElementById("name").value.trim();
+
+ let roles=[
+  ...document.querySelectorAll(".roleC:checked")
+ ].map(x=>x.value);
+
+ if(!name){
+  alert(
+   currentType==="Kurumsal"
+   ? "Firma / ticari unvan giriniz."
+   : "Ad Soyad giriniz."
+  );
+  return;
+ }
+
+ if(!roles.length){
+  alert("En az bir cari rolü seçiniz.");
+  return;
+ }
+
+ let old=editId
+  ? cariler.find(x=>x.id===editId)
+  : null;
+
+ let data={
+
+  id:editId || Date.now(),
+
+  code:old ? old.code : codeCreate(),
+
+  type:currentType,
+
+  roles:roles,
+
+  name:name,
+
+  tc:document.getElementById("tc").value.trim(),
+
+  vd:document.getElementById("vd").value.trim(),
+
+  vn:document.getElementById("vn").value.trim(),
+
+  yet:document.getElementById("yet").value.trim(),
+
+  tel:document.getElementById("tel").value.trim(),
+
+  mail:document.getElementById("mail").value.trim(),
+
+  adres:document.getElementById("adres").value.trim(),
+
+  notlar:document.getElementById("notlar").value.trim(),
+
+  active:old ? old.active : true,
+
+  created:old ? old.created : new Date().toISOString()
+ };
+
+ if(editId){
+
+  let i=cariler.findIndex(x=>x.id===editId);
+  cariler[i]=data;
+
+ }else{
+
+  cariler.unshift(data);
+ }
+
+ saveData();
+ closeForm();
+ render();
+}
+
+function setFilter(f,btn){
+
+ currentFilter=f;
+
+ document.querySelectorAll(".tab")
+ .forEach(x=>x.classList.remove("on"));
+
+ btn.classList.add("on");
+
+ render();
+}
+
+function toggleActive(id){
+
+ let c=cariler.find(x=>x.id===id);
+
+ if(!c)return;
+
+ c.active=!c.active;
+
+ saveData();
+ render();
+}
+
+function deleteCari(id){
+
+ let c=cariler.find(x=>x.id===id);
+
+ if(!c)return;
+
+ if(confirm(c.name+" cari kartı silinsin mi?")){
+
+  cariler=cariler.filter(x=>x.id!==id);
+
+  saveData();
+  render();
+ }
+}
+
+function esc(v){
+
+ return String(v||"")
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;");
+}
+
+function render(){
+
+ let q=document.getElementById("search").value
+ .toLocaleLowerCase("tr-TR")
+ .trim();
+
+ let filtered=cariler.filter(c=>{
+
+  let filterOK=
+   currentFilter==="Tümü" ||
+   (c.roles||[]).includes(currentFilter);
+
+  let text=[
+   c.code,
+   c.name,
+   c.tel,
+   c.mail,
+   c.tc,
+   c.vn,
+   c.vd,
+   c.yet,
+   ...(c.roles||[])
+  ]
+  .join(" ")
+  .toLocaleLowerCase("tr-TR");
+
+  return filterOK && (!q || text.includes(q));
+ });
+
+ document.getElementById("m").innerText=
+  cariler.filter(c=>
+   (c.roles||[]).includes("Müşteri")
+  ).length;
+
+ document.getElementById("t").innerText=
+  cariler.filter(c=>
+   (c.roles||[]).includes("Tedarikçi")
+  ).length;
+
+ document.getElementById("s").innerText=
+  cariler.filter(c=>
+   (c.roles||[]).includes("Sigorta Şirketi")
+  ).length;
+
+ document.getElementById("e").innerText=
+  cariler.filter(c=>
+   (c.roles||[]).includes("Eksper Firması")
+  ).length;
+
+ let list=document.getElementById("list");
+
+ if(!filtered.length){
+
+  list.innerHTML=`
+  <div class="empty">
+   <div style="font-size:42px">👥</div>
+   <h3>Cari kaydı bulunamadı</h3>
+   <div>
+    İlk kayıt için <b>+ Yeni Cari</b> düğmesine basın.
+   </div>
+  </div>`;
+
+  return;
+ }
+
+ list.innerHTML=filtered.map(c=>`
+
+ <div class="card"
+ style="${!c.active?'opacity:.55':''}">
+
+  <div class="name">${esc(c.name)}</div>
+
+  <div class="code">
+   ${esc(c.code)} • ${esc(c.type)}
+   ${!c.active?' • PASİF':''}
+  </div>
+
+  <div class="badges">
+
+   ${(c.roles||[])
+   .map(r=>`
+    <span class="badge">${esc(r)}</span>
+   `)
+   .join("")}
+
+   <span class="badge type">
+    ${esc(c.type)}
+   </span>
+
+  </div>
+
+  <div class="info">
+
+   ${c.tel
+    ? "📞 "+esc(c.tel)+"<br>"
+    : ""}
+
+   ${c.mail
+    ? "✉️ "+esc(c.mail)+"<br>"
+    : ""}
+
+   ${c.vn
+    ? "Vergi No: "+esc(c.vn)+"<br>"
+    : ""}
+
+   ${c.yet
+    ? "Yetkili: "+esc(c.yet)+"<br>"
+    : ""}
+
+   ${c.adres
+    ? "📍 "+esc(c.adres)
+    : ""}
+
+  </div>
+
+  <div class="actions">
+
+   <button class="edit"
+   onclick="openForm(${c.id})">
+    Düzenle
+   </button>
+
+   <button class="pass"
+   onclick="toggleActive(${c.id})">
+    ${c.active ? "Pasife Al":"Aktif Et"}
+   </button>
+
+   <button class="del"
+   onclick="deleteCari(${c.id})">
+    Sil
+   </button>
+
+  </div>
+
+ </div>
+
+ `).join("");
+}
+
+window.onclick=function(e){
+
+ if(e.target===document.getElementById("modal")){
+  closeForm();
+ }
+};
+
+render();
+
+</script>
+
+</body>
+</html>
