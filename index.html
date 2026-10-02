@@ -665,6 +665,7 @@ window.addEventListener("storage",renderDashboard);
 window.addEventListener("pageshow",renderDashboard);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
 renderDashboard();
+const _topItems=document.querySelectorAll(".top-item");if(_topItems[2]){_topItems[2].style.cursor="pointer";_topItems[2].addEventListener("click",function(){location.href="Kapali.html"})}
 try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi;if(_mauSettings.logoData){const _logo=document.getElementById("companyLogo"),_mark=document.getElementById("defaultLogoMark");if(_logo){_logo.src=_mauSettings.logoData;_logo.style.display="block"}if(_mark)_mark.style.display="none"}}catch(e){}
 </script>
 </body>
