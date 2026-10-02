@@ -6,59 +6,49 @@
 <title>MAU Oto Servis - Cariler</title>
 <style>
 *{box-sizing:border-box}
-:root{--blue:#0874d1;--blue2:#083fa7;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--green:#08a451;--red:#c12738}
+:root{--blue:#0874d1;--blue2:#083fa7;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--green:#08a451;--red:#c12738;--amber:#a86400}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:18px}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+header,.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+header{padding:18px}.detailHead{padding:16px}
 .head,.detailTop{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}
 .back{background:#ffffff18;border:0;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}
 .logo{font-size:23px;font-weight:800}.sub{font-size:13px;opacity:.85;margin-top:3px}
 .container{max-width:1200px;margin:auto;padding:18px}
-.toolbar{display:flex;gap:10px;margin-bottom:12px}
-.search{flex:1;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px}
+.toolbar{display:flex;gap:10px;margin-bottom:12px}.search{flex:1;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:15px}
 .add{border:0;background:var(--green);color:#fff;font-weight:700;padding:0 20px;border-radius:12px}
-.tabs,.detailTabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.tab,.dtab{border:0;background:#fff;padding:11px 16px;border-radius:22px;box-shadow:0 2px 8px #0000000c}
-.tab.on,.dtab.on{background:var(--blue);color:#fff}
+.tabs,.detailTabs{display:flex;gap:8px;margin:12px 0}.tabs{flex-wrap:wrap}.detailTabs{overflow:auto;flex-wrap:nowrap;padding-bottom:4px}
+.tab,.dtab{border:0;background:#fff;padding:11px 16px;border-radius:22px;box-shadow:0 2px 8px #0000000c;white-space:nowrap}
+.dtab{border-radius:9px}.tab.on,.dtab.on{background:var(--blue);color:#fff}
 .stats,.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
-.stat,.sum{background:#fff;border-radius:13px;padding:14px;box-shadow:0 2px 10px #0000000b}
-.stat{text-align:center}.stat b{display:block;font-size:24px;color:#0864b8}.stat span,.sum span{font-size:13px;color:var(--muted)}
-.sum b{display:block;font-size:20px;margin-top:5px}
-.green{color:#078744}.red{color:var(--red)}.blue{color:#0864b8}
+.stat,.sum{background:#fff;border-radius:13px;padding:14px;box-shadow:0 2px 10px #0000000b}.stat{text-align:center}
+.stat b{display:block;font-size:24px;color:#0864b8}.stat span,.sum span{font-size:13px;color:var(--muted)}.sum b{display:block;font-size:20px;margin-top:5px}
+.green{color:#078744}.red{color:var(--red)}.blue{color:#0864b8}.amber{color:var(--amber)}
 .card{background:#fff;border-radius:15px;padding:17px;margin-bottom:12px;box-shadow:0 3px 14px #0000000c}
-.name{font-size:19px;font-weight:800}.code{font-size:12px;color:#7b8794;margin:5px 0}
-.badges{margin:8px 0}.badge{display:inline-block;background:#e9f3ff;color:#075ca8;padding:5px 9px;margin:2px;border-radius:10px;font-size:12px}
-.badge.type{background:#e8f7ef;color:#087840}.info{font-size:13px;line-height:1.7;color:#536170}
-.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}
-.actions button{border:0;padding:11px 5px;border-radius:9px;font-weight:700}
-.open{background:var(--blue);color:#fff}.edit{background:#eaf2ff;color:#0756a5}.pass{background:#fff2df;color:#9b6200}.del{background:#ffe8eb;color:#a21c2b}
+.name{font-size:19px;font-weight:800}.code{font-size:12px;color:#7b8794;margin:5px 0}.badges{margin:8px 0}
+.badge{display:inline-block;background:#e9f3ff;color:#075ca8;padding:5px 9px;margin:2px;border-radius:10px;font-size:12px}.badge.type{background:#e8f7ef;color:#087840}
+.info{font-size:13px;line-height:1.7;color:#536170}.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}
+.actions button{border:0;padding:11px 5px;border-radius:9px;font-weight:700}.open{background:var(--blue);color:#fff}.edit{background:#eaf2ff;color:#0756a5}.pass{background:#fff2df;color:#9b6200}.del{background:#ffe8eb;color:#a21c2b}
 .empty{background:#fff;text-align:center;padding:50px 15px;border-radius:15px;color:var(--muted)}
-.modal{display:none;position:fixed;inset:0;background:#0008;z-index:1000;overflow:auto;padding:15px}
-.box{max-width:760px;background:#fff;margin:20px auto;border-radius:16px;overflow:hidden}
-.boxHead{background:var(--blue);color:#fff;padding:17px;font-size:19px;font-weight:800;display:flex;justify-content:space-between}
-.boxBody{padding:17px}
-.typeRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
-.typeBtn{border:1px solid var(--line);background:#fff;padding:14px;border-radius:10px}
-.typeBtn.selected{border:2px solid var(--blue);background:#f1f7ff}
-.roleGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 18px}
-.role{border:1px solid #e0e6ed;padding:12px;border-radius:9px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:1000;overflow:auto;padding:15px}.box{max-width:760px;background:#fff;margin:20px auto;border-radius:16px;overflow:hidden}
+.boxHead{background:var(--blue);color:#fff;padding:17px;font-size:19px;font-weight:800;display:flex;justify-content:space-between}.boxBody{padding:17px}
+.typeRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.typeBtn{border:1px solid var(--line);background:#fff;padding:14px;border-radius:10px}.typeBtn.selected{border:2px solid var(--blue);background:#f1f7ff}
+.roleGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 18px}.role{border:1px solid #e0e6ed;padding:12px;border-radius:9px}
 .formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:11px}.field.full{grid-column:1/-1}
-label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#4c5968}
-input,textarea,select{width:100%;border:1px solid var(--line);padding:12px;border-radius:9px;font-size:14px}
+label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#4c5968}input,textarea,select{width:100%;border:1px solid var(--line);padding:12px;border-radius:9px;font-size:14px}
 textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0;padding:14px;border-radius:10px;font-size:16px;font-weight:800}
-.detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;overflow:auto}
-.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:16px}
-.detailTitle{font-size:21px;font-weight:800}.detailCode{font-size:12px;opacity:.85}
-.detailTabs{overflow:auto;flex-wrap:nowrap;padding-bottom:4px}.dtab{white-space:nowrap;border-radius:9px}
-.panel{background:#fff;border-radius:14px;padding:16px;min-height:260px;box-shadow:0 2px 12px #0000000b}
-.panelTitle{font-size:18px;font-weight:800;margin-bottom:13px}
+.detail{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;overflow:auto}.detailTitle{font-size:21px;font-weight:800}.detailCode{font-size:12px;opacity:.85}
+.panel{background:#fff;border-radius:14px;padding:16px;min-height:260px;box-shadow:0 2px 12px #0000000b}.panelTitle{font-size:18px;font-weight:800;margin-bottom:13px}
 .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.quick button{border:0;background:#eaf3ff;color:#075ba8;padding:10px 13px;border-radius:8px;font-weight:700}.quick .pdf{background:#ffe9ec;color:#a11e30}
-.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;border-bottom:1px solid #edf0f3;padding:11px 8px;font-size:13px}th{background:#f7f9fc}
-.miniForm{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#f7f9fc;padding:12px;border-radius:10px;margin-bottom:14px}.miniForm button{border:0;background:var(--blue);color:#fff;border-radius:8px;font-weight:700;min-height:42px}
+.note{padding:12px;border-radius:10px;background:#f7f9fc;color:#52606d;margin-bottom:14px}.note b{color:#23364d}
+.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;border-bottom:1px solid #edf0f3;padding:10px 8px;font-size:12px;vertical-align:top}th{background:#f7f9fc}
 .overviewGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.overCard{border:1px solid #e8edf2;border-radius:12px;padding:14px}.overCard h3{margin:0 0 10px;font-size:15px}
-.note{padding:12px;border-radius:10px;background:#f7f9fc;color:#52606d}
-@media(max-width:700px){.stats,.summary{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.formGrid,.roleGrid,.overviewGrid{grid-template-columns:1fr}.miniForm{grid-template-columns:1fr 1fr}}
+.filters{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;background:#f7f9fc;padding:10px;border-radius:10px;margin-bottom:14px}.filters button{border:0;background:var(--blue);color:#fff;border-radius:8px;padding:0 14px}
+.small{font-size:11px;color:var(--muted)}.linkish{color:#075ba8;font-weight:700}.status{font-weight:700}
+@media(max-width:700px){
+ .stats,.summary{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.formGrid,.roleGrid,.overviewGrid{grid-template-columns:1fr}
+ .filters{grid-template-columns:1fr 1fr}.filters button{grid-column:1/-1;min-height:42px}
+}
 </style>
 </head>
 <body>
@@ -66,10 +56,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 <header>
  <div class="head">
   <button class="back" onclick="location.href='index.html'">‹</button>
-  <div>
-   <div class="logo">M•• MAU OTO SERVİS</div>
-   <div class="sub">Cariler · Müşteri · Tedarikçi · Sigorta · Eksper</div>
-  </div>
+  <div><div class="logo">M•• MAU OTO SERVİS</div><div class="sub">Cariler · Müşteri · Tedarikçi · Sigorta · Eksper</div></div>
  </div>
 </header>
 
@@ -136,10 +123,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
  <div class="detailHead">
   <div class="detailTop">
    <button class="back" onclick="closeDetail()">‹</button>
-   <div>
-    <div id="detailName" class="detailTitle"></div>
-    <div id="detailCode" class="detailCode"></div>
-   </div>
+   <div><div id="detailName" class="detailTitle"></div><div id="detailCode" class="detailCode"></div></div>
   </div>
  </div>
 
@@ -167,57 +151,72 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 </div>
 
 <script>
+const KEYS={
+ cariler:"mau_cariler",
+ araclar:["mau_araclar","mau_cari_araclar"],
+ isEmirleri:["mau_is_emirleri"],
+ faturalar:["mau_faturalar"],
+ tahsilatlar:["mau_tahsilatlar"],
+ odemeler:["mau_odemeler"],
+ hasarlar:["mau_hasar_dosyalari","mau_hasarlari"],
+ belgeler:["mau_belgeler"],
+ legacyHareket:["mau_cari_hareketler"]
+};
+
 function loadArray(key){
  try{
-  var v=JSON.parse(localStorage.getItem(key)||"[]");
+  const v=JSON.parse(localStorage.getItem(key)||"[]");
   return Array.isArray(v)?v:[];
  }catch(e){
   console.error(key+" okunamadı",e);
   return [];
  }
 }
-
-var cariler=loadArray("mau_cariler");
-var hareketler=loadArray("mau_cari_hareketler");
-var araclar=loadArray("mau_cari_araclar");
-
-var currentFilter="Tümü";
-var currentType="Bireysel";
-var editId=null;
-var activeCari=null;
-
-function saveAll(){
- localStorage.setItem("mau_cariler",JSON.stringify(cariler));
- localStorage.setItem("mau_cari_hareketler",JSON.stringify(hareketler));
- localStorage.setItem("mau_cari_araclar",JSON.stringify(araclar));
+function loadMany(keys){
+ const out=[],seen=new Set();
+ keys.forEach(function(k){
+  loadArray(k).forEach(function(x){
+   const token=String(x.id??x.uuid??x.code??x.plaka??JSON.stringify(x));
+   if(!seen.has(token)){seen.add(token);out.push(x);}
+  });
+ });
+ return out;
 }
-
-function money(n){
- return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";
+function saveCariler(){localStorage.setItem(KEYS.cariler,JSON.stringify(cariler));}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function pick(o,names,def=""){
+ for(const n of names){if(o&&o[n]!=null&&o[n]!=="")return o[n];}
+ return def;
 }
-
-function esc(v){
- return String(v==null?"":v)
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;");
+function num(o,names){
+ const v=pick(o,names,0);
+ const n=Number(String(v).replace(/./g,"").replace(",","."));
+ return Number.isFinite(n)?n:0;
 }
-
+function dateVal(o){return String(pick(o,["tarih","date","createdAt","created","islemTarihi","faturaTarihi"],""));}
 function codeCreate(){
- var max=0;
+ let max=0;
  cariler.forEach(function(c){
-  var n=parseInt((c.code||"").replace(/\D/g,""),10);
+  const n=parseInt((c.code||"").replace(/D/g,""),10);
   if(Number.isFinite(n)&&n>max)max=n;
  });
  return "CR-"+String(max+1).padStart(5,"0");
 }
+function findCari(id){return cariler.find(function(x){return String(x.id)===String(id);});}
+
+let cariler=loadArray(KEYS.cariler);
+let currentFilter="Tümü";
+let currentType="Bireysel";
+let editId=null;
+let activeCari=null;
+let activePanel="ozet";
 
 function selectType(type){
  currentType=type;
  document.getElementById("b1").classList.toggle("selected",type==="Bireysel");
  document.getElementById("b2").classList.toggle("selected",type==="Kurumsal");
- var k=type==="Kurumsal";
+ const k=type==="Kurumsal";
  document.getElementById("nameLabel").innerText=k?"Firma / Ticari Unvan":"Ad Soyad";
  document.getElementById("name").placeholder=k?"Firma veya ticari unvan":"Ad Soyad";
  document.getElementById("tcBox").style.display=k?"none":"block";
@@ -225,372 +224,366 @@ function selectType(type){
  document.getElementById("vnBox").style.display=k?"block":"none";
  document.getElementById("yetBox").style.display=k?"block":"none";
 }
-
 function clearForm(){
- ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(id){
-  document.getElementById(id).value="";
- });
+ ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(id){document.getElementById(id).value="";});
  document.querySelectorAll(".roleC").forEach(function(x){x.checked=false;});
 }
-
-function findCari(id){
- return cariler.find(function(x){return String(x.id)===String(id);});
-}
-
 function openForm(id){
  if(typeof id==="undefined")id=null;
- editId=id;
- clearForm();
-
+ editId=id;clearForm();
  if(id!==null){
-  var c=findCari(id);
-  if(!c)return;
+  const c=findCari(id);if(!c)return;
   document.getElementById("formTitle").innerText="Cari Kartını Düzenle";
   selectType(c.type||"Bireysel");
-  ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(k){
-   document.getElementById(k).value=c[k]||"";
-  });
-  document.querySelectorAll(".roleC").forEach(function(x){
-   x.checked=(c.roles||[]).includes(x.value);
-  });
+  ["name","tc","vd","vn","yet","tel","mail","adres","notlar"].forEach(function(k){document.getElementById(k).value=c[k]||"";});
+  document.querySelectorAll(".roleC").forEach(function(x){x.checked=(c.roles||[]).includes(x.value);});
  }else{
   document.getElementById("formTitle").innerText="Yeni Cari Kartı";
   selectType("Bireysel");
  }
-
  document.getElementById("modal").style.display="block";
 }
-
-function closeForm(){
- document.getElementById("modal").style.display="none";
-}
-
+function closeForm(){document.getElementById("modal").style.display="none";}
 function saveCari(){
- var name=document.getElementById("name").value.trim();
- var roles=Array.from(document.querySelectorAll(".roleC:checked")).map(function(x){return x.value;});
-
+ const name=document.getElementById("name").value.trim();
+ const roles=Array.from(document.querySelectorAll(".roleC:checked")).map(function(x){return x.value;});
  if(!name){alert("Ad / Firma bilgisi giriniz.");return;}
  if(!roles.length){alert("En az bir cari rolü seçiniz.");return;}
-
- var old=editId!==null?findCari(editId):null;
- var data={
-  id:old?old.id:Date.now(),
-  code:old?old.code:codeCreate(),
-  type:currentType,
-  roles:roles,
-  name:name,
-  tc:document.getElementById("tc").value.trim(),
-  vd:document.getElementById("vd").value.trim(),
-  vn:document.getElementById("vn").value.trim(),
-  yet:document.getElementById("yet").value.trim(),
-  tel:document.getElementById("tel").value.trim(),
-  mail:document.getElementById("mail").value.trim(),
-  adres:document.getElementById("adres").value.trim(),
-  notlar:document.getElementById("notlar").value.trim(),
-  active:old?old.active!==false:true,
-  created:old&&old.created?old.created:new Date().toISOString()
+ const old=editId!==null?findCari(editId):null;
+ const data={
+  id:old?old.id:Date.now(),code:old?old.code:codeCreate(),type:currentType,roles:roles,name:name,
+  tc:document.getElementById("tc").value.trim(),vd:document.getElementById("vd").value.trim(),
+  vn:document.getElementById("vn").value.trim(),yet:document.getElementById("yet").value.trim(),
+  tel:document.getElementById("tel").value.trim(),mail:document.getElementById("mail").value.trim(),
+  adres:document.getElementById("adres").value.trim(),notlar:document.getElementById("notlar").value.trim(),
+  active:old?old.active!==false:true,created:old&&old.created?old.created:new Date().toISOString()
  };
-
  if(old){
-  var i=cariler.findIndex(function(x){return String(x.id)===String(old.id);});
+  const i=cariler.findIndex(function(x){return String(x.id)===String(old.id);});
   cariler[i]=data;
- }else{
-  cariler.unshift(data);
- }
-
- saveAll();
- closeForm();
- render();
+ }else{cariler.unshift(data);}
+ saveCariler();closeForm();render();
 }
-
 function setFilter(f,btn){
  currentFilter=f;
  document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
- btn.classList.add("on");
- render();
+ btn.classList.add("on");render();
 }
-
 function toggleActive(id){
- var c=findCari(id);
- if(!c)return;
- c.active=c.active===false;
- saveAll();
- render();
+ const c=findCari(id);if(!c)return;
+ c.active=c.active===false;saveCariler();render();
 }
-
+function belongsToCari(o,c){
+ if(!o||!c)return false;
+ const ids=[o.cariId,o.cari_id,o.customerId,o.musteriId,o.tedarikciId,o.sigortaCariId,o.eksperCariId].filter(v=>v!=null&&v!=="");
+ if(ids.some(v=>String(v)===String(c.id)))return true;
+ const codes=[o.cariCode,o.cariKodu,o.customerCode,o.musteriKodu,o.tedarikciKodu].filter(Boolean);
+ if(codes.some(v=>String(v)===String(c.code)))return true;
+ const names=[o.cariAdi,o.cari,o.musteriAdi,o.musteri,o.tedarikciAdi,o.tedarikci].filter(Boolean);
+ return names.some(v=>String(v).trim().toLocaleLowerCase("tr-TR")===String(c.name||"").trim().toLocaleLowerCase("tr-TR"));
+}
+function linkedRecords(c){
+ return {
+  araclar:allVehicles().filter(x=>belongsToCari(x,c)),
+  isEmirleri:allWorkOrders().filter(x=>belongsToCari(x,c)),
+  faturalar:allInvoices().filter(x=>belongsToCari(x,c)),
+  tahsilatlar:allCollections().filter(x=>belongsToCari(x,c)),
+  odemeler:allPayments().filter(x=>belongsToCari(x,c)),
+  hasarlar:allClaims().filter(x=>belongsToCari(x,c)),
+  belgeler:allDocs().filter(x=>belongsToCari(x,c))
+ };
+}
 function deleteCari(id){
- var c=findCari(id);
- if(!c)return;
-
- var hasMoves=hareketler.some(function(x){return String(x.cariId)===String(c.id);});
- var hasCars=araclar.some(function(x){return String(x.cariId)===String(c.id);});
- if(hasMoves||hasCars){
-  alert("Bu cariye bağlı hareket veya araç kaydı var. Veri kaybını önlemek için silmek yerine Pasife Al kullanın.");
-  return;
- }
-
+ const c=findCari(id);if(!c)return;
+ const r=linkedRecords(c);
+ const count=Object.values(r).reduce((a,b)=>a+b.length,0);
+ if(count>0){alert("Bu cariye bağlı kayıtlar var. Veri kaybını önlemek için silmek yerine Pasife Al kullanın.");return;}
  if(confirm(c.name+" cari kartı silinsin mi?")){
   cariler=cariler.filter(function(x){return String(x.id)!==String(c.id);});
-  saveAll();
-  render();
+  saveCariler();render();
  }
 }
-
 function render(){
- var q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
-
- var filtered=cariler.filter(function(c){
-  var ok=currentFilter==="Tümü"||(c.roles||[]).includes(currentFilter);
-  var text=[c.code,c.name,c.tel,c.mail,c.tc,c.vn,c.vd,c.yet].concat(c.roles||[]).join(" ").toLocaleLowerCase("tr-TR");
+ const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
+ const filtered=cariler.filter(function(c){
+  const ok=currentFilter==="Tümü"||(c.roles||[]).includes(currentFilter);
+  const text=[c.code,c.name,c.tel,c.mail,c.tc,c.vn,c.vd,c.yet].concat(c.roles||[]).join(" ").toLocaleLowerCase("tr-TR");
   return ok&&(!q||text.includes(q));
  });
-
- document.getElementById("m").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Müşteri");}).length;
- document.getElementById("t").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Tedarikçi");}).length;
- document.getElementById("s").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Sigorta Şirketi");}).length;
- document.getElementById("e").innerText=cariler.filter(function(c){return (c.roles||[]).includes("Eksper Firması");}).length;
-
- var list=document.getElementById("list");
+ document.getElementById("m").innerText=cariler.filter(c=>(c.roles||[]).includes("Müşteri")).length;
+ document.getElementById("t").innerText=cariler.filter(c=>(c.roles||[]).includes("Tedarikçi")).length;
+ document.getElementById("s").innerText=cariler.filter(c=>(c.roles||[]).includes("Sigorta Şirketi")).length;
+ document.getElementById("e").innerText=cariler.filter(c=>(c.roles||[]).includes("Eksper Firması")).length;
+ const list=document.getElementById("list");
  if(!filtered.length){
-  list.innerHTML='<div class="empty"><div style="font-size:42px">👥</div><h3>Cari kaydı bulunamadı</h3><div>İlk kayıt için <b>+ Yeni Cari</b> düğmesine basın.</div></div>';
-  return;
+  list.innerHTML='<div class="empty"><div style="font-size:42px">👥</div><h3>Cari kaydı bulunamadı</h3><div>İlk kayıt için <b>+ Yeni Cari</b> düğmesine basın.</div></div>';return;
  }
-
  list.innerHTML=filtered.map(function(c){
-  var badges=(c.roles||[]).map(function(r){return '<span class="badge">'+esc(r)+'</span>';}).join("");
-  var info="";
-  if(c.tel)info+="📞 "+esc(c.tel)+"<br>";
-  if(c.mail)info+="✉️ "+esc(c.mail)+"<br>";
-  if(c.vn)info+="Vergi No: "+esc(c.vn)+"<br>";
-  if(c.yet)info+="Yetkili: "+esc(c.yet)+"<br>";
-  if(c.adres)info+="📍 "+esc(c.adres);
-
-  return '<div class="card" style="'+(c.active===false?'opacity:.55':'')+'">'+
-   '<div class="name">'+esc(c.name)+'</div>'+
+  const badges=(c.roles||[]).map(r=>'<span class="badge">'+esc(r)+'</span>').join("");
+  let info="";if(c.tel)info+="📞 "+esc(c.tel)+"<br>";if(c.mail)info+="✉️ "+esc(c.mail)+"<br>";if(c.vn)info+="Vergi No: "+esc(c.vn)+"<br>";if(c.yet)info+="Yetkili: "+esc(c.yet)+"<br>";if(c.adres)info+="📍 "+esc(c.adres);
+  return '<div class="card" style="'+(c.active===false?'opacity:.55':'')+'"><div class="name">'+esc(c.name)+'</div>'+
    '<div class="code">'+esc(c.code)+' • '+esc(c.type||"")+(c.active===false?' • PASİF':'')+'</div>'+
-   '<div class="badges">'+badges+'<span class="badge type">'+esc(c.type||"")+'</span></div>'+
-   '<div class="info">'+info+'</div>'+
-   '<div class="actions">'+
-    '<button class="open" onclick="openDetail(\''+String(c.id)+'\')">Cariyi Aç</button>'+
-    '<button class="edit" onclick="openForm(\''+String(c.id)+'\')">Düzenle</button>'+
-    '<button class="pass" onclick="toggleActive(\''+String(c.id)+'\')">'+(c.active===false?'Aktif Et':'Pasife Al')+'</button>'+
-    '<button class="del" onclick="deleteCari(\''+String(c.id)+'\')">Sil</button>'+
-   '</div>'+
-  '</div>';
+   '<div class="badges">'+badges+'<span class="badge type">'+esc(c.type||"")+'</span></div><div class="info">'+info+'</div>'+
+   '<div class="actions"><button class="open" onclick="openDetail(''+String(c.id)+'')">Cariyi Aç</button>'+
+   '<button class="edit" onclick="openForm(''+String(c.id)+'')">Düzenle</button>'+
+   '<button class="pass" onclick="toggleActive(''+String(c.id)+'')">'+(c.active===false?'Aktif Et':'Pasife Al')+'</button>'+
+   '<button class="del" onclick="deleteCari(''+String(c.id)+'')">Sil</button></div></div>';
  }).join("");
 }
 
-function cariHareket(){
- if(!activeCari)return[];
- return hareketler.filter(function(h){return String(h.cariId)===String(activeCari.id);});
-}
+/* KAYNAK MODÜLLER */
+function allVehicles(){return loadMany(KEYS.araclar);}
+function allWorkOrders(){return loadMany(KEYS.isEmirleri);}
+function allInvoices(){return loadMany(KEYS.faturalar);}
+function allCollections(){return loadMany(KEYS.tahsilatlar);}
+function allPayments(){return loadMany(KEYS.odemeler);}
+function allClaims(){return loadMany(KEYS.hasarlar);}
+function allDocs(){return loadMany(KEYS.belgeler);}
+function activeVehicles(){return activeCari?allVehicles().filter(x=>belongsToCari(x,activeCari)):[];}
+function activeWorkOrders(){return activeCari?allWorkOrders().filter(x=>belongsToCari(x,activeCari)):[];}
+function activeInvoices(){return activeCari?allInvoices().filter(x=>belongsToCari(x,activeCari)):[];}
+function activeCollections(){return activeCari?allCollections().filter(x=>belongsToCari(x,activeCari)):[];}
+function activePayments(){return activeCari?allPayments().filter(x=>belongsToCari(x,activeCari)):[];}
+function activeClaims(){return activeCari?allClaims().filter(x=>belongsToCari(x,activeCari)):[];}
+function activeDocs(){return activeCari?allDocs().filter(x=>belongsToCari(x,activeCari)):[];}
 
-function cariArac(){
- if(!activeCari)return[];
- return araclar.filter(function(a){return String(a.cariId)===String(activeCari.id);});
+function invoiceMatchesWorkOrder(inv,wo){
+ const iid=pick(inv,["isEmriId","workOrderId"],"");
+ const wid=pick(wo,["id","uuid"],"");
+ if(iid&&wid&&String(iid)===String(wid))return true;
+ const ino=String(pick(inv,["isEmriNo","workOrderNo"],""));
+ const wno=String(pick(wo,["isEmriNo","no","workOrderNo"],""));
+ return !!ino&&!!wno&&ino===wno;
 }
+function normalizeLegacy(h){
+ let borc=Number(h.borc||0),alacak=Number(h.alacak||0);
+ if(!borc&&!alacak&&h.tip==="Borç")borc=Number(h.tutar||0);
+ if(!borc&&!alacak&&h.tip==="Alacak")alacak=Number(h.tutar||0);
+ return {
+  id:h.id,eventKey:h.eventKey||("legacy:"+h.id),tarih:dateVal(h),kaynak:h.kaynak||"Eski Kayıt",
+  belgeNo:pick(h,["belgeNo","belge"],""),isEmriNo:pick(h,["isEmriNo"],""),plaka:pick(h,["plaka"],""),
+  aciklama:pick(h,["aciklama"],""),borc:borc,alacak:alacak,etki:h.etki!==false,durum:h.durum||"Aktif"
+ };
+}
+function buildMovements(){
+ if(!activeCari)return[];
+ const out=[];
+ const invs=activeInvoices();
 
+ activeWorkOrders().forEach(function(w){
+  const status=String(pick(w,["durum","status"],"")).toLocaleLowerCase("tr-TR");
+  const closed=["kapandı","kapali","kapalı","tamamlandı","tamamlandi","teslim","closed","completed"].some(x=>status.includes(x));
+  if(!closed)return;
+  const faturalandi=invs.some(inv=>invoiceMatchesWorkOrder(inv,w));
+  out.push({
+   id:pick(w,["id","uuid"],Date.now()),eventKey:"wo:"+pick(w,["id","uuid","isEmriNo","no"],Date.now()),
+   tarih:dateVal(w),kaynak:"İş Emri",belgeNo:"",isEmriNo:pick(w,["isEmriNo","no","workOrderNo"],""),
+   plaka:pick(w,["plaka","vehiclePlate"],""),aciklama:pick(w,["aciklama","islemOzeti","islem","description"],"İş emri kapandı"),
+   borc:faturalandi?0:num(w,["genelToplam","toplam","tutar","kalan"]),alacak:0,etki:!faturalandi,durum:faturalandi?"Faturalandı":"Kapandı"
+  });
+ });
+
+ invs.forEach(function(f){
+  const tip=String(pick(f,["tip","tur","faturaTipi","type"],"")).toLocaleLowerCase("tr-TR");
+  const alis=tip.includes("alış")||tip.includes("alis")||tip.includes("purchase")||tip.includes("tedarik");
+  const tutar=num(f,["genelToplam","toplam","tutar","netToplam"]);
+  out.push({
+   id:pick(f,["id","uuid"],Date.now()),eventKey:"inv:"+pick(f,["id","uuid","faturaNo","no"],Date.now()),
+   tarih:dateVal(f),kaynak:alis?"Alış Faturası":"Satış Faturası",belgeNo:pick(f,["faturaNo","no","belgeNo"],""),
+   isEmriNo:pick(f,["isEmriNo","workOrderNo"],""),plaka:pick(f,["plaka","vehiclePlate"],""),
+   aciklama:pick(f,["aciklama","description"],alis?"Tedarikçi alış faturası":"Müşteri satış faturası"),
+   borc:alis?0:tutar,alacak:alis?tutar:0,etki:true,durum:pick(f,["durum","status"],"Aktif")
+  });
+ });
+
+ activeCollections().forEach(function(t){
+  const tutar=num(t,["tutar","amount"]);
+  out.push({
+   id:pick(t,["id","uuid"],Date.now()),eventKey:"tah:"+pick(t,["id","uuid","makbuzNo","no"],Date.now()),
+   tarih:dateVal(t),kaynak:"Tahsilat",belgeNo:pick(t,["makbuzNo","no","belgeNo"],""),
+   isEmriNo:pick(t,["isEmriNo"],""),plaka:pick(t,["plaka"],""),aciklama:pick(t,["aciklama"],"Tahsilat"),
+   borc:0,alacak:tutar,etki:true,durum:pick(t,["durum"],"Aktif")
+  });
+ });
+
+ activePayments().forEach(function(o){
+  const tutar=num(o,["tutar","amount"]);
+  out.push({
+   id:pick(o,["id","uuid"],Date.now()),eventKey:"odm:"+pick(o,["id","uuid","makbuzNo","no"],Date.now()),
+   tarih:dateVal(o),kaynak:"Ödeme",belgeNo:pick(o,["makbuzNo","no","belgeNo"],""),
+   isEmriNo:pick(o,["isEmriNo"],""),plaka:pick(o,["plaka"],""),aciklama:pick(o,["aciklama"],"Ödeme"),
+   borc:tutar,alacak:0,etki:true,durum:pick(o,["durum"],"Aktif")
+  });
+ });
+
+ loadMany(KEYS.legacyHareket).filter(x=>belongsToCari(x,activeCari)).forEach(function(h){out.push(normalizeLegacy(h));});
+
+ const seen=new Set();
+ return out.filter(function(x){
+  const k=x.eventKey||String(x.id);
+  if(seen.has(k))return false;seen.add(k);return true;
+ });
+}
+function movementTS(h){
+ const t=Date.parse(h.tarih||"");
+ return Number.isFinite(t)?t:Number(h.id||0);
+}
+function movementsWithBalance(list){
+ let bakiye=0;
+ return list.slice().sort((a,b)=>movementTS(a)-movementTS(b)).map(function(h){
+  if(h.etki!==false)bakiye+=Number(h.borc||0)-Number(h.alacak||0);
+  return Object.assign({},h,{bakiye:bakiye});
+ });
+}
 function updateSummary(){
- var hs=cariHareket();
- var borc=hs.filter(function(x){return x.tip==="Borç";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
- var alacak=hs.filter(function(x){return x.tip==="Alacak";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+ const hs=buildMovements().filter(h=>h.etki!==false);
+ const borc=hs.reduce((a,h)=>a+Number(h.borc||0),0);
+ const alacak=hs.reduce((a,h)=>a+Number(h.alacak||0),0);
  document.getElementById("sumBorc").innerText=money(borc);
  document.getElementById("sumAlacak").innerText=money(alacak);
- document.getElementById("sumBakiye").innerText=money(borc-alacak);
- document.getElementById("sumArac").innerText=cariArac().length;
+ const net=borc-alacak,b=document.getElementById("sumBakiye");
+ b.innerText=money(net);b.className=net>0?"red":net<0?"green":"blue";
+ document.getElementById("sumArac").innerText=activeVehicles().length;
 }
 
+/* DETAY */
 function openDetail(id){
- activeCari=findCari(id);
- if(!activeCari)return;
+ activeCari=findCari(id);if(!activeCari)return;
  document.getElementById("detailName").innerText=activeCari.name;
  document.getElementById("detailCode").innerText=(activeCari.code||"")+" • "+(activeCari.type||"")+" • "+(activeCari.roles||[]).join(" / ");
  document.getElementById("detail").style.display="block";
- updateSummary();
- showPanel("ozet");
+ updateSummary();showPanel("ozet");
 }
-
-function closeDetail(){
- document.getElementById("detail").style.display="none";
- activeCari=null;
-}
-
+function closeDetail(){document.getElementById("detail").style.display="none";activeCari=null;}
 function activateTab(type){
- document.querySelectorAll(".dtab").forEach(function(x){
-  x.classList.toggle("on",x.getAttribute("data-panel")===type);
- });
+ activePanel=type;
+ document.querySelectorAll(".dtab").forEach(x=>x.classList.toggle("on",x.getAttribute("data-panel")===type));
 }
-
 function showPanel(type){
  activateTab(type);
  if(type==="ozet")panelOzet();
- else if(type==="araclar")panelArac();
+ else if(type==="araclar")panelAraclar();
  else if(type==="hareket")panelHareket();
+ else if(type==="isemri")panelIsEmri();
+ else if(type==="fatura")panelFatura();
+ else if(type==="hasar")panelHasar();
+ else if(type==="belge")panelBelge();
  else if(type==="not")panelNot();
- else if(type==="isemri")panelBos("İş Emirleri","Bu cariye bağlı iş emirleri burada listelenecek.");
- else if(type==="fatura")panelBos("Faturalar","Alış ve satış faturaları burada listelenecek.");
- else if(type==="hasar")panelBos("Hasar & Sigorta","Hasar dosyaları, sigorta ve eksper işlemleri burada listelenecek.");
- else if(type==="belge")panelBos("Belgeler","PDF, fotoğraf, ruhsat, fatura ve diğer belgeler burada tutulacak.");
 }
-
 function panelOzet(){
- var son=cariHareket().slice().sort(function(a,b){return Number(b.id||0)-Number(a.id||0);}).slice(0,5);
- var sonHtml=son.length?son.map(function(h){
-  return '<div style="border-bottom:1px solid #eee;padding:7px 0"><b>'+esc(h.tip)+'</b> - '+money(h.tutar)+'<br><small>'+esc(h.tarih||"")+' • '+esc(h.aciklama||"")+'</small></div>';
- }).join(""):"Henüz cari hareket yok.";
-
+ const last=buildMovements().slice().sort((a,b)=>movementTS(b)-movementTS(a)).slice(0,6);
+ const lastHtml=last.length?last.map(h=>'<div style="border-bottom:1px solid #eee;padding:8px 0"><b>'+esc(h.kaynak)+'</b> • '+esc(h.belgeNo||h.isEmriNo||"")+
+  '<br><small>'+esc(h.tarih||"")+' • '+esc(h.aciklama||"")+' • '+(h.borc?money(h.borc):h.alacak?money(h.alacak):"Bilgi")+'</small></div>').join(""):"Henüz otomatik cari hareketi yok.";
  document.getElementById("panel").innerHTML=
   '<div class="panelTitle">Cari Genel Bakış</div>'+
-  '<div class="quick">'+
-   '<button onclick="showPanel(\'hareket\')">+ Cari Hareket</button>'+
-   '<button onclick="showPanel(\'araclar\')">+ Araç</button>'+
-   '<button class="pdf" onclick="printCari()">📄 Cari Raporu / PDF</button>'+
-  '</div>'+
-  '<div class="overviewGrid">'+
-   '<div class="overCard"><h3>Cari Bilgileri</h3><b>'+esc(activeCari.name)+'</b><br><br>'+
-    'Cari Kodu: '+esc(activeCari.code||"-")+'<br>'+
-    'Telefon: '+esc(activeCari.tel||"-")+'<br>'+
-    'E-posta: '+esc(activeCari.mail||"-")+'<br>'+
-    'Vergi No: '+esc(activeCari.vn||"-")+'<br>'+
-    'Adres: '+esc(activeCari.adres||"-")+
-   '</div>'+
-   '<div class="overCard"><h3>Son Hareketler</h3>'+sonHtml+'</div>'+
-  '</div>';
+  '<div class="quick"><button onclick="showPanel('hareket')">Cari Ekstre</button><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div>'+
+  '<div class="note"><b>Bu ekran merkez görünümüdür.</b> Araçlar Araç Kayıt bölümünden; iş emirleri İş Emirleri bölümünden; faturalar Faturalar bölümünden; tahsilat ve ödemeler Cari & Kasa bölümünden; hasar, sigorta ve belgeler kendi kaynak bölümlerinden otomatik gelir. Buradan yalnızca cari kartı ve notlar düzenlenir.</div>'+
+  '<div class="overviewGrid"><div class="overCard"><h3>Cari Bilgileri</h3><b>'+esc(activeCari.name)+'</b><br><br>'+
+  'Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>E-posta: '+esc(activeCari.mail||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+
+  '</div><div class="overCard"><h3>Son Hareketler</h3>'+lastHtml+'</div></div>';
 }
-
+function panelAraclar(){
+ const a=activeVehicles();
+ const rows=a.length?a.map(v=>'<tr><td><b>'+esc(pick(v,["plaka"],"-"))+'</b></td><td>'+esc([pick(v,["marka"],""),pick(v,["model"],"")].filter(Boolean).join(" ")||"-")+
+  '</td><td>'+esc(pick(v,["sasi","vin","sasiNo"],"-"))+'</td><td>'+esc(pick(v,["motorNo"],"-"))+'</td><td>'+esc(pick(v,["km","kilometre"],"-"))+'</td><td>'+esc(pick(v,["durum"],"Aktif"))+'</td></tr>').join(""):
+  '<tr><td colspan="6">Bu cariye bağlı araç yok.</td></tr>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Araçlar</div><div class="note"><b>Salt okunur.</b> Araç ekleme ve düzenleme ana ekrandaki <b>Araç Kayıt</b> bölümünden yapılır. Orada cari seçildiğinde araç bu listede otomatik görünür.</div>'+
+ '<div class="tableWrap"><table><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>Motor No</th><th>KM</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
 function panelHareket(){
- var hs=cariHareket().slice().sort(function(a,b){return Number(b.id||0)-Number(a.id||0);});
- var rows=hs.length?hs.map(function(h){
-  return '<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.tip||"")+'</td><td>'+esc(h.belge||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td><b>'+money(h.tutar)+'</b></td><td><button onclick="deleteHareket(\''+String(h.id)+'\')">Sil</button></td></tr>';
- }).join(""):'<tr><td colspan="6">Henüz hareket yok.</td></tr>';
-
- document.getElementById("panel").innerHTML=
-  '<div class="panelTitle">Cari Hareketler / Ekstre</div>'+
-  '<div class="miniForm">'+
-   '<input type="date" id="hTarih">'+
-   '<select id="hTip"><option>Borç</option><option>Alacak</option></select>'+
-   '<input type="number" id="hTutar" placeholder="Tutar">'+
-   '<input id="hBelge" placeholder="Belge / Fatura No">'+
-   '<input id="hAciklama" placeholder="Açıklama" style="grid-column:span 3">'+
-   '<button onclick="addHareket()">Hareket Ekle</button>'+
-  '</div>'+
-  '<div class="quick"><button class="pdf" onclick="printCari()">📄 Ekstre / PDF</button></div>'+
-  '<div class="tableWrap"><table><thead><tr><th>Tarih</th><th>İşlem</th><th>Belge</th><th>Açıklama</th><th>Tutar</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ const all=movementsWithBalance(buildMovements());
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Cari Hareketler / Otomatik Ekstre</div>'+
+ '<div class="note"><b>Salt okunur.</b> Burada elle hareket eklenmez, silinmez veya değiştirilmez. İş emri, fatura, tahsilat ve ödeme kendi kaynak bölümünde yapıldığında ekstre otomatik oluşur.</div>'+
+ '<div class="filters"><input type="date" id="fromDate"><input type="date" id="toDate"><button onclick="renderMovementTable()">Filtrele</button></div>'+
+ '<div class="quick"><button class="pdf" onclick="printCari()">📄 Cari Dosyası / PDF</button></div><div id="movementTable"></div>';
+ window._allMoves=all;renderMovementTable();
 }
-
-function addHareket(){
- var tarih=document.getElementById("hTarih").value;
- var tip=document.getElementById("hTip").value;
- var tutar=Number(document.getElementById("hTutar").value);
- var belge=document.getElementById("hBelge").value.trim();
- var aciklama=document.getElementById("hAciklama").value.trim();
- if(!tarih){alert("Tarih seçiniz.");return;}
- if(!tutar||tutar<=0){alert("Geçerli tutar giriniz.");return;}
- hareketler.push({id:Date.now(),cariId:activeCari.id,tarih:tarih,tip:tip,tutar:tutar,belge:belge,aciklama:aciklama});
- saveAll();
- updateSummary();
- panelHareket();
+function renderMovementTable(){
+ const from=document.getElementById("fromDate")?.value||"",to=document.getElementById("toDate")?.value||"";
+ let list=(window._allMoves||[]).filter(h=>(!from||String(h.tarih)>=from)&&(!to||String(h.tarih)<=to)).slice().reverse();
+ const rows=list.length?list.map(h=>'<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.kaynak||"")+'</td><td>'+esc(h.belgeNo||"-")+'</td><td>'+esc(h.isEmriNo||"-")+'</td>'+
+  '<td>'+esc(h.plaka||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td>'+(h.borc?money(h.borc):"-")+'</td><td>'+(h.alacak?money(h.alacak):"-")+'</td><td><b>'+money(h.bakiye)+'</b></td><td>'+esc(h.durum||"Aktif")+'</td></tr>').join(""):
+  '<tr><td colspan="10">Henüz otomatik cari hareketi yok.</td></tr>';
+ document.getElementById("movementTable").innerHTML='<div class="tableWrap"><table style="min-width:1100px"><thead><tr><th>Tarih</th><th>Kaynak</th><th>Belge No</th><th>İş Emri</th><th>Plaka</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Bakiye</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
-function deleteHareket(id){
- if(confirm("Cari hareketi silinsin mi?")){
-  hareketler=hareketler.filter(function(x){return String(x.id)!==String(id);});
-  saveAll();
-  updateSummary();
-  panelHareket();
- }
+function panelIsEmri(){
+ const a=activeWorkOrders();
+ const rows=a.length?a.map(w=>'<tr><td>'+esc(pick(w,["isEmriNo","no","workOrderNo"],"-"))+'</td><td>'+esc(dateVal(w)||"-")+'</td><td>'+esc(pick(w,["plaka"],"-"))+'</td><td>'+esc(pick(w,["durum","status"],"-"))+'</td><td>'+money(num(w,["genelToplam","toplam","tutar"]))+'</td><td>'+esc(pick(w,["aciklama","islemOzeti"],"-"))+'</td></tr>').join(""):
+  '<tr><td colspan="6">Bu cariye bağlı iş emri yok.</td></tr>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">İş Emirleri</div><div class="note"><b>Salt okunur.</b> İş emri kayıtları İş Emirleri bölümünden otomatik gelir.</div>'+
+ '<div class="tableWrap"><table><thead><tr><th>İş Emri No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
-function panelArac(){
- var as=cariArac();
- var rows=as.length?as.map(function(a){
-  return '<tr><td><b>'+esc(a.plaka||"")+'</b></td><td>'+esc(a.marka||"-")+'</td><td>'+esc(a.sasi||"-")+'</td><td>'+esc(a.km||"-")+'</td><td><button onclick="deleteArac(\''+String(a.id)+'\')">Sil</button></td></tr>';
- }).join(""):'<tr><td colspan="5">Bu cariye kayıtlı araç yok.</td></tr>';
-
- document.getElementById("panel").innerHTML=
-  '<div class="panelTitle">Cari Araçları</div>'+
-  '<div class="miniForm">'+
-   '<input id="aPlaka" placeholder="Plaka">'+
-   '<input id="aMarka" placeholder="Marka / Model">'+
-   '<input id="aSasi" placeholder="Şasi / VIN">'+
-   '<input type="number" id="aKm" placeholder="KM">'+
-   '<button onclick="addArac()">Araç Ekle</button>'+
-  '</div>'+
-  '<div class="tableWrap"><table><thead><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi / VIN</th><th>KM</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+function panelFatura(){
+ const a=activeInvoices();
+ const rows=a.length?a.map(f=>'<tr><td>'+esc(pick(f,["faturaNo","no","belgeNo"],"-"))+'</td><td>'+esc(dateVal(f)||"-")+'</td><td>'+esc(pick(f,["tip","tur","faturaTipi"],"-"))+'</td><td>'+esc(pick(f,["isEmriNo"],"-"))+'</td><td>'+money(num(f,["genelToplam","toplam","tutar"]))+'</td><td>'+esc(pick(f,["durum","status"],"Aktif"))+'</td></tr>').join(""):
+  '<tr><td colspan="6">Bu cariye bağlı fatura yok.</td></tr>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Faturalar</div><div class="note"><b>Salt okunur.</b> Alış ve satış faturaları Faturalar bölümünden otomatik gelir.</div>'+
+ '<div class="tableWrap"><table><thead><tr><th>Fatura No</th><th>Tarih</th><th>Tip</th><th>İş Emri</th><th>Tutar</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
-function addArac(){
- var plaka=document.getElementById("aPlaka").value.trim().toUpperCase();
- var marka=document.getElementById("aMarka").value.trim();
- var sasi=document.getElementById("aSasi").value.trim();
- var km=document.getElementById("aKm").value;
- if(!plaka){alert("Plaka giriniz.");return;}
- araclar.push({id:Date.now(),cariId:activeCari.id,plaka:plaka,marka:marka,sasi:sasi,km:km});
- saveAll();
- updateSummary();
- panelArac();
+function panelHasar(){
+ const a=activeClaims();
+ const rows=a.length?a.map(h=>'<tr><td>'+esc(pick(h,["dosyaNo","no"],"-"))+'</td><td>'+esc(dateVal(h)||"-")+'</td><td>'+esc(pick(h,["plaka"],"-"))+'</td><td>'+esc(pick(h,["sigorta","sigortaSirketi"],"-"))+'</td><td>'+esc(pick(h,["eksper","eksperFirma"],"-"))+'</td><td>'+esc(pick(h,["durum","status"],"-"))+'</td></tr>').join(""):
+  '<tr><td colspan="6">Bu cariye bağlı hasar / sigorta dosyası yok.</td></tr>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Hasar & Sigorta</div><div class="note"><b>Salt okunur.</b> Hasar, sigorta ve eksper dosyaları Hasar & Sigorta bölümünden otomatik gelir.</div>'+
+ '<div class="tableWrap"><table><thead><tr><th>Dosya No</th><th>Tarih</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
-function deleteArac(id){
- if(confirm("Araç kaydı silinsin mi?")){
-  araclar=araclar.filter(function(x){return String(x.id)!==String(id);});
-  saveAll();
-  updateSummary();
-  panelArac();
- }
+function panelBelge(){
+ const a=activeDocs();
+ const rows=a.length?a.map(d=>'<tr><td>'+esc(dateVal(d)||"-")+'</td><td>'+esc(pick(d,["tur","tip"],"-"))+'</td><td>'+esc(pick(d,["belgeAdi","ad","name"],"-"))+'</td><td>'+esc(pick(d,["belgeNo","no"],"-"))+'</td><td>'+esc(pick(d,["kaynak","source"],"-"))+'</td></tr>').join(""):
+  '<tr><td colspan="5">Bu cariye bağlı belge yok.</td></tr>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Belgeler</div><div class="note"><b>Salt okunur.</b> Fatura, iş emri, hasar, ruhsat ve diğer evraklar oluşturuldukları kaynak bölümden otomatik gelir.</div>'+
+ '<div class="tableWrap"><table><thead><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>Belge No</th><th>Kaynak</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
 function panelNot(){
- document.getElementById("panel").innerHTML=
-  '<div class="panelTitle">Cari Notları</div>'+
-  '<textarea id="detailNot" style="min-height:180px">'+esc(activeCari.notlar||"")+'</textarea><br><br>'+
-  '<button class="save" onclick="saveDetailNote()">Notları Kaydet</button>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Cari Notları</div><div class="note"><b>Bu bölüm cariye özel serbest not alanıdır.</b> Notlar sadece burada düzenlenir.</div>'+
+ '<textarea id="detailNot" style="min-height:180px">'+esc(activeCari.notlar||"")+'</textarea><br><br><button class="save" onclick="saveDetailNote()">Notları Kaydet</button>';
 }
-
 function saveDetailNote(){
  activeCari.notlar=document.getElementById("detailNot").value;
- var i=cariler.findIndex(function(x){return String(x.id)===String(activeCari.id);});
- if(i>=0)cariler[i]=activeCari;
- saveAll();
- alert("Not kaydedildi.");
+ const i=cariler.findIndex(x=>String(x.id)===String(activeCari.id));if(i>=0)cariler[i]=activeCari;
+ saveCariler();alert("Not kaydedildi.");
 }
 
-function panelBos(title,text){
- document.getElementById("panel").innerHTML=
-  '<div class="panelTitle">'+esc(title)+'</div>'+
-  '<div style="padding:35px;text-align:center;color:#64748b"><div style="font-size:38px">📁</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p><p><b>Bu bölüm ana MAU modülüyle bağlantı için hazırlandı.</b></p></div>';
-}
-
+/* CARİ DOSYASI / PDF */
 function printCari(){
- var hs=cariHareket().slice().sort(function(a,b){return String(a.tarih||"").localeCompare(String(b.tarih||""));});
- var borc=hs.filter(function(x){return x.tip==="Borç";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
- var alacak=hs.filter(function(x){return x.tip==="Alacak";}).reduce(function(a,b){return a+Number(b.tutar||0);},0);
+ const moves=movementsWithBalance(buildMovements());
+ const etkili=moves.filter(h=>h.etki!==false);
+ const borc=etkili.reduce((a,h)=>a+Number(h.borc||0),0),alacak=etkili.reduce((a,h)=>a+Number(h.alacak||0),0);
+ const vehicles=activeVehicles(),orders=activeWorkOrders(),invoices=activeInvoices(),claims=activeClaims(),docs=activeDocs();
 
- var rows=hs.map(function(h){
-  return '<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.tip||"")+'</td><td>'+esc(h.belge||"")+'</td><td>'+esc(h.aciklama||"")+'</td><td>'+money(h.tutar)+'</td></tr>';
- }).join("");
- if(!rows)rows='<tr><td colspan="5">Hareket yok.</td></tr>';
-
- var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cari Ekstre</title>'+
-  '<style>body{font-family:Arial;padding:30px;color:#222}h1{color:#075ca8}.head{border-bottom:3px solid #075ca8;padding-bottom:15px}.box{margin:20px 0;padding:15px;background:#f5f7fa}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:12px}th{background:#eee}.tot{margin-top:20px;font-size:16px;line-height:1.8}</style>'+
-  '</head><body>'+
-  '<div class="head"><h1>MAU OTO SERVİS</h1><b>Cari Hesap Ekstresi</b></div>'+
-  '<div class="box"><b>'+esc(activeCari.name)+'</b><br>Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+'</div>'+
-  '<table><tr><th>Tarih</th><th>İşlem</th><th>Belge</th><th>Açıklama</th><th>Tutar</th></tr>'+rows+'</table>'+
-  '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b></div>'+
-  '<script>window.onload=function(){window.print();};<\/script></body></html>';
-
- var w=window.open("","_blank");
- if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
- w.document.open();
- w.document.write(html);
- w.document.close();
+ function trMoves(){
+  return moves.map(h=>'<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.kaynak||"")+'</td><td>'+esc(h.belgeNo||"-")+'</td><td>'+esc(h.isEmriNo||"-")+'</td><td>'+esc(h.plaka||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td>'+(h.borc?money(h.borc):"-")+'</td><td>'+(h.alacak?money(h.alacak):"-")+'</td><td>'+money(h.bakiye)+'</td></tr>').join("")||'<tr><td colspan="9">Hareket yok.</td></tr>';
+ }
+ function simpleRows(list,cols){
+  if(!list.length)return '<tr><td colspan="'+cols.length+'">Kayıt yok.</td></tr>';
+  return list.map(x=>'<tr>'+cols.map(c=>'<td>'+esc(c(x))+'</td>').join("")+'</tr>').join("");
+ }
+ const html='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Cari Dosyası</title><style>'+
+ 'body{font-family:Arial;padding:24px;color:#222}h1{color:#075ca8;margin-bottom:4px}h2{font-size:16px;margin-top:24px;border-bottom:2px solid #075ca8;padding-bottom:5px}.box{margin:15px 0;padding:12px;background:#f5f7fa}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ddd;padding:6px;font-size:10px}th{background:#eee}.tot{line-height:1.8}</style></head><body>'+
+ '<h1>MAU OTO SERVİS</h1><b>Cari Dosyası</b><div class="box"><b>'+esc(activeCari.name)+'</b><br>Cari Kodu: '+esc(activeCari.code||"-")+'<br>Telefon: '+esc(activeCari.tel||"-")+'<br>Vergi No: '+esc(activeCari.vn||"-")+'<br>Adres: '+esc(activeCari.adres||"-")+'</div>'+
+ '<div class="tot">Toplam Borç: <b>'+money(borc)+'</b><br>Toplam Alacak: <b>'+money(alacak)+'</b><br>Bakiye: <b>'+money(borc-alacak)+'</b></div>'+
+ '<h2>Cari Ekstre</h2><table><tr><th>Tarih</th><th>Kaynak</th><th>Belge</th><th>İş Emri</th><th>Plaka</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Bakiye</th></tr>'+trMoves()+'</table>'+
+ '<h2>Araçlar</h2><table><tr><th>Plaka</th><th>Marka / Model</th><th>Şasi</th><th>KM</th></tr>'+simpleRows(vehicles,[v=>pick(v,["plaka"],"-"),v=>[pick(v,["marka"],""),pick(v,["model"],"")].filter(Boolean).join(" ")||"-",v=>pick(v,["sasi","vin"],"-"),v=>pick(v,["km"],"-")])+'</table>'+
+ '<h2>İş Emirleri</h2><table><tr><th>No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th></tr>'+simpleRows(orders,[w=>pick(w,["isEmriNo","no"],"-"),w=>dateVal(w)||"-",w=>pick(w,["plaka"],"-"),w=>pick(w,["durum"],"-"),w=>money(num(w,["genelToplam","toplam","tutar"]))])+'</table>'+
+ '<h2>Faturalar</h2><table><tr><th>No</th><th>Tarih</th><th>Tip</th><th>Tutar</th></tr>'+simpleRows(invoices,[f=>pick(f,["faturaNo","no"],"-"),f=>dateVal(f)||"-",f=>pick(f,["tip","tur"],"-"),f=>money(num(f,["genelToplam","toplam","tutar"]))])+'</table>'+
+ '<h2>Hasar & Sigorta</h2><table><tr><th>Dosya No</th><th>Plaka</th><th>Sigorta</th><th>Eksper</th><th>Durum</th></tr>'+simpleRows(claims,[h=>pick(h,["dosyaNo","no"],"-"),h=>pick(h,["plaka"],"-"),h=>pick(h,["sigorta","sigortaSirketi"],"-"),h=>pick(h,["eksper","eksperFirma"],"-"),h=>pick(h,["durum"],"-")])+'</table>'+
+ '<h2>Belgeler</h2><table><tr><th>Tarih</th><th>Tür</th><th>Belge</th><th>No</th></tr>'+simpleRows(docs,[d=>dateVal(d)||"-",d=>pick(d,["tur","tip"],"-"),d=>pick(d,["belgeAdi","ad"],"-"),d=>pick(d,["belgeNo","no"],"-")])+'</table>'+
+ '<h2>Notlar</h2><div class="box">'+esc(activeCari.notlar||"Not yok.")+'</div><script>window.onload=function(){window.print();};</script></body></html>';
+ const w=window.open("","_blank");if(!w){alert("PDF/Yazdır ekranı için açılır pencereye izin verin.");return;}
+ w.document.open();w.document.write(html);w.document.close();
 }
 
-window.addEventListener("click",function(e){
- if(e.target===document.getElementById("modal"))closeForm();
+window.addEventListener("storage",function(e){
+ const watched=[KEYS.cariler].concat(KEYS.araclar,KEYS.isEmirleri,KEYS.faturalar,KEYS.tahsilatlar,KEYS.odemeler,KEYS.hasarlar,KEYS.belgeler,KEYS.legacyHareket);
+ if(!watched.includes(e.key))return;
+ cariler=loadArray(KEYS.cariler);
+ render();
+ if(activeCari){
+  activeCari=findCari(activeCari.id);
+  if(activeCari){updateSummary();showPanel(activePanel);}else{closeDetail();}
+ }
 });
-
+window.addEventListener("click",function(e){if(e.target===document.getElementById("modal"))closeForm();});
 render();
 </script>
 </body>
