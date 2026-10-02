@@ -74,8 +74,8 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
 
   <div class="section"><div class="sectionTitle">3. Hasar / Olay Bilgileri</div>
    <div class="grid">
-    <div class="field"><label>Olay Tarihi</label><input id="olayTarihi" type="date"></div>
-    <div class="field"><label>Olay Saati</label><input id="olaySaati" type="time"></div>
+    <div class="field"><label>Olay Tarihi *</label><input id="olayTarihi" type="date"></div>
+    <div class="field"><label>Olay Saati *</label><input id="olaySaati" type="time"></div>
     <div class="field full"><label>Olay Yeri</label><input id="olayYeri"></div>
     <div class="field full"><label>Hasar Açıklaması *</label><textarea id="hasarAciklama" placeholder="Hasarın yeri, şekli ve müşterinin beyanı..."></textarea></div>
     <div class="field full"><label>Ön Tespit / Eksper Notu</label><textarea id="eksperNotu"></textarea></div>
@@ -208,6 +208,8 @@ function saveClaim(){
  const insurer=load(INS_KEY).find(x=>String(x.id)===String(document.getElementById("sigortaId").value));
  if(!insurer){alert("Sigorta şirketi seçiniz.");return}
  if(!v("sigortaDosyaNo")){alert("Sigorta şirketinin verdiği hasar dosya numarasını yazın.");return}
+ if(!v("olayTarihi")){alert("Olay tarihini giriniz.");return}
+ if(!v("olaySaati")){alert("Olay saatini giriniz.");return}
  if(!v("hasarAciklama")){alert("Hasar açıklamasını yazın.");return}
  claims=load(CLAIM_KEY);const old=editId!=null?claims.find(x=>String(x.id)===String(editId)):null;
  const cari=load(CARI_KEY).find(x=>String(x.id)===String(vehicle.cariId));
@@ -249,7 +251,7 @@ function renderList(){
 function reportHtml(x){
  const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["Kaza Tespit Tutanağı",ev.kazaTutanagi],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
  return '<h2>MAU OTO SERVİS</h2><h3>Hasar & Sigorta Dosyası</h3><p><b>'+esc(x.dosyaNo)+'</b> · '+esc(x.tarih||"")+(x.dosyaSaati?' '+esc(x.dosyaSaati):'')+' · '+esc(x.durum||"")+'</p>'+
- '<table><tr><th>Plaka</th><td>'+esc(x.plaka||"-")+'</td><th>Müşteri</th><td>'+esc(x.cariAdi||"-")+'</td></tr><tr><th>Sigorta</th><td>'+esc(x.sigortaSirketi||x.sigorta||"-")+'</td><th>Poliçe</th><td>'+esc(x.policeNo||"-")+'</td></tr><tr><th>Sigorta Dosya No</th><td>'+esc(x.sigortaDosyaNo||"-")+'</td><th>Eksper</th><td>'+esc([x.eksperFirma,x.eksper].filter(Boolean).join(" / ")||"-")+'</td></tr><tr><th>Olay Tarihi / Saati</th><td>'+esc((x.olayTarihi||"-")+(x.olaySaati?" "+x.olaySaati:""))+'</td><th>Olay Yeri</th><td>'+esc(x.olayYeri||"-")+'</td></tr></table>'+
+ '<table><tr><th>Plaka</th><td>'+esc(x.plaka||"-")+'</td><th>Müşteri</th><td>'+esc(x.cariAdi||"-")+'</td></tr><tr><th>Sigorta</th><td>'+esc(x.sigortaSirketi||x.sigorta||"-")+'</td><th>Poliçe</th><td>'+esc(x.policeNo||"-")+'</td></tr><tr><th>Sigorta Dosya No</th><td>'+esc(x.sigortaDosyaNo||"-")+'</td><th>Eksper</th><td>'+esc([x.eksperFirma,x.eksper].filter(Boolean).join(" / ")||"-")+'</td></tr><tr><th>Olay Tarihi</th><td><b>'+esc(x.olayTarihi||"Girilmedi")+'</b></td><th>Olay Saati</th><td><b>'+esc(x.olaySaati||"Girilmedi")+'</b></td></tr><tr><th>Olay Yeri</th><td colspan="3">'+esc(x.olayYeri||"-")+'</td></tr></table>'+
  '<h4>Hasar Açıklaması</h4><p>'+esc(x.hasarAciklama||"-")+'</p><h4>Eksper / Ön Tespit Notu</h4><p>'+esc(x.eksperNotu||"-")+'</p>'+
  '<h4>Evrak Kontrolü</h4><table><tr><th>Evrak</th><th>Durum</th></tr>'+docs+'</table>'+
  '<h4>Mali / Ekspertiz Özeti</h4><table><tr><th>Servis Ön Tahmin</th><th>Parça</th><th>İşçilik</th><th>Sarf</th></tr><tr><td>'+money(x.servisOnTahmin)+'</td><td>'+money(x.parcaToplam)+'</td><td>'+money(x.iscilikToplam)+'</td><td>'+money(x.sarfToplam)+'</td></tr><tr><th>Parça İskonto</th><th>İşçilik İskonto</th><th>Sovtaj</th><th>KDV</th></tr><tr><td>'+money(x.parcaIskonto)+'</td><td>'+money(x.iscilikIskonto)+'</td><td>'+money(x.sovtaj)+'</td><td>'+money(x.kdvTutar)+'</td></tr><tr><th>Genel Hasar</th><th>Eksper Tespit</th><th>Sigorta Onaylanan</th><th>Müşteri Payı</th></tr><tr><td>'+money(x.genelHasarToplam)+'</td><td>'+money(x.eksperTespitTutar)+'</td><td>'+money(x.sigortaOnaylananTutar)+'</td><td>'+money(x.musteriPayi)+'</td></tr><tr><th>Net Sigorta</th><th>Ödenen</th><th>Kalan Alacak</th><th>Karar</th></tr><tr><td>'+money(x.netSigortaTutar)+'</td><td>'+money(x.sigortaOdenenTutar)+'</td><td>'+money(x.kalanSigortaAlacagi)+'</td><td>'+esc(x.hasarKarari||"-")+'</td></tr></table>'+
