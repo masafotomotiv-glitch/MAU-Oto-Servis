@@ -3,150 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MAU Oto Servis · Yedekleme</title>
+<title>MAU Oto Servis · Tam Yedekleme</title>
 <style>
 *{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
 header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}
 .head{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}
-.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
-.wrap{max-width:980px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}.wrap{max-width:980px;margin:14px auto;padding:0 12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid #e3e9ef;border-radius:9px;padding:11px;background:#f9fbfd}.stat span{display:block;font-size:10px;color:var(--muted)}.stat b{font-size:18px}
 .note{font-size:11px;color:var(--muted);line-height:1.55}.good{background:#eaf8ef;color:#167341;border:1px solid #ccebd6;border-radius:9px;padding:10px;margin-bottom:10px}.warn{background:#fff7e7;color:#8d5f08;border:1px solid #f2ddb1;border-radius:9px;padding:10px;margin-bottom:10px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:0;border-radius:9px;padding:12px 13px;font-weight:900;cursor:pointer}.primary{background:#1478c9;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.red{background:#ffe8eb;color:#a21c2b}
-textarea{width:100%;min-height:170px;border:1px solid #d8e0e8;border-radius:9px;padding:10px;font:11px monospace;resize:vertical}
+textarea{width:100%;min-height:130px;border:1px solid #d8e0e8;border-radius:9px;padding:10px;font:11px monospace;resize:vertical}
 input[type=file]{width:100%;padding:10px;border:1px solid #d8e0e8;border-radius:9px;background:#fff}
-.mode{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.mode label{border:1px solid #dfe5eb;border-radius:9px;padding:9px 10px;font-size:11px}
-.log{margin-top:10px;padding:10px;border:1px solid #dfe5eb;border-radius:9px;background:#f8fafc;font-size:11px;line-height:1.5;min-height:45px}
+.log{margin-top:10px;padding:10px;border:1px solid #dfe5eb;border-radius:9px;background:#f8fafc;font-size:11px;line-height:1.5;min-height:45px;white-space:pre-wrap}
+.progress{height:10px;background:#e9eef4;border-radius:6px;overflow:hidden;margin:10px 0}.progress>div{height:100%;width:0;background:#0b76c5;transition:width .15s}
 @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}}
 </style>
 <script src="lisans.js"></script>
 </head>
 <body>
-<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Yedekleme · APK ↔ Chrome Veri Taşıma</div></div></div></header>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Tam Yedekleme · Kayıtlar + Fotoğraflar + Belgeler</div></div></div></header>
 <div class="wrap">
 
- <div class="card"><div class="cardHead">Mevcut Veri</div><div class="body">
-  <div id="envNote" class="good"></div>
+ <div class="card"><div class="cardHead">Tam Yedek Durumu</div><div class="body">
+  <div class="good"><b>Tam yedek</b> bütün MAU iş kayıtlarını ve Eksper Arşivi'ndeki gerçek fotoğraf / belge dosyalarını tek ZIP içine alır. Lisans anahtarı ve cihaz kimliği özellikle yedeğe dahil edilmez.</div>
   <div class="stats">
-   <div class="stat"><span>MAU Veri Anahtarı</span><b id="sKeys">0</b></div>
+   <div class="stat"><span>Veri Anahtarı</span><b id="sKeys">0</b></div>
    <div class="stat"><span>Yaklaşık Kayıt</span><b id="sRecords">0</b></div>
-   <div class="stat"><span>Veri Boyutu</span><b id="sSize">0 KB</b></div>
-   <div class="stat"><span>Son İşlem</span><b id="sLast">-</b></div>
+   <div class="stat"><span>Arşiv Dosyası</span><b id="sFiles">0</b></div>
+   <div class="stat"><span>Arşiv Boyutu</span><b id="sFileSize">0 KB</b></div>
   </div>
- </div></div>
-
- <div class="card"><div class="cardHead">1. APK'dan / Bu Tarayıcıdan Yedek Al</div><div class="body">
-  <div class="note">Bu yedek yalnız müşteriye ait MAU Oto Servis kayıt verilerini içerir. <b>Lisans kodu, cihaz kimliği ve lisans doğrulama bilgileri yedeğe alınmaz.</b> Müşteriler, araçlar, iş emirleri, faturalar, tahsilatlar, stok, hasar dosyaları, ekspertiz ve sigorta onayları birlikte taşınır.<br><br><b>Eksper Arşivi'ndeki gerçek fotoğraf ve belge dosyaları IndexedDB içinde tutulur ve bu JSON yedeğine dahil değildir.</b> Bu dosyalar için ilgili hasar dosyasından Eksper ZIP Paketi alın.</div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div id="status" class="log">Hazır.</div>
   <div class="actions" style="margin-top:10px">
-   <button class="btn primary" onclick="generateBackup()">Yedek Metnini Oluştur</button>
-   <button class="btn green" onclick="copyBackup()">Yedek Kodunu Kopyala</button>
-   <button class="btn gray" onclick="downloadBackup()">JSON Dosyası İndir</button>
+   <button class="btn primary" onclick="createFullBackup()">TAM YEDEK AL · ZIP</button>
+   <button class="btn gray" onclick="runBackupSelfTest()">Yedek Sistem Testi</button>
   </div>
-  <textarea id="backupText" placeholder="Yedek burada oluşacak..." readonly></textarea>
  </div></div>
 
- <div class="card"><div class="cardHead">2. Chrome'a / Bu Tarayıcıya Geri Yükle</div><div class="body">
-  <div class="warn"><b>APK ile Chrome ayrı depolama kullanır.</b> APK'da yedeği kopyalayıp Chrome'da bu sayfayı açın, aşağıdaki alana yapıştırın ve geri yükleyin.</div>
-  <div class="note">İsterseniz yedek JSON dosyasını da seçebilirsiniz.</div>
-  <input id="backupFile" type="file" accept=".json,application/json" onchange="readBackupFile()">
-  <textarea id="restoreText" placeholder="APK'dan kopyaladığınız yedek kodunu buraya yapıştırın..."></textarea>
-  <div class="mode">
-   <label><input type="radio" name="restoreMode" value="replace" checked> Tam geri yükle — mevcut MAU verilerini temizleyip yedeği yükle</label>
-   <label><input type="radio" name="restoreMode" value="merge"> Birleştir — mevcutları koru, yedektekileri ekle/güncelle</label>
+ <div class="card"><div class="cardHead">Tam Yedeği Geri Yükle</div><div class="body">
+  <div class="warn"><b>Dikkat:</b> Tam geri yükleme mevcut MAU iş verilerini ve Eksper Arşivi dosyalarını silip seçtiğiniz yedekteki haliyle yeniden oluşturur. Lisans bilgilerine dokunulmaz.</div>
+  <input id="fullBackupFile" type="file" accept=".zip,application/zip">
+  <div class="actions" style="margin-top:10px">
+   <button class="btn green" onclick="restoreFullBackup()">TAM YEDEĞİ GERİ YÜKLE</button>
+   <button class="btn gray" onclick="inspectFullBackup()">Yedeği Kontrol Et</button>
   </div>
-  <div class="actions">
-   <button class="btn green" onclick="restoreBackup()">Yedeği Geri Yükle</button>
-   <button class="btn red" onclick="clearMauData()">Bu Tarayıcıdaki MAU Verilerini Temizle</button>
-  </div>
-  <div id="log" class="log">Hazır.</div>
+  <div id="restoreLog" class="log">ZIP dosyası seçilmedi.</div>
  </div></div>
 
- <div class="card"><div class="cardHead">3. Eski Yedeklerden Test Aktarımı</div><div class="body">
-  <div class="warn"><b>Güvenli test modu:</b> Eski Excel / CSV / JSON yedeklerinden cariler, araçlar, faturalar, tahsilatlar ve iş emirleri için yalnızca ilk uygun 1 kayıt aktarılır. Toplu aktarım bu aşamada kapalıdır.</div>
-  <button class="btn primary" style="width:100%" onclick="location.href='YedekAktar.html'">Eski Yedek Test Aktarımını Aç</button>
+ <div class="card"><div class="cardHead">Yalnız Veri JSON Yedeği</div><div class="body">
+  <div class="note">Bu bölüm yalnız müşteri, araç, iş emri, fatura, tahsilat, kasa, stok, personel, hasar ve ayar kayıtlarını taşır. Fotoğraf ve gerçek belge dosyaları için yukarıdaki <b>Tam Yedek ZIP</b> kullanılmalıdır.</div>
+  <div class="actions" style="margin-top:10px">
+   <button class="btn gray" onclick="generateJsonBackup()">JSON Yedeğini Hazırla</button>
+   <button class="btn green" onclick="saveJsonBackup()">JSON Dosyası Kaydet</button>
+  </div>
+  <textarea id="backupText" readonly placeholder="JSON yedeği burada oluşur..."></textarea>
  </div></div>
 
+ <div class="card"><div class="cardHead">Eski Yedeklerden Test Aktarımı</div><div class="body">
+  <div class="note">Eski Excel / CSV / JSON yedeklerinden kontrollü aktarım için mevcut test aktarım ekranı korunmuştur.</div>
+  <button class="btn primary" style="width:100%;margin-top:10px" onclick="location.href='YedekAktar.html'">Eski Yedek Test Aktarımını Aç</button>
+ </div></div>
 </div>
+
 <script>
-const PREFIX="mau_",LICENSE_PREFIX="mau_lisans";
+const PREFIX="mau_",LICENSE_PREFIX="mau_lisans",DB_NAME="mau_oto_files",STORE="eksperFiles",FULL_FORMAT="MAU-FULL-BACKUP-1";
 function isBusinessKey(k){return !!k&&k.startsWith(PREFIX)&&!k.startsWith(LICENSE_PREFIX)&&!k.startsWith("mau_qa_")}
 function mauKeys(){const a=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(isBusinessKey(k))a.push(k)}return a.sort()}
 function parseAny(v){try{return JSON.parse(v)}catch(e){return null}}
-function sizeText(bytes){if(bytes<1024)return bytes+" B";return (bytes/1024).toLocaleString("tr-TR",{maximumFractionDigits:1})+" KB"}
-function backupObject(){
- const data={};mauKeys().forEach(k=>data[k]=localStorage.getItem(k));
- return {app:"MAU Oto Servis",format:"MAU-BACKUP-1",version:1,exportedAt:new Date().toISOString(),data};
-}
-function recordCount(){
- let n=0;mauKeys().forEach(k=>{const v=parseAny(localStorage.getItem(k));if(Array.isArray(v))n+=v.length;else if(v&&typeof v==="object")n+=1});return n
-}
-function refreshStats(){
- const keys=mauKeys(),raw=JSON.stringify(backupObject());
- document.getElementById("sKeys").textContent=keys.length;
+function sizeText(n){n=Number(n||0);if(n<1024)return n+" B";if(n<1024*1024)return (n/1024).toLocaleString("tr-TR",{maximumFractionDigits:1})+" KB";return (n/1024/1024).toLocaleString("tr-TR",{maximumFractionDigits:2})+" MB"}
+function safeName(v){return String(v||"dosya").replace(/[\\/:*?"<>|]+/g,"_").replace(/\s+/g," ").trim()}
+function recordCount(){let n=0;mauKeys().forEach(k=>{const v=parseAny(localStorage.getItem(k));if(Array.isArray(v))n+=v.length;else if(v&&typeof v==="object")n+=1});return n}
+function businessData(){const data={};mauKeys().forEach(k=>data[k]=localStorage.getItem(k));return data}
+function setProgress(n,msg){document.getElementById("progressBar").style.width=Math.max(0,Math.min(100,n))+"%";if(msg)document.getElementById("status").textContent=msg}
+
+function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:"id"})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function dbAll(){const db=await openDb();return new Promise((res,rej)=>{const out=[],tx=db.transaction(STORE,"readonly"),req=tx.objectStore(STORE).openCursor();req.onsuccess=()=>{const c=req.result;if(c){out.push(c.value);c.continue()}else{db.close();res(out)}};req.onerror=()=>{db.close();rej(req.error)}})}
+async function dbPut(rec){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).put(rec);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+async function dbClear(){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).clear();tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+
+async function refreshStats(){
+ const files=await dbAll().catch(()=>[]);
+ document.getElementById("sKeys").textContent=mauKeys().length;
  document.getElementById("sRecords").textContent=recordCount();
- document.getElementById("sSize").textContent=sizeText(new Blob([raw]).size);
- document.getElementById("envNote").innerHTML='<b>Bu ekranın kendi veri alanı:</b> '+location.origin+'<br>APK WebView ve Chrome aynı adresi açsa bile verileri ayrı tutabilir.';
+ document.getElementById("sFiles").textContent=files.length;
+ document.getElementById("sFileSize").textContent=sizeText(files.reduce((s,x)=>s+Number(x.blob&&x.blob.size||0),0));
 }
-function generateBackup(){
- const raw=JSON.stringify(backupObject());
- document.getElementById("backupText").value=raw;
- document.getElementById("sLast").textContent="Yedek";
- document.getElementById("log").textContent=mauKeys().length+" veri anahtarı yedeğe hazırlandı.";
- return raw;
-}
-async function copyBackup(){
- const raw=generateBackup();
- let ok=false;
- try{await navigator.clipboard.writeText(raw);ok=true}catch(e){}
- if(!ok){const ta=document.getElementById("backupText");ta.removeAttribute("readonly");ta.select();ta.setSelectionRange(0,ta.value.length);try{ok=document.execCommand("copy")}catch(e){}ta.setAttribute("readonly","readonly")}
- document.getElementById("log").textContent=ok?"Yedek kodu panoya kopyalandı. Şimdi Chrome'da bu sayfayı açıp Geri Yükle alanına yapıştırın.":"Otomatik kopyalama olmadı. Yedek metnini seçip manuel kopyalayın.";
-}
-function downloadBackup(){
- const raw=generateBackup(),blob=new Blob([raw],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
- const d=new Date(),p=n=>String(n).padStart(2,"0");a.href=url;a.download="MAU-Oto-Servis-Yedek-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+".json";
- document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
- document.getElementById("log").textContent="JSON yedek dosyası indirme işlemi başlatıldı.";
-}
-function readBackupFile(){
- const f=document.getElementById("backupFile").files[0];if(!f)return;
- const r=new FileReader();r.onload=()=>{document.getElementById("restoreText").value=String(r.result||"");document.getElementById("log").textContent=f.name+" okundu. Geri Yükle butonuna basabilirsiniz."};r.onerror=()=>document.getElementById("log").textContent="Dosya okunamadı.";r.readAsText(f,"utf-8")
-}
-function itemToken(x){
- if(x==null)return "";
- if(typeof x!=="object")return String(x);
- return String(x.id??x.uuid??x.code??x.plaka??x.dosyaNo??x.isEmriNo??x.faturaNo??x.makbuzNo??JSON.stringify(x));
-}
-function mergeValues(oldRaw,newRaw){
- const oldV=parseAny(oldRaw),newV=parseAny(newRaw);
- if(Array.isArray(oldV)&&Array.isArray(newV)){
-  const map=new Map();oldV.forEach(x=>map.set(itemToken(x),x));newV.forEach(x=>map.set(itemToken(x),x));return JSON.stringify(Array.from(map.values()))
+
+function crcTable(){const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t}
+const CRC_TABLE=crcTable();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=CRC_TABLE[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0}
+function dosTime(d){return ((d.getHours()&31)<<11)|((d.getMinutes()&63)<<5)|((Math.floor(d.getSeconds()/2))&31)}
+function dosDate(d){return (((d.getFullYear()-1980)&127)<<9)|(((d.getMonth()+1)&15)<<5)|(d.getDate()&31)}
+function u16(v){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,v,true);return b}
+function u32(v){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,v>>>0,true);return b}
+function concat(parts){const n=parts.reduce((s,p)=>s+p.length,0),o=new Uint8Array(n);let at=0;parts.forEach(p=>{o.set(p,at);at+=p.length});return o}
+async function makeZip(entries,onProgress){
+ const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;const now=new Date(),tm=dosTime(now),dt=dosDate(now);
+ for(let idx=0;idx<entries.length;idx++){
+  const e=entries[idx],name=enc.encode(e.name),data=new Uint8Array(await e.blob.arrayBuffer()),crc=crc32(data);
+  const local=concat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(tm),u16(dt),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+  locals.push(local);
+  centrals.push(concat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(tm),u16(dt),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]));
+  offset+=local.length;if(onProgress)onProgress(idx+1,entries.length)
  }
- if(oldV&&typeof oldV==="object"&&newV&&typeof newV==="object"&&!Array.isArray(oldV)&&!Array.isArray(newV))return JSON.stringify({...oldV,...newV});
- return newRaw;
+ const centralData=concat(centrals),localData=concat(locals),end=concat([u32(0x06054b50),u16(0),u16(0),u16(entries.length),u16(entries.length),u32(centralData.length),u32(localData.length),u16(0)]);
+ return new Blob([localData,centralData,end],{type:"application/zip"})
 }
-function restoreBackup(){
- const raw=document.getElementById("restoreText").value.trim();if(!raw){alert("Yedek metnini yapıştırın veya JSON dosyası seçin.");return}
- let obj;try{obj=JSON.parse(raw)}catch(e){alert("Yedek metni geçerli JSON değil.");return}
- if(!obj||obj.format!=="MAU-BACKUP-1"||!obj.data||typeof obj.data!=="object"){alert("Bu dosya geçerli MAU Oto Servis yedeği değil.");return}
- const entries=Object.entries(obj.data).filter(([k])=>isBusinessKey(k));
- const mode=document.querySelector('input[name="restoreMode"]:checked').value;
- if(mode==="replace"){
-  if(!confirm("Bu tarayıcıdaki mevcut MAU verileri silinip yedek tamamen yüklenecek. Devam edilsin mi?"))return;
+async function readStoredZip(file){
+ const bytes=new Uint8Array(await file.arrayBuffer()),dv=new DataView(bytes.buffer),dec=new TextDecoder("utf-8"),map=new Map();let p=0;
+ while(p+30<=bytes.length){
+  const sig=dv.getUint32(p,true);if(sig===0x02014b50||sig===0x06054b50)break;if(sig!==0x04034b50)throw new Error("ZIP yapısı tanınmadı.");
+  const method=dv.getUint16(p+8,true),size=dv.getUint32(p+18,true),nameLen=dv.getUint16(p+26,true),extraLen=dv.getUint16(p+28,true);
+  if(method!==0)throw new Error("Bu yedek sıkıştırma türü desteklenmiyor.");
+  const nameStart=p+30,name=dec.decode(bytes.slice(nameStart,nameStart+nameLen)),dataStart=nameStart+nameLen+extraLen,dataEnd=dataStart+size;
+  if(dataEnd>bytes.length)throw new Error("ZIP dosyası eksik veya bozuk.");
+  map.set(name,bytes.slice(dataStart,dataEnd));p=dataEnd
+ }
+ return map
+}
+function jsonFromBytes(bytes){return JSON.parse(new TextDecoder("utf-8").decode(bytes))}
+function bytesToBase64(bytes){let out="";const step=0x8000;for(let i=0;i<bytes.length;i+=step){const sub=bytes.subarray(i,Math.min(i+step,bytes.length));let s="";for(let j=0;j<sub.length;j++)s+=String.fromCharCode(sub[j]);out+=btoa(s)}return out}
+
+async function saveBlob(blob,fileName,mime){
+ if(window.MAUAndroid&&typeof window.MAUAndroid.beginBinarySave==="function"&&typeof window.MAUAndroid.appendBinaryChunk==="function"&&typeof window.MAUAndroid.finishBinarySave==="function"){
+  const bytes=new Uint8Array(await blob.arrayBuffer()),chunk=196608;
+  window.MAUAndroid.beginBinarySave(fileName,mime||"application/octet-stream");
+  for(let i=0;i<bytes.length;i+=chunk){
+   window.MAUAndroid.appendBinaryChunk(bytesToBase64(bytes.subarray(i,Math.min(i+chunk,bytes.length))));
+   setProgress(82+Math.round((i/Math.max(1,bytes.length))*15),"Dosya Android kayıt alanına hazırlanıyor...");
+   await new Promise(r=>setTimeout(r,0))
+  }
+  window.MAUAndroid.finishBinarySave();return
+ }
+ const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)
+}
+
+async function createFullBackup(){
+ try{
+  setProgress(2,"Tam yedek hazırlanıyor...");
+  const data=businessData(),files=await dbAll(),meta=parseAny(localStorage.getItem("mau_eksper_arsiv_meta")||"[]")||[],metaMap={};
+  if(Array.isArray(meta))meta.forEach(x=>metaMap[String(x.id)]=x);
+  const manifestFiles=[],entries=[];
+  for(let i=0;i<files.length;i++){
+   const r=files[i],m=metaMap[String(r.id)]||{},name=safeName(m.fileName||r.id||("dosya-"+i)),path="files/"+safeName(r.id||("F"+i))+"__"+name;
+   manifestFiles.push({id:String(r.id||""),fileName:name,mime:m.mime||(r.blob&&r.blob.type)||"application/octet-stream",size:Number(r.blob&&r.blob.size||0),zipPath:path});
+   entries.push({name:path,blob:r.blob});
+  }
+  const manifest={app:"MAU Oto Servis",format:FULL_FORMAT,version:1,appVersion:(window.MAULicense&&MAULicense.version)||"2026.10",exportedAt:new Date().toISOString(),keyCount:Object.keys(data).length,recordCount:recordCount(),fileCount:manifestFiles.length,fileBytes:manifestFiles.reduce((s,x)=>s+x.size,0),files:manifestFiles};
+  entries.unshift({name:"01_veriler.json",blob:new Blob([JSON.stringify({format:FULL_FORMAT,data},null,2)],{type:"application/json;charset=utf-8"})});
+  entries.unshift({name:"00_manifest.json",blob:new Blob([JSON.stringify(manifest,null,2)],{type:"application/json;charset=utf-8"})});
+  const zip=await makeZip(entries,(done,total)=>setProgress(10+Math.round(done/Math.max(1,total)*70),"ZIP hazırlanıyor: "+done+"/"+total));
+  const d=new Date(),p=n=>String(n).padStart(2,"0"),name="MAU-Tam-Yedek-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+".zip";
+  setProgress(82,"Tam yedek hazır. Kaydetme ekranı açılıyor...");
+  await saveBlob(zip,name,"application/zip");
+  setProgress(100,"Tam yedek hazırlandı. "+manifest.keyCount+" veri anahtarı · "+manifest.recordCount+" kayıt · "+manifest.fileCount+" gerçek dosya · "+sizeText(zip.size));
+ }catch(e){setProgress(0,"HATA: "+(e.message||e));alert("Tam yedek hazırlanamadı: "+(e.message||e))}
+}
+
+async function inspectBackupFile(file){
+ if(!file)throw new Error("Önce bir ZIP yedeği seçin.");
+ const map=await readStoredZip(file);if(!map.has("00_manifest.json")||!map.has("01_veriler.json"))throw new Error("Bu dosya MAU tam yedeği değil.");
+ const manifest=jsonFromBytes(map.get("00_manifest.json")),payload=jsonFromBytes(map.get("01_veriler.json"));
+ if(manifest.format!==FULL_FORMAT||payload.format!==FULL_FORMAT)throw new Error("Yedek sürümü tanınmadı.");
+ const missing=(manifest.files||[]).filter(x=>!map.has(x.zipPath));
+ if(missing.length)throw new Error(missing.length+" arşiv dosyası ZIP içinde eksik.");
+ return {map,manifest,payload}
+}
+async function inspectFullBackup(){
+ try{
+  const file=document.getElementById("fullBackupFile").files[0],r=await inspectBackupFile(file);
+  document.getElementById("restoreLog").textContent="YEDEK SAĞLAM\nTarih: "+r.manifest.exportedAt+"\nVeri anahtarı: "+r.manifest.keyCount+"\nYaklaşık kayıt: "+r.manifest.recordCount+"\nGerçek dosya: "+r.manifest.fileCount+"\nDosya boyutu: "+sizeText(r.manifest.fileBytes);
+ }catch(e){document.getElementById("restoreLog").textContent="HATA: "+(e.message||e)}
+}
+async function restoreFullBackup(){
+ try{
+  const file=document.getElementById("fullBackupFile").files[0],r=await inspectBackupFile(file);
+  if(!confirm("Mevcut MAU iş verileri ve Eksper Arşivi dosyaları silinip bu tam yedek geri yüklenecek. Lisans bilgileri korunacak. Devam edilsin mi?"))return;
+  const data=r.payload.data||{};
   mauKeys().forEach(k=>localStorage.removeItem(k));
-  entries.forEach(([k,v])=>localStorage.setItem(k,String(v)));
- }else{
-  if(!confirm("Yedek mevcut verilerle birleştirilecek. Devam edilsin mi?"))return;
-  entries.forEach(([k,v])=>{const old=localStorage.getItem(k);localStorage.setItem(k,old==null?String(v):mergeValues(old,String(v)))});
- }
- localStorage.setItem("mau_yedek_son_geri_yukleme",new Date().toISOString());
- refreshStats();document.getElementById("sLast").textContent="Geri Yükleme";
- document.getElementById("log").innerHTML='<b>'+entries.length+' veri anahtarı geri yüklendi.</b><br>Ana menüye dönüp müşteri, araç, iş emri ve hasar kayıtlarını kontrol edin.';
- alert("MAU verileri geri yüklendi.");
+  Object.entries(data).forEach(([k,v])=>{if(isBusinessKey(k))localStorage.setItem(k,String(v))});
+  await dbClear();
+  let restoredFiles=0,restoredBytes=0;
+  for(const m of r.manifest.files||[]){
+   const bytes=r.map.get(m.zipPath);if(!bytes)continue;
+   await dbPut({id:m.id,blob:new Blob([bytes],{type:m.mime||"application/octet-stream"})});restoredFiles++;restoredBytes+=bytes.length
+  }
+  localStorage.setItem("mau_yedek_son_geri_yukleme",new Date().toISOString());
+  const nowFiles=await dbAll(),expectedKeys=Object.keys(data).filter(isBusinessKey).length,actualKeys=mauKeys().filter(k=>k!=="mau_yedek_son_geri_yukleme"||data[k]!=null).length;
+  const ok=restoredFiles===Number(r.manifest.fileCount||0)&&nowFiles.length===restoredFiles&&actualKeys>=expectedKeys;
+  document.getElementById("restoreLog").textContent=(ok?"GERİ YÜKLEME DOĞRULANDI":"GERİ YÜKLEME TAMAMLANDI, KONTROL GEREKİYOR")+"\nVeri anahtarı: "+actualKeys+" / "+expectedKeys+"\nGerçek dosya: "+nowFiles.length+" / "+r.manifest.fileCount+"\nDosya boyutu: "+sizeText(restoredBytes);
+  await refreshStats();alert(ok?"Tam yedek başarıyla geri yüklendi ve doğrulandı.":"Geri yükleme tamamlandı; sonuç ekranını kontrol edin.")
+ }catch(e){document.getElementById("restoreLog").textContent="HATA: "+(e.message||e);alert("Tam yedek geri yüklenemedi: "+(e.message||e))}
 }
-function clearMauData(){
- if(!confirm("Bu tarayıcıdaki bütün MAU Oto Servis verileri silinsin mi? Bu işlem geri alınamaz."))return;
- mauKeys().forEach(k=>localStorage.removeItem(k));refreshStats();document.getElementById("log").textContent="Bu tarayıcıdaki MAU verileri temizlendi.";
+
+function generateJsonBackup(){
+ const obj={app:"MAU Oto Servis",format:"MAU-BACKUP-2",version:2,exportedAt:new Date().toISOString(),data:businessData()};
+ const raw=JSON.stringify(obj);document.getElementById("backupText").value=raw;return raw
+}
+async function saveJsonBackup(){
+ try{const raw=generateJsonBackup(),d=new Date(),p=n=>String(n).padStart(2,"0"),name="MAU-Veri-Yedek-"+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes())+".json";await saveBlob(new Blob([raw],{type:"application/json;charset=utf-8"}),name,"application/json")}catch(e){alert("JSON yedeği kaydedilemedi: "+(e.message||e))}
+}
+
+async function runBackupSelfTest(){
+ const testKey="mau_qa_backup_selftest_"+Date.now(),testId="BACKUP-SELFTEST-"+Date.now(),old=localStorage.getItem(testKey);
+ try{
+  setProgress(5,"Yedek sistem testi çalışıyor...");
+  localStorage.setItem(testKey,JSON.stringify([{id:1,value:"MAU TEST"}]));
+  const testBlob=new Blob(["MAU TAM YEDEK DOSYA TEST"],{type:"text/plain;charset=utf-8"});await dbPut({id:testId,blob:testBlob});
+  const data={};data[testKey]=localStorage.getItem(testKey);
+  const manifest={app:"MAU Oto Servis",format:FULL_FORMAT,version:1,keyCount:1,recordCount:1,fileCount:1,fileBytes:testBlob.size,files:[{id:testId,fileName:"test.txt",mime:"text/plain",size:testBlob.size,zipPath:"files/test.txt"}]};
+  const zip=await makeZip([{name:"00_manifest.json",blob:new Blob([JSON.stringify(manifest)])},{name:"01_veriler.json",blob:new Blob([JSON.stringify({format:FULL_FORMAT,data})])},{name:"files/test.txt",blob:testBlob}]);
+  const fake=new File([zip],"selftest.zip",{type:"application/zip"}),r=await inspectBackupFile(fake),txt=new TextDecoder().decode(r.map.get("files/test.txt"));
+  if(txt!=="MAU TAM YEDEK DOSYA TEST"||r.payload.data[testKey]!==localStorage.getItem(testKey))throw new Error("ZIP içeriği doğrulanamadı.");
+  const got=await dbAll();if(!got.some(x=>String(x.id)===testId))throw new Error("IndexedDB dosyası geri okunamadı.");
+  setProgress(100,"TEST BAŞARILI · Veri okuma/yazma · gerçek dosya arşivi · ZIP oluşturma · ZIP açma doğrulandı.");
+ }catch(e){setProgress(0,"TEST HATASI: "+(e.message||e))}
+ finally{if(old==null)localStorage.removeItem(testKey);else localStorage.setItem(testKey,old);try{const db=await openDb();await new Promise((res,rej)=>{const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).delete(testId);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}catch(e){}await refreshStats()}
 }
 refreshStats();
 </script>
