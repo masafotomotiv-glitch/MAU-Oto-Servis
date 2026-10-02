@@ -14,7 +14,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e0e9;border-radius:8px;padding:10px;background:#fff}.field textarea{min-height:72px}
 .note{font-size:10px;color:var(--muted);line-height:1.55}.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.box{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.box span{display:block;font-size:10px;color:var(--muted)}.box b{font-size:14px}
 .actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px;font-weight:900}.save{background:#0b76c5;color:#fff}.green{background:#11834f;color:#fff}.gray{background:#eef2f6;color:#405168}
-.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.quick button{border:1px solid #dce4eb;background:#f8fafc;border-radius:9px;padding:12px;font-weight:800;color:#29435f}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quick button{border:1px solid #dce4eb;background:#f8fafc;border-radius:9px;padding:12px;font-weight:800;color:#29435f}
 .logoPreview{display:flex;align-items:center;gap:12px;border:1px dashed #cbd6e2;border-radius:10px;padding:12px;background:#fbfdff}.logoMark{font-size:26px;font-weight:900;color:#0b6db8}.logoImage{max-width:180px;max-height:72px;object-fit:contain;display:none}.logoUploadBox{border:1px solid #dfe6ee;border-radius:10px;padding:12px;background:#f9fbfd}.logoUploadActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 @media(max-width:720px){.grid,.status,.quick,.actions{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
@@ -69,13 +69,14 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 
  <div class="card"><div class="cardHead">Veri & Sistem</div><div class="body">
   <div class="status">
-   <div class="box"><span>Veri Çalışma Modu</span><b>Yerel Cihaz</b></div>
-   <div class="box"><span>Ortak Veri Kaynağı</span><b>Planlandı</b></div>
-   <div class="box"><span>Yedekleme</span><b>Aktif</b></div>
+   <div class="box"><span>Servis Verileri</span><b>Yerel Cihaz</b></div>
+   <div class="box"><span>Lisans</span><b id="licenseStatus">-</b></div>
+   <div class="box"><span>Yedekleme</span><b>Cihaza / Dosyaya</b></div>
   </div>
-  <div class="note" style="margin:10px 0">Şu anda APK ve Chrome ayrı yerel veri alanı kullanır. Ortak veritabanına geçiş daha sonra yapılacak; bu ayar ekranı o geçişe hazır tutulmuştur.</div>
+  <div class="note" style="margin:10px 0"><b>Gizlilik modeli:</b> müşteri, araç, iş emri, cari, fatura, fotoğraf ve hasar verileri bu cihazda saklanır. Lisans kontrolüne işletme verisi gönderilmez; yalnız lisans kodu, uygulama sürümü ve cihaz kimliği kullanılır.</div>
   <div class="quick">
    <button onclick="location.href='Yedekleme.html'">Yedekleme / Geri Yükleme</button>
+   <button onclick="location.href='Lisans.html'">Lisans / Abonelik</button>
    <button onclick="location.href='CariKasa.html'">Kasa / Banka Hesapları</button>
    <button onclick="location.href='Personel.html'">Personel / Yetkiler</button>
   </div>
@@ -129,6 +130,7 @@ function saveSettings(){
  alert("Ayarlar kaydedildi.")
 }
 loadSettings();
+if(window.MAULicense&&document.getElementById("licenseStatus"))document.getElementById("licenseStatus").textContent=MAULicense.statusText();
 </script>
 </body>
 </html>
