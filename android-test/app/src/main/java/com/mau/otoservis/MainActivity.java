@@ -9,6 +9,7 @@ import android.content.Context;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
+import android.util.Base64;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -26,6 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +40,7 @@ public class MainActivity extends Activity {
     private static final int PICK_RUHSAT_IMAGE = 4021;
     private static final int CREATE_CSV_FILE = 4022;
     private static final int CREATE_XLSX_FILE = 4023;
+    private static final int CREATE_BINARY_FILE = 4024;
 
     private WebView webView;
     private TextRecognizer textRecognizer;
@@ -43,6 +48,10 @@ public class MainActivity extends Activity {
     private String pendingCsvName = "MAU-Rapor.csv";
     private String pendingXlsxRows = "[]";
     private String pendingXlsxName = "MAU-Rapor.xlsx";
+    private File pendingBinaryFile;
+    private FileOutputStream pendingBinaryStream;
+    private String pendingBinaryName = "MAU-Dosya.bin";
+    private String pendingBinaryMime = "application/octet-stream";
 
     private static final String START_URL =
             "https://masafotomotiv-glitch.github.io/MAU-Oto-Servis/";
@@ -129,6 +138,21 @@ public class MainActivity extends Activity {
         public void saveXlsx(String fileName, String rowsJson) {
             runOnUiThread(() -> saveXlsxFile(fileName, rowsJson));
         }
+
+        @JavascriptInterface
+        public void beginBinarySave(String fileName, String mimeType) {
+            beginBinarySaveInternal(fileName, mimeType);
+        }
+
+        @JavascriptInterface
+        public void appendBinaryChunk(String base64Chunk) {
+            appendBinaryChunkInternal(base64Chunk);
+        }
+
+        @JavascriptInterface
+        public void finishBinarySave() {
+            finishBinarySaveInternal();
+        }
     }
 
     private void shareCurrentText(String text) {
@@ -174,6 +198,76 @@ public class MainActivity extends Activity {
         startActivityForResult(intent, CREATE_XLSX_FILE);
     }
 
+    private synchronized void beginBinarySaveInternal(String fileName, String mimeType) {
+        try {
+            if (pendingBinaryStream != null) {
+                pendingBinaryStream.close();
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            File dir = new File(getCacheDir(), "exports");
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new IOException("Geçici yedek klasörü oluşturulamadı.");
+            }
+            String safe = fileName == null || fileName.trim().isEmpty() ? "MAU-Dosya.bin" : fileName.trim();
+            safe = safe.replaceAll("[\\\\/:*?\"<>|]+", "_");
+            pendingBinaryName = safe;
+            pendingBinaryMime = mimeType == null || mimeType.trim().isEmpty() ? "application/octet-stream" : mimeType.trim();
+            pendingBinaryFile = new File(dir, "pending-" + System.currentTimeMillis() + "-" + safe);
+            pendingBinaryStream = new FileOutputStream(pendingBinaryFile);
+        } catch (Exception e) {
+            pendingBinaryStream = null;
+            pendingBinaryFile = null;
+            runOnUiThread(() -> Toast.makeText(this,
+                    "Dosya hazırlama başlatılamadı: " + (e.getMessage() == null ? "hata" : e.getMessage()),
+                    Toast.LENGTH_LONG).show());
+        }
+    }
+
+    private synchronized void appendBinaryChunkInternal(String base64Chunk) {
+        if (pendingBinaryStream == null) {
+            return;
+        }
+        try {
+            byte[] bytes = Base64.decode(base64Chunk == null ? "" : base64Chunk, Base64.DEFAULT);
+            pendingBinaryStream.write(bytes);
+        } catch (Exception e) {
+            try { pendingBinaryStream.close(); } catch (Exception ignored) {}
+            pendingBinaryStream = null;
+            runOnUiThread(() -> Toast.makeText(this,
+                    "Dosya hazırlanırken hata oluştu: " + (e.getMessage() == null ? "hata" : e.getMessage()),
+                    Toast.LENGTH_LONG).show());
+        }
+    }
+
+    private synchronized void finishBinarySaveInternal() {
+        try {
+            if (pendingBinaryStream != null) {
+                pendingBinaryStream.flush();
+                pendingBinaryStream.close();
+            }
+        } catch (Exception e) {
+            pendingBinaryStream = null;
+            runOnUiThread(() -> Toast.makeText(this,
+                    "Dosya tamamlanamadı: " + (e.getMessage() == null ? "hata" : e.getMessage()),
+                    Toast.LENGTH_LONG).show());
+            return;
+        }
+        pendingBinaryStream = null;
+        if (pendingBinaryFile == null || !pendingBinaryFile.exists()) {
+            runOnUiThread(() -> Toast.makeText(this, "Kaydedilecek dosya hazırlanamadı.", Toast.LENGTH_LONG).show());
+            return;
+        }
+        runOnUiThread(() -> {
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType(pendingBinaryMime);
+            intent.putExtra(Intent.EXTRA_TITLE, pendingBinaryName);
+            startActivityForResult(intent, CREATE_BINARY_FILE);
+        });
+    }
+
     private void printCurrentPage() {
         if (webView == null) {
             return;
@@ -213,6 +307,31 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CREATE_BINARY_FILE) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null && pendingBinaryFile != null) {
+                try (FileInputStream in = new FileInputStream(pendingBinaryFile);
+                     OutputStream out = getContentResolver().openOutputStream(data.getData())) {
+                    if (out == null) throw new IOException("Hedef dosya açılamadı.");
+                    byte[] buffer = new byte[65536];
+                    int read;
+                    while ((read = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, read);
+                    }
+                    out.flush();
+                    Toast.makeText(this, "Dosya kaydedildi.", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(this,
+                            "Dosya kaydedilemedi: " + (e.getMessage() == null ? "dosya hatası" : e.getMessage()),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+            if (pendingBinaryFile != null) {
+                try { pendingBinaryFile.delete(); } catch (Exception ignored) {}
+            }
+            pendingBinaryFile = null;
+            return;
+        }
 
         if (requestCode == CREATE_XLSX_FILE) {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
