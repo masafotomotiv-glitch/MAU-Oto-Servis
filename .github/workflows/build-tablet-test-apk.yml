@@ -6,6 +6,10 @@ on:
     paths:
       - "android-test/**"
       - ".github/workflows/build-tablet-test-apk.yml"
+  pull_request:
+    paths:
+      - "android-test/**"
+      - ".github/workflows/build-tablet-test-apk.yml"
 
 jobs:
   build:
