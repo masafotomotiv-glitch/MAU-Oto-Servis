@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Eski Yedek Test Aktarımı</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}.title{font-size:21px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:980px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.good,.warn,.info{border-radius:9px;padding:10px;margin-bottom:10px;font-size:11px;line-height:1.55}.good{background:#eaf8ef;color:#167341;border:1px solid #ccebd6}.warn{background:#fff7e7;color:#8d5f08;border:1px solid #f2ddb1}.info{background:#eef7ff;color:#155c91;border:1px solid #cae4f8}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:10px;font-weight:800;color:#64748b;margin-bottom:5px}.field select,.field input{width:100%;padding:11px;border:1px solid #d8e0e8;border-radius:9px;background:#fff}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px 13px;font-weight:900;cursor:pointer}.primary{background:#1478c9;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.stat span{display:block;font-size:10px;color:var(--muted)}.stat b{font-size:17px}
+.tableWrap{overflow:auto;border:1px solid #e3e9ef;border-radius:9px;margin-top:10px}table{border-collapse:collapse;width:100%;min-width:720px;font-size:10px}th,td{border-bottom:1px solid #edf1f5;padding:8px;text-align:left;vertical-align:top}th{background:#f6f9fc;position:sticky;top:0}.log{white-space:pre-wrap;margin-top:10px;padding:10px;border:1px solid #dfe5eb;border-radius:9px;background:#f8fafc;font-size:11px;line-height:1.5;min-height:50px}
+@media(max-width:700px){.grid,.actions{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+<script src="lisans.js"></script>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='Yedekleme.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Eski Yedek Test Aktarımı · Güvenli Tek Kayıt Modu</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="cardHead">Test Kuralı</div><div class="body">
+  <div class="warn"><b>Toplu aktarım kapalıdır.</b> Bu ekranda seçilen dosyadan yalnızca <b>ilk uygun 1 kayıt</b> sisteme alınır. Önce her yedek türünü birer kayıtla test edeceğiz.</div>
+  <div class="info">Dosya destekleri: <b>.xlsx, .csv, .json</b>. Excel dosyası cihaz üzerinde okunur; harici sunucuya gönderilmez.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">1. Yedek Türünü ve Dosyayı Seç</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Yedek Türü</label><select id="kind" onchange="resetPreview()">
+    <option value="cariler">Cariler / Müşteriler</option>
+    <option value="araclar">Araçlar</option>
+    <option value="faturalar">Faturalar</option>
+    <option value="tahsilatlar">Tahsilatlar</option>
+    <option value="isemirleri">İş Emirleri</option>
+   </select></div>
+   <div class="field"><label>Dosya</label><input id="file" type="file" accept=".xlsx,.csv,.json,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="readSelectedFile()"></div>
+  </div>
+  <div class="actions"><button class="btn gray" onclick="resetPreview()">Seçimi Temizle</button><button id="importBtn" class="btn green" onclick="importOne()" disabled>✓ Sadece 1 Kaydı Test İçin Aktar</button></div>
+  <div id="log" class="log">Dosya seçilmedi.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. Önizleme</div><div class="body">
+  <div class="stats">
+   <div class="stat"><span>Dosyadaki Satır</span><b id="rowCount">0</b></div>
+   <div class="stat"><span>Uygun Kayıt</span><b id="validCount">0</b></div>
+   <div class="stat"><span>Testte Yazılacak</span><b id="testCount">0</b></div>
+   <div class="stat"><span>Hedef</span><b id="targetKey">-</b></div>
+  </div>
+  <div class="tableWrap"><table><thead id="previewHead"></thead><tbody id="previewBody"><tr><td>Önizleme yok.</td></tr></tbody></table></div>
+ </div></div>
+</div>
+<script>
+const TARGETS={
+ cariler:{key:"mau_cariler",title:"Cariler"},
+ araclar:{key:"mau_araclar",title:"Araçlar"},
+ faturalar:{key:"mau_faturalar",title:"Faturalar"},
+ tahsilatlar:{key:"mau_tahsilatlar",title:"Tahsilatlar"},
+ isemirleri:{key:"mau_is_emirleri",title:"İş Emirleri"}
+};
+let parsedRows=[],normalizedRows=[],activeFileName="";
+
+function log(t){document.getElementById("log").textContent=t}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fold(s){return String(s==null?"":s).toLocaleLowerCase("tr-TR").replace(/ı/g,"i").replace(/ğ/g,"g").replace(/ü/g,"u").replace(/ş/g,"s").replace(/ö/g,"o").replace(/ç/g,"c").replace(/[^a-z0-9]/g,"")}
+function pickByAliases(row,aliases){
+ const map={};Object.keys(row||{}).forEach(function(k){map[fold(k)]=row[k]});
+ for(let i=0;i<aliases.length;i++){const v=map[fold(aliases[i])];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}
+ return "";
+}
+function num(v){if(typeof v==="number")return isFinite(v)?v:0;let s=String(v==null?"":v).trim().replace(/s/g,"").replace(/₺|TL|TRY/gi,"");if(s.indexOf(",")>=0&&s.indexOf(".")>=0)s=s.replace(/./g,"").replace(",",".");else if(s.indexOf(",")>=0)s=s.replace(",",".");const n=Number(s);return isFinite(n)?n:0}
+function excelDate(v){if(typeof v==="number"&&v>20000&&v<80000){const d=new Date(Math.round((v-25569)*86400*1000));return d.toISOString().slice(0,10)}const s=String(v||"").trim();const m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);if(m){let y=m[3];if(y.length===2)y="20"+y;return y+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0")}return s}
+function loadArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveArray(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function nextId(){return Date.now()+Math.floor(Math.random()*1000)}
+function findCari(code,name,tel,vn){
+ const cs=loadArray("mau_cariler"),fc=fold(code),fn=fold(name),ft=fold(tel),fv=fold(vn);
+ return cs.find(function(c){return(fc&&fold(c.code)===fc)||(fv&&fold(c.vn||c.tc)===fv)||(ft&&fold(c.tel)===ft)||(fn&&fold(c.name)===fn)})
+}
+function ensureCari(code,name,tel,vn){
+ let c=findCari(code,name,tel,vn);if(c)return c;
+ if(!String(name||code||tel||vn).trim())return null;
+ const cs=loadArray("mau_cariler");c={id:nextId(),code:String(code||("CAR-"+String(Date.now()).slice(-7))).trim(),name:String(name||code||"Aktarılan Cari").trim(),type:"Bireysel",roles:["Müşteri"],tel:String(tel||"").trim(),vn:String(vn||"").trim(),active:true,notlar:"Eski yedekten test aktarımı ile oluşturuldu",created:new Date().toISOString()};cs.unshift(c);saveArray("mau_cariler",cs);return c
+}
+function normalizeRow(row,kind){
+ if(kind==="cariler"){
+  const name=pickByAliases(row,["cari adi","cari ad","unvan","ünvan","ad soyad","adi soyadi","müşteri","musteri","firma","name"]);
+  const code=pickByAliases(row,["cari kodu","cari kod","kod","hesap kodu","code"]);
+  const tel=pickByAliases(row,["telefon","tel","gsm","cep telefonu","phone"]);
+  const vn=pickByAliases(row,["vergi no","vergi numarası","vergi numarasi","tc","t.c.","tckn","vkn"]);
+  if(!String(name||code||tel||vn).trim())return null;
+  return{id:nextId(),code:String(code||("CAR-"+String(Date.now()).slice(-7))).trim(),name:String(name||code||"Aktarılan Cari").trim(),type:String(pickByAliases(row,["cari tipi","tip","tür","tur"])||"Bireysel"),roles:["Müşteri"],tel:String(tel||""),mail:String(pickByAliases(row,["e posta","e-posta","email","mail"])||""),tc:String(pickByAliases(row,["tc","t.c.","tckn"])||""),vn:String(vn||""),vd:String(pickByAliases(row,["vergi dairesi","vd"])||""),yet:String(pickByAliases(row,["yetkili","ilgili"])||""),adres:String(pickByAliases(row,["adres","address"])||""),notlar:"Eski yedekten test aktarımı",active:true,created:new Date().toISOString()}
+ }
+ if(kind==="araclar"){
+  const plaka=pickByAliases(row,["plaka","araç plaka","arac plaka","plate"]);if(!String(plaka).trim())return null;
+  const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","ad soyad","unvan"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
+  const c=findCari(code,name,tel,vn);
+  return{id:nextId(),plaka:String(plaka).toUpperCase().replace(/\s+/g," ").trim(),cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),marka:String(pickByAliases(row,["marka","brand"])||""),model:String(pickByAliases(row,["model"])||""),modelYili:String(pickByAliases(row,["model yılı","model yili","yıl","yil"])||""),sasiNo:String(pickByAliases(row,["şasi no","sasi no","şase no","sase no","vin"])||""),motorNo:String(pickByAliases(row,["motor no","motor numarası","motor numarasi"])||""),km:num(pickByAliases(row,["km","kilometre"])),createdAt:new Date().toISOString()}
+ }
+ if(kind==="faturalar"){
+  const no=pickByAliases(row,["fatura no","fatura numarası","fatura numarasi","belge no","no"]);if(!String(no).trim())return null;
+  const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
+  const c=ensureCari(code,name,tel,vn);
+  const total=num(pickByAliases(row,["genel toplam","toplam","tutar","fatura toplamı","fatura toplami"]));
+  return{id:nextId(),faturaNo:String(no).trim(),faturaTarihi:excelDate(pickByAliases(row,["fatura tarihi","tarih","date"])),tarih:excelDate(pickByAliases(row,["fatura tarihi","tarih","date"])),tip:String(pickByAliases(row,["fatura tipi","tip","tür","tur"])||"Satış"),faturaTipi:String(pickByAliases(row,["fatura tipi","tip","tür","tur"])||"Satış"),durum:String(pickByAliases(row,["durum","status"])||"Aktif"),cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),genelToplam:total,toplam:total,tutar:total,aciklama:String(pickByAliases(row,["açıklama","aciklama","description"])||"Eski yedekten test aktarımı"),createdAt:new Date().toISOString()}
+ }
+ if(kind==="tahsilatlar"){
+  const no=pickByAliases(row,["makbuz no","tahsilat no","belge no","fiş no","fis no","no"]);
+  const amount=num(pickByAliases(row,["tahsilat","tutar","ödenen","odenen","amount"]));if(!amount)return null;
+  const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
+  const c=ensureCari(code,name,tel,vn);
+  return{id:nextId(),makbuzNo:String(no||("TAH-"+String(Date.now()).slice(-8))),tarih:excelDate(pickByAliases(row,["tarih","tahsilat tarihi","date"])),tutar:amount,amount:amount,cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),yontem:String(pickByAliases(row,["ödeme yöntemi","odeme yontemi","yöntem","yontem"])||"Nakit"),odemeYontemi:String(pickByAliases(row,["ödeme yöntemi","odeme yontemi","yöntem","yontem"])||"Nakit"),aciklama:String(pickByAliases(row,["açıklama","aciklama"])||"Eski yedekten test aktarımı"),durum:"Aktif",createdAt:new Date().toISOString()}
+ }
+ if(kind==="isemirleri"){
+  const no=pickByAliases(row,["iş emri no","is emri no","iş emri","is emri","emir no"]);if(!String(no).trim())return null;
+  const code=pickByAliases(row,["cari kodu","cari kod","müşteri kodu","musteri kodu"]),name=pickByAliases(row,["cari adı","cari adi","müşteri","musteri","unvan","ad soyad"]),tel=pickByAliases(row,["telefon","tel","gsm"]),vn=pickByAliases(row,["vergi no","vkn","tc"]);
+  const c=ensureCari(code,name,tel,vn);const total=num(pickByAliases(row,["genel toplam","toplam","tutar"]));
+  return{id:nextId(),isEmriNo:String(no).trim(),tarih:excelDate(pickByAliases(row,["tarih","kabul tarihi","date"])),cariId:c?c.id:"",cariCode:c?c.code:String(code||""),cariAdi:c?c.name:String(name||""),plaka:String(pickByAliases(row,["plaka"])||""),durum:String(pickByAliases(row,["durum","status"])||"Açık"),genelToplam:total,toplam:total,aciklama:String(pickByAliases(row,["açıklama","aciklama"])||"Eski yedekten test aktarımı"),createdAt:new Date().toISOString()}
+ }
+ return null
+}
+function token(x,kind){
+ if(kind==="cariler")return fold(x.code)||fold(x.vn)||fold(x.tel)||fold(x.name);
+ if(kind==="araclar")return fold(x.plaka);
+ if(kind==="faturalar")return fold(x.faturaNo);
+ if(kind==="tahsilatlar")return fold(x.makbuzNo)||[fold(x.cariCode),fold(x.tarih),String(x.tutar)].join("|");
+ if(kind==="isemirleri")return fold(x.isEmriNo);
+ return fold(JSON.stringify(x))
+}
+function parseCSV(text){
+ const first=(text.split(/\r?\n/)[0]||"");const sep=(first.split(";").length>first.split(",").length)?";":(first.split("\t").length>first.split(",").length?"\t":",");
+ const rows=[];let row=[],cell="",q=false;
+ for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(q&&text[i+1]==='"'){cell+='"';i++}else q=!q}else if(ch===sep&&!q){row.push(cell);cell=""}else if((ch==="\n"||ch==="\r")&&!q){if(ch==="\r"&&text[i+1]==="\n")i++;row.push(cell);cell="";if(row.some(function(x){return String(x).trim()!==""}))rows.push(row);row=[]}else cell+=ch}
+ row.push(cell);if(row.some(function(x){return String(x).trim()!==""}))rows.push(row);if(!rows.length)return[];
+ const h=rows[0].map(function(x,i){return String(x||("Alan "+(i+1))).trim()});
+ return rows.slice(1).map(function(r){const o={};h.forEach(function(k,i){o[k]=r[i]==null?"":r[i]});return o})
+}
+async function unzipEntry(bytes,method){
+ if(method===0)return bytes;
+ if(method!==8)throw new Error("Desteklenmeyen ZIP sıkıştırma yöntemi: "+method);
+ if(typeof DecompressionStream==="undefined")throw new Error("Bu cihazın WebView sürümü Excel açmak için çok eski.");
+ const ds=new DecompressionStream("deflate-raw");const stream=new Blob([bytes]).stream().pipeThrough(ds);return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+async function unzipXlsx(ab){
+ const u=new Uint8Array(ab),dv=new DataView(ab);let e=-1;for(let i=u.length-22;i>=Math.max(0,u.length-66000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}if(e<0)throw new Error("Excel ZIP yapısı okunamadı.");
+ const count=dv.getUint16(e+10,true),cd=dv.getUint32(e+16,true),out={};let p=cd;
+ for(let n=0;n<count;n++){if(dv.getUint32(p,true)!==0x02014b50)break;const method=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),name=new TextDecoder().decode(u.slice(p+46,p+46+nl));if(dv.getUint32(lo,true)!==0x04034b50)throw new Error("Excel giriş başlığı bozuk.");const lnl=dv.getUint16(lo+26,true),lel=dv.getUint16(lo+28,true),start=lo+30+lnl+lel;out[name]=await unzipEntry(u.slice(start,start+cs),method);p+=46+nl+el+cl}
+ return out
+}
+function xml(bytes){return new DOMParser().parseFromString(new TextDecoder("utf-8").decode(bytes),"application/xml")}
+function colIndex(ref){let n=0;for(const ch of String(ref).match(/[A-Z]+/i)?.[0]||"A")n=n*26+(ch.toUpperCase().charCodeAt(0)-64);return n-1}
+async function parseXlsx(ab){
+ const z=await unzipXlsx(ab);let sheetPath="xl/worksheets/sheet1.xml";
+ if(z["xl/workbook.xml"]&&z["xl/_rels/workbook.xml.rels"]){const wb=xml(z["xl/workbook.xml"]),rels=xml(z["xl/_rels/workbook.xml.rels"]),s=wb.getElementsByTagName("sheet")[0];if(s){const rid=s.getAttribute("r:id")||s.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id");const rs=Array.from(rels.getElementsByTagName("Relationship"));const rel=rs.find(function(x){return x.getAttribute("Id")===rid});if(rel){let t=rel.getAttribute("Target")||"";sheetPath=t.startsWith("/")?t.slice(1):(t.startsWith("xl/")?t:"xl/"+t.replace(/^\.\//,""))}}}
+ if(!z[sheetPath])throw new Error("Excel çalışma sayfası bulunamadı.");
+ let shared=[];if(z["xl/sharedStrings.xml"]){const ss=xml(z["xl/sharedStrings.xml"]);shared=Array.from(ss.getElementsByTagName("si")).map(function(si){return Array.from(si.getElementsByTagName("t")).map(function(t){return t.textContent||""}).join("")})}
+ const sx=xml(z[sheetPath]),rows=[];
+ Array.from(sx.getElementsByTagName("row")).forEach(function(r){const arr=[];Array.from(r.getElementsByTagName("c")).forEach(function(c){const idx=colIndex(c.getAttribute("r")||"A1"),t=c.getAttribute("t")||"",v=c.getElementsByTagName("v")[0],it=c.getElementsByTagName("is")[0];let val="";if(t==="s"&&v)val=shared[Number(v.textContent)||0]||"";else if(t==="inlineStr"&&it)val=Array.from(it.getElementsByTagName("t")).map(function(x){return x.textContent||""}).join("");else if(v)val=v.textContent||"";arr[idx]=val});if(arr.some(function(x){return String(x==null?"":x).trim()!==""}))rows.push(arr)});
+ if(!rows.length)return[];const h=rows[0].map(function(x,i){return String(x||("Alan "+(i+1))).trim()});return rows.slice(1).map(function(r){const o={};h.forEach(function(k,i){o[k]=r[i]==null?"":r[i]});return o})
+}
+function rowsFromJSON(obj,kind){
+ if(Array.isArray(obj))return obj;
+ if(obj&&obj.format==="MAU-BACKUP-1"&&obj.data){const k=TARGETS[kind].key,v=obj.data[k];try{return Array.isArray(v)?v:JSON.parse(v||"[]")}catch(e){return[]}}
+ const candidates=[kind,TARGETS[kind].key,"data","rows","records"];for(const k of candidates){if(Array.isArray(obj&&obj[k]))return obj[k]}return[]
+}
+async function readSelectedFile(){
+ const f=document.getElementById("file").files[0];if(!f)return;activeFileName=f.name;log(f.name+" okunuyor...");
+ try{const ext=(f.name.split(".").pop()||"").toLowerCase();if(ext==="xlsx")parsedRows=await parseXlsx(await f.arrayBuffer());else if(ext==="json")parsedRows=rowsFromJSON(JSON.parse(await f.text()),document.getElementById("kind").value);else parsedRows=parseCSV(await f.text());preparePreview()}catch(e){parsedRows=[];normalizedRows=[];renderPreview();log("Dosya okunamadı: "+e.message)}
+}
+function preparePreview(){
+ const kind=document.getElementById("kind").value;normalizedRows=parsedRows.map(function(r){return normalizeRow(r,kind)}).filter(Boolean);renderPreview();log(activeFileName+" okundu. "+parsedRows.length+" satır bulundu; "+normalizedRows.length+" satır hedef yapıya uygun. Testte yalnızca 1 kayıt yazılacak.")
+}
+function renderPreview(){
+ const kind=document.getElementById("kind").value,t=TARGETS[kind];document.getElementById("rowCount").textContent=parsedRows.length;document.getElementById("validCount").textContent=normalizedRows.length;document.getElementById("testCount").textContent=normalizedRows.length?1:0;document.getElementById("targetKey").textContent=t.key.replace("mau_","");
+ document.getElementById("importBtn").disabled=!normalizedRows.length;
+ const x=normalizedRows[0];if(!x){document.getElementById("previewHead").innerHTML="";document.getElementById("previewBody").innerHTML="<tr><td>Önizleme yok.</td></tr>";return}
+ const keys=Object.keys(x).filter(function(k){return !["id","created","createdAt"].includes(k)}).slice(0,10);document.getElementById("previewHead").innerHTML="<tr>"+keys.map(function(k){return"<th>"+esc(k)+"</th>"}).join("")+"</tr>";document.getElementById("previewBody").innerHTML="<tr>"+keys.map(function(k){return"<td>"+esc(x[k])+"</td>"}).join("")+"</tr>"
+}
+function importOne(){
+ if(!normalizedRows.length)return;const kind=document.getElementById("kind").value,t=TARGETS[kind],item=normalizedRows[0],list=loadArray(t.key),tk=token(item,kind),idx=list.findIndex(function(x){return token(x,kind)===tk});
+ let action="eklendi";if(idx>=0){if(!confirm("Bu kayıt sistemde eşleşiyor. Test için mevcut kaydı güncelleyelim mi?"))return;item.id=list[idx].id||item.id;list[idx]=Object.assign({},list[idx],item,{updatedAt:new Date().toISOString()});action="güncellendi"}else list.unshift(item);
+ saveArray(t.key,list);localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:kind,file:activeFileName,token:tk,at:new Date().toISOString()}));log("TEST BAŞARILI: "+t.title+" bölümüne 1 kayıt "+action+".\nToplu aktarım yapılmadı. İlgili ekrana gidip kaydı kontrol edin.");document.getElementById("importBtn").disabled=true;alert(t.title+" test aktarımı: 1 kayıt "+action+".")
+}
+function resetPreview(){parsedRows=[];normalizedRows=[];activeFileName="";document.getElementById("file").value="";renderPreview();log("Dosya seçilmedi.")}
+renderPreview();
+</script>
+</body>
+</html>
