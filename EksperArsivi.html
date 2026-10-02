@@ -115,6 +115,7 @@ function fillCats(){
 }
 function resetAddForm(){document.getElementById("label").value="";document.getElementById("note").value="";document.getElementById("files").value="";document.getElementById("sendFlag").checked=true}
 async function saveFiles(){
+ if(window.MAULicense&&!MAULicense.requireWrite())return;
  if(!claim){alert("Hasar dosyası bulunamadı.");return}
  const files=Array.from(document.getElementById("files").files||[]);if(!files.length){alert("Dosya seçiniz.");return}
  const cat=document.getElementById("category").value,stage=document.getElementById("stage").value,label=document.getElementById("label").value.trim(),note=document.getElementById("note").value.trim(),send=document.getElementById("sendFlag").checked,all=metaAll();
@@ -152,9 +153,9 @@ async function previewFile(id){
 }
 function closePreview(){document.getElementById("preview").style.display="none";document.getElementById("previewBody").innerHTML="";if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=""}}
 async function downloadOne(id){const m=metaAll().find(x=>x.id===id),r=await dbGet(id);if(!m||!r)return;const u=URL.createObjectURL(r.blob),a=document.createElement("a");a.href=u;a.download=m.fileName;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-function toggleSend(id){const a=metaAll(),i=a.findIndex(x=>x.id===id);if(i<0)return;a[i].sendToExpert=!a[i].sendToExpert;saveMeta(a);render()}
-function moveFile(id,dir){const a=metaAll(),group=a.filter(x=>String(x.claimId)===String(claimId)).sort((x,y)=>Number(x.order)-Number(y.order)),i=group.findIndex(x=>x.id===id),j=i+dir;if(i<0||j<0||j>=group.length)return;const oi=group[i].order;group[i].order=group[j].order;group[j].order=oi;const map=new Map(group.map(x=>[x.id,x.order]));a.forEach(x=>{if(map.has(x.id))x.order=map.get(x.id)});saveMeta(a);render()}
-async function deleteFile(id){const m=metaAll().find(x=>x.id===id);if(!m||!confirm(m.fileName+" arşivden silinsin mi?"))return;await dbDelete(id);saveMeta(metaAll().filter(x=>x.id!==id));render()}
+function toggleSend(id){if(window.MAULicense&&!MAULicense.requireWrite())return;const a=metaAll(),i=a.findIndex(x=>x.id===id);if(i<0)return;a[i].sendToExpert=!a[i].sendToExpert;saveMeta(a);render()}
+function moveFile(id,dir){if(window.MAULicense&&!MAULicense.requireWrite())return;const a=metaAll(),group=a.filter(x=>String(x.claimId)===String(claimId)).sort((x,y)=>Number(x.order)-Number(y.order)),i=group.findIndex(x=>x.id===id),j=i+dir;if(i<0||j<0||j>=group.length)return;const oi=group[i].order;group[i].order=group[j].order;group[j].order=oi;const map=new Map(group.map(x=>[x.id,x.order]));a.forEach(x=>{if(map.has(x.id))x.order=map.get(x.id)});saveMeta(a);render()}
+async function deleteFile(id){if(window.MAULicense&&!MAULicense.requireWrite())return;const m=metaAll().find(x=>x.id===id);if(!m||!confirm(m.fileName+" arşivden silinsin mi?"))return;await dbDelete(id);saveMeta(metaAll().filter(x=>x.id!==id));render()}
 function summaryText(selected){
  const s=(()=>{try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}")}catch(e){return{}}})();
  return [
@@ -218,6 +219,7 @@ async function downloadZip(){
  }catch(e){alert("ZIP paketi hazırlanamadı: "+(e.message||e))}
 }
 async function runArchiveSelfTest(){
+ if(window.MAULicense&&!MAULicense.requireWrite())return;
  const out=document.getElementById("selfTestResult");out.className="note";out.textContent="Test çalışıyor...";
  const id="SELFTEST-"+Date.now();
  try{
