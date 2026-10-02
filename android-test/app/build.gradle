@@ -10,8 +10,8 @@ android {
         applicationId "com.mau.otoservis"
         minSdk 26
         targetSdk 36
-        versionCode 1
-        versionName "0.1-tablet-test"
+        versionCode 2
+        versionName "0.2-ruhsat-ocr"
     }
 
     buildTypes {
@@ -24,4 +24,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    // Bundled on-device OCR: ilk kullanımda model indirmesi gerektirmez.
+    implementation 'com.google.mlkit:text-recognition:16.0.1'
 }
