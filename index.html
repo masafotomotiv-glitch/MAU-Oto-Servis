@@ -47,7 +47,7 @@ body{
   inset:-12px;animation:mauPulse 1.6s ease-out infinite;
 }
 .mau-splash-ring:after{inset:-26px;animation-delay:.28s;opacity:.55}
-.mau-splash-logo{max-width:116px;max-height:86px;object-fit:contain;display:none;animation:mauLogo .9s cubic-bezier(.2,.8,.2,1) both}
+.mau-splash-logo{width:270px;max-width:72vw;height:auto;object-fit:contain;display:block;animation:mauLogo .9s cubic-bezier(.2,.8,.2,1) both}
 .mau-splash-mark{font-size:58px;line-height:1;font-weight:900;letter-spacing:-4px;color:#2bd4e6;text-shadow:0 0 24px rgba(43,212,230,.35);animation:mauLogo .9s cubic-bezier(.2,.8,.2,1) both}
 .mau-splash-title{font-size:28px;font-weight:900;letter-spacing:2px;animation:mauUp .7s .35s both}
 .mau-splash-sub{font-size:12px;letter-spacing:4px;opacity:.82;margin-top:7px;animation:mauUp .7s .48s both}
@@ -96,7 +96,7 @@ body{
   font-weight:900;
   color:#2bd4e6;
 }
-.logo-img{max-width:88px;max-height:64px;object-fit:contain;display:none}
+.logo-img{max-width:190px;max-height:70px;object-fit:contain;display:block}
 
 .logo-title{
   font-size:24px;
@@ -400,8 +400,8 @@ body{
 <div id="mauSplash" class="mau-splash" aria-label="MAU Oto Servis açılıyor">
   <div class="mau-splash-card">
     <div class="mau-splash-ring">
-      <img id="mauSplashLogo" class="mau-splash-logo" alt="MAU Logosu">
-      <div id="mauSplashMark" class="mau-splash-mark">M••</div>
+      <img id="mauSplashLogo" class="mau-splash-logo" src="mau-logo-oto-servis.svg" alt="MAU Oto Servis Logosu">
+      <div id="mauSplashMark" class="mau-splash-mark" style="display:none">M••</div>
     </div>
     <div class="mau-splash-title">MAU</div>
     <div class="mau-splash-sub">OTO SERVİS</div>
@@ -413,11 +413,7 @@ body{
 
   <header class="header">
     <div class="logo">
-      <div id="defaultLogoMark" class="logo-mark">M••</div><img id="companyLogo" class="logo-img" alt="Firma Logosu">
-      <div>
-        <div class="logo-title">MAU</div>
-        <div class="logo-sub">OTO SERVİS</div>
-      </div>
+      <img id="companyLogo" class="logo-img" src="mau-logo-oto-servis.svg" alt="MAU Oto Servis">
     </div>
 
     <div>
@@ -700,7 +696,8 @@ window.addEventListener("pageshow",renderDashboard);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)renderDashboard()});
 renderDashboard();
 const _topItems=document.querySelectorAll(".top-item");if(_topItems[2]){_topItems[2].style.cursor="pointer";_topItems[2].addEventListener("click",function(){location.href="Kapali.html"})}
-try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi;if(_mauSettings.logoData){const _logo=document.getElementById("companyLogo"),_mark=document.getElementById("defaultLogoMark");if(_logo){_logo.src=_mauSettings.logoData;_logo.style.display="block"}if(_mark)_mark.style.display="none";const _sLogo=document.getElementById("mauSplashLogo"),_sMark=document.getElementById("mauSplashMark");if(_sLogo){_sLogo.src=_mauSettings.logoData;_sLogo.style.display="block"}if(_sMark)_sMark.style.display="none"}}catch(e){}
+try{const _mauSettings=JSON.parse(localStorage.getItem("mau_ayarlar")||"{}");if(_mauSettings.firmaAdi&&document.getElementById("companyName"))document.getElementById("companyName").textContent=_mauSettings.firmaAdi}catch(e){}
+const _brandLogo=document.getElementById("mauSplashLogo");if(_brandLogo)_brandLogo.addEventListener("error",function(){this.style.display="none";const m=document.getElementById("mauSplashMark");if(m)m.style.display="block"});
 
 (function(){
  const splash=document.getElementById("mauSplash");
