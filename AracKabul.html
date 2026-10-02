@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAU Oto Servis - Araç Kabul</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#0874d1;--blue2:#083fa7;--green:#079b4d;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--red:#b42335;--amber:#a86400}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:16px}
+.head{max-width:1180px;margin:auto;display:flex;align-items:center;gap:12px}
+.back{border:0;background:#ffffff1c;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}
+.logo{font-size:22px;font-weight:900}.sub{font-size:12px;opacity:.88;margin-top:3px}
+.container{max-width:1180px;margin:auto;padding:16px}
+.topbar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.search{flex:1;padding:13px;border:1px solid var(--line);border-radius:11px;background:#fff}
+.newBtn{border:0;background:var(--green);color:#fff;font-weight:800;padding:13px 17px;border-radius:11px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}
+.stat{background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 2px 9px #0000000b}.stat b{display:block;font-size:22px;color:#0864b8}.stat span{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;align-items:start}
+.formCard,.sideCard,.listCard{background:#fff;border-radius:14px;box-shadow:0 2px 12px #0000000b;overflow:hidden}
+.cardHead{background:#eef6ff;border-bottom:1px solid #d8e8f7;padding:14px 16px;font-weight:900;color:#075ca8}
+.formBody{padding:15px}
+.section{border-top:1px solid #edf0f4;padding-top:15px;margin-top:15px}.section:first-child{border-top:0;padding-top:0;margin-top:0}
+.sectionTitle{font-size:16px;font-weight:900;color:#173b62;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.helper{font-size:11px;color:var(--muted);line-height:1.45;margin-top:5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.field{margin-bottom:10px}.field.full{grid-column:1/-1}.field.third{grid-column:auto}
+label{display:block;font-size:12px;font-weight:800;color:#4b5968;margin-bottom:5px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#fff;color:#1f2937}
+input[readonly]{background:#f5f7fa;color:#52606d}
+textarea{min-height:82px;resize:vertical}
+.required:after{content:" *";color:var(--red)}
+.vehicleBox{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;margin-top:8px;line-height:1.55;font-size:12px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid #dce5ee;border-radius:9px;padding:9px 10px;background:#fff}.chip input{width:auto;margin-right:5px}
+.conditionGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cond{border:1px solid #e2e8ef;border-radius:10px;padding:10px}.cond label{font-size:12px}.cond select{padding:9px}
+.inlineCheck{display:flex;align-items:flex-start;gap:8px;border:1px solid #e2e8ef;border-radius:9px;padding:10px;margin-bottom:8px}.inlineCheck input{width:auto;margin-top:2px}
+.photoBox{border:1px dashed #b7c8d8;border-radius:10px;padding:12px;background:#f9fbfd}.photoBox input{border:0;padding:5px 0}.photoCount{font-size:12px;color:#52606d;margin-top:7px}
+.sig{background:#fff8e9;border:1px solid #f0d69b;border-radius:10px;padding:12px}
+.saveRow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.save,.saveNext{border:0;color:#fff;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48}.saveNext{background:#0874d1}
+.sideCard{padding:14px;position:sticky;top:10px}.sideTitle{font-weight:900;margin-bottom:9px}.checkList{margin:0;padding-left:19px;color:#52606d;font-size:12px;line-height:1.8}.notice{margin-top:12px;padding:10px;border-radius:9px;background:#f7f9fc;color:#52606d;font-size:11px;line-height:1.5}
+.listCard{margin-top:12px}.listHead{padding:13px 15px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;font-weight:900}
+.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.rowSub{font-size:11px;color:#64748b;margin-top:4px;line-height:1.5}.rowActions{display:flex;gap:6px;align-items:center}.rowActions button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.del{background:#ffe8eb;color:#a21c2b}.empty{text-align:center;color:#7b8794;padding:25px}
+.badge{display:inline-block;padding:4px 8px;border-radius:10px;font-size:10px;font-weight:800;background:#eaf3ff;color:#075ba8;margin-left:5px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sideCard{position:static}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.grid,.grid3,.conditionGrid{grid-template-columns:1fr}.field.full{grid-column:auto}.saveRow{grid-template-columns:1fr}.topbar{flex-wrap:wrap}.search{flex-basis:100%}}
+</style>
+</head>
+<body>
+<header>
+ <div class="head">
+  <button class="back" onclick="location.href='index.html'">‹</button>
+  <div><div class="logo">M•• MAU OTO SERVİS</div><div class="sub">Araç Kabul · Giriş Kontrolü · Müşteri Talebi · Ön Hasar Tespiti</div></div>
+ </div>
+</header>
+
+<div class="container">
+ <div class="topbar">
+  <input id="search" class="search" placeholder="Kabul no, plaka veya müşteri ara..." oninput="renderList()">
+  <button class="newBtn" onclick="resetForm(true)">+ Yeni Araç Kabul</button>
+ </div>
+
+ <div class="stats">
+  <div class="stat"><b id="statTotal">0</b><span>Toplam Kabul</span></div>
+  <div class="stat"><b id="statToday">0</b><span>Bugün</span></div>
+  <div class="stat"><b id="statOpen">0</b><span>İş Emrine Hazır</span></div>
+  <div class="stat"><b id="statPhoto">0</b><span>Fotoğraflı Kabul</span></div>
+ </div>
+
+ <div class="layout">
+  <div class="formCard">
+   <div class="cardHead" id="formTitle">Yeni Araç Kabul Formu</div>
+   <div class="formBody">
+
+    <div class="section">
+     <div class="sectionTitle">1. Araç ve Cari Seçimi</div>
+     <div class="grid">
+      <div class="field full">
+       <label class="required">Kayıtlı Araç</label>
+       <select id="aracId" onchange="selectVehicle()"><option value="">Araç seçiniz...</option></select>
+       <div class="helper">Önce Araç Kayıt bölümünde oluşturduğunuz araç seçilir. Cari, plaka ve teknik bilgiler otomatik gelir.</div>
+      </div>
+      <div class="field"><label>Kabul No</label><input id="kabulNo" readonly></div>
+      <div class="field"><label>Araç Sahibi / Cari</label><input id="cariAdi" readonly></div>
+     </div>
+     <div id="vehicleInfo" class="vehicleBox">Araç seçilmedi.</div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">2. Servise Giriş Bilgileri</div>
+     <div class="grid3">
+      <div class="field"><label class="required">Kabul Tarihi</label><input id="kabulTarihi" type="date"></div>
+      <div class="field"><label class="required">Kabul Saati</label><input id="kabulSaati" type="time"></div>
+      <div class="field"><label class="required">Giriş KM</label><input id="km" type="number" min="0" placeholder="Örn. 184250"></div>
+
+      <div class="field"><label>Yakıt / Şarj Seviyesi</label>
+       <select id="yakitSeviye"><option value="">Seçiniz</option><option>Boş</option><option>1/4</option><option>1/2</option><option>3/4</option><option>Dolu</option></select>
+      </div>
+      <div class="field"><label>Aracın Geliş Şekli</label>
+       <select id="gelisSekli"><option>Müşteri Getirdi</option><option>Çekici ile Geldi</option><option>Yol Yardım</option><option>Servis Personeli Aldı</option><option>Diğer</option></select>
+      </div>
+      <div class="field"><label>Yürür Durumda mı?</label>
+       <select id="yururDurum"><option>Evet</option><option>Hayır</option><option>Kısıtlı / Riskli</option></select>
+      </div>
+
+      <div class="field"><label>Teslim Eden Kişi</label><input id="teslimEden"></div>
+      <div class="field"><label>Teslim Eden Telefon</label><input id="teslimEdenTel"></div>
+      <div class="field"><label>Anahtar Etiket No</label><input id="anahtarEtiketNo" placeholder="Örn. A-024"></div>
+
+      <div class="field"><label>Anahtar Adedi</label><input id="anahtarAdedi" type="number" min="0" value="1"></div>
+      <div class="field"><label>Tahmini Teslim Tarihi</label><input id="tahminiTeslimTarihi" type="date"></div>
+      <div class="field"><label>Tahmini Teslim Saati</label><input id="tahminiTeslimSaati" type="time"></div>
+     </div>
+     <div class="chips">
+      <label class="chip"><input id="ruhsatBirakildi" type="checkbox"> Ruhsat bırakıldı</label>
+      <label class="chip"><input id="yedekAnahtar" type="checkbox"> Yedek anahtar bırakıldı</label>
+      <label class="chip"><input id="cekiciBelgesi" type="checkbox"> Çekici / teslim belgesi var</label>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">3. Müşteri Şikâyeti ve Talebi</div>
+     <div class="grid">
+      <div class="field full"><label class="required">Müşterinin Şikâyeti / Talebi</label><textarea id="musteriSikayeti" placeholder="Müşterinin kendi ifadesiyle yazın. Örn: Soğukken ön taraftan ses geliyor, ısınınca azalıyor."></textarea></div>
+      <div class="field"><label>Sorun Ne Zaman Oluyor?</label><input id="sorunKosulu" placeholder="Soğuk/sıcak, hız, fren, viraj, yük altında..."></div>
+      <div class="field"><label>Sıklık</label><select id="siklik"><option value="">Seçiniz</option><option>Sürekli</option><option>Ara Sıra</option><option>İlk Çalıştırmada</option><option>Isınınca</option><option>Tek Sefer Oldu</option><option>Belirsiz</option></select></div>
+      <div class="field"><label>Gösterge / Uyarı Lambaları</label><input id="uyariLambalari" placeholder="Motor, ABS, airbag, yağ, akü..."></div>
+      <div class="field"><label>Daha Önce Müdahale Edildi mi?</label><input id="oncekiMudahale" placeholder="Varsa yapılan işlem / servis"></div>
+      <div class="field full"><label>Talep Edilen İşlemler</label><textarea id="talepEdilenIslemler" placeholder="Bakım, arıza tespiti, fren kontrolü, kaporta vb."></textarea></div>
+     </div>
+     <label>İlk Yönlendirilecek Bölüm(ler)</label>
+     <div class="chips" id="departmanlar">
+      <label class="chip"><input type="checkbox" value="Mekanik"> Mekanik</label>
+      <label class="chip"><input type="checkbox" value="Elektrik"> Elektrik</label>
+      <label class="chip"><input type="checkbox" value="Kaporta"> Kaporta</label>
+      <label class="chip"><input type="checkbox" value="Boya"> Boya</label>
+      <label class="chip"><input type="checkbox" value="Lastik"> Lastik</label>
+      <label class="chip"><input type="checkbox" value="Periyodik Bakım"> Periyodik Bakım</label>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">4. Araç Giriş Kontrolü / Ön Hasar</div>
+     <div class="conditionGrid">
+      <div class="cond"><label>Ön Bölüm / Tampon</label><select id="durumOn"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Arka Bölüm / Tampon</label><select id="durumArka"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Sol Yan / Kapılar</label><select id="durumSol"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Sağ Yan / Kapılar</label><select id="durumSag"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Camlar / Ayna</label><select id="durumCam"><option>İyi</option><option>Çizik</option><option>Taş İzi</option><option>Çatlak</option><option>Kırık</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Jant / Lastikler</label><select id="durumLastik"><option>İyi</option><option>Aşınmış</option><option>Hasarlı</option><option>Basınç Düşük</option><option>Jant Hasarlı</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>İç Mekân</label><select id="durumIc"><option>İyi</option><option>Leke / Kir</option><option>Yırtık</option><option>Kırık Parça</option><option>Kontrol Gerekli</option></select></div>
+      <div class="cond"><label>Bagaj / Yük Alanı</label><select id="durumBagaj"><option>İyi</option><option>Dolu</option><option>Hasarlı</option><option>Kontrol Gerekli</option></select></div>
+     </div>
+     <div class="grid" style="margin-top:10px">
+      <div class="field"><label>Sıvı Kaçağı Görüldü mü?</label><select id="siviKacagi"><option>Hayır</option><option>Evet</option><option>Şüpheli / Kontrol Edilecek</option></select></div>
+      <div class="field"><label>Gösterge Uyarısı Var mı?</label><select id="gostergeUyarisi"><option>Hayır</option><option>Evet</option><option>Kontrol Edilmedi</option></select></div>
+      <div class="field full"><label>Mevcut Hasar / Çizik / Eksik Parça Açıklaması</label><textarea id="hasarNotu" placeholder="Örn: Sağ arka kapıda 10 cm çizik, sol ön jantta sürtme izi."></textarea></div>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">5. Araçta Bırakılan Eşya ve Aksesuarlar</div>
+     <div class="grid">
+      <div class="field full"><label>Araç İçindeki Değerli Eşya / Malzeme</label><textarea id="esyalar" placeholder="Telefon tutucu, çocuk koltuğu, gözlük, belge, yük vb. Yoksa 'Yok' yazın."></textarea></div>
+      <div class="field"><label>Stepne / Kriko</label><select id="stepne"><option>Kontrol Edilmedi</option><option>Var</option><option>Yok</option><option>Eksik / Hasarlı</option></select></div>
+      <div class="field"><label>Sonradan Takılan Aksesuar</label><input id="aksesuar" placeholder="Kamera, multimedya, LPG, özel jant..."></div>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">6. Fotoğraf / Görsel Kayıt</div>
+     <div class="photoBox">
+      <label>Araç Kabul Fotoğrafları</label>
+      <input id="photos" type="file" accept="image/*" capture="environment" multiple onchange="photoChanged()">
+      <div id="photoCount" class="photoCount">Henüz fotoğraf seçilmedi.</div>
+      <div class="helper">Önerilen çekimler: ön, arka, sağ, sol, 4 jant/lastik, gösterge paneli, kilometre-yakıt, iç mekân ve mevcut hasarın yakın planı. Bu sürümde kabul kaydına fotoğraf adları/sayısı bağlanır; görsel dosyaların kalıcı APK arşivi ayrı fotoğraf modülünde tamamlanacaktır.</div>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">7. İletişim, Ön Onay ve Teslim Alma</div>
+     <div class="grid">
+      <div class="field"><label>Tercih Edilen İletişim</label><select id="iletisim"><option>Telefon</option><option>WhatsApp</option><option>SMS</option><option>E-posta</option></select></div>
+      <div class="field"><label>Ön Onay / Diagnostik Limiti (TL)</label><input id="onayLimit" type="number" min="0" placeholder="0 = her işlem için ayrıca onay"></div>
+     </div>
+     <div class="sig">
+      <label class="inlineCheck"><input id="testSurusu" type="checkbox"> Arıza tespiti / kontrol amacıyla gerekli görülürse kısa test sürüşüne izin veriyorum.</label>
+      <label class="inlineCheck"><input id="ekIslemOnayi" type="checkbox"> İlave işlem ve parça için müşteri onayı alınmadan ücretli işleme başlanmayacağını kabul ediyorum.</label>
+      <label class="inlineCheck"><input id="hasarOnayi" type="checkbox"> Araç giriş durumunun, mevcut hasarların ve bırakılan eşyaların yukarıdaki şekilde kayda alındığını kabul ediyorum.</label>
+      <div class="grid">
+       <div class="field"><label class="required">Onaylayan / Teslim Eden</label><input id="onaylayan"></div>
+       <div class="field"><label>Onay Zamanı</label><input id="onayZamani" readonly></div>
+      </div>
+     </div>
+    </div>
+
+    <div class="saveRow">
+     <button class="save" onclick="saveAcceptance(false)">✓ Araç Kabulünü Kaydet</button>
+     <button class="saveNext" onclick="saveAcceptance(true)">Kaydet · İş Emrine Hazırla →</button>
+    </div>
+   </div>
+  </div>
+
+  <aside class="sideCard">
+   <div class="sideTitle">Araç kabulde kontrol sırası</div>
+   <ol class="checkList">
+    <li>Doğru araç ve doğru cari seçildi.</li>
+    <li>Kilometre ve yakıt/şarj seviyesi kaydedildi.</li>
+    <li>Müşteri şikâyeti kendi ifadesiyle yazıldı.</li>
+    <li>Mevcut dış/iç hasarlar kontrol edildi.</li>
+    <li>Gösterge uyarıları ve kaçaklar not edildi.</li>
+    <li>Anahtar, ruhsat ve araçtaki eşyalar kaydedildi.</li>
+    <li>Fotoğraf / görsel kayıt tamamlandı.</li>
+    <li>Müşteri iletişim tercihi ve onay şartları kaydedildi.</li>
+   </ol>
+   <div class="notice"><b>Akış:</b> Araç Kayıt → Araç Kabul → İş Emri → Bölüm/Usta → İşçilik/Parça → Teklif/Onay → Fatura/Teslim.</div>
+  </aside>
+ </div>
+
+ <div class="listCard">
+  <div class="listHead"><span>Son Araç Kabulleri</span><span id="listCount">0 kayıt</span></div>
+  <div id="list" class="list"></div>
+ </div>
+</div>
+
+<script>
+const VEHICLE_KEY="mau_araclar";
+const CARI_KEY="mau_cariler";
+const ACCEPT_KEY="mau_arac_kabulleri";
+const WORK_KEY="mau_is_emirleri";
+
+function loadArray(key){
+ try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}
+}
+function saveArray(key,v){localStorage.setItem(key,JSON.stringify(v));}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function normPlate(v){return String(v||"").toLocaleUpperCase("tr-TR").replace(/\s+/g," ").trim();}
+function today(){return new Date().toISOString().slice(0,10);}
+function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
+function nowTR(){return new Date().toLocaleString("tr-TR");}
+
+let vehicles=loadArray(VEHICLE_KEY);
+let cariler=loadArray(CARI_KEY);
+let accepts=loadArray(ACCEPT_KEY);
+let editId=null;
+let selectedVehicle=null;
+let photoNames=[];
+
+function nextNo(){
+ let max=0;accepts.forEach(function(x){const n=parseInt(String(x.kabulNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>max)max=n;});
+ return "AK-"+String(max+1).padStart(5,"0");
+}
+function findVehicle(id){return vehicles.find(function(x){return String(x.id)===String(id);});}
+function findCari(id){return cariler.find(function(x){return String(x.id)===String(id);});}
+function populateVehicles(){
+ vehicles=loadArray(VEHICLE_KEY);cariler=loadArray(CARI_KEY);
+ const sel=document.getElementById("aracId"),cur=sel.value;
+ const active=vehicles.filter(function(a){return a.active!==false&&a.durum!=="Pasif";});
+ sel.innerHTML='<option value="">Araç seçiniz...</option>'+active.map(function(a){return '<option value="'+esc(a.id)+'">'+esc(a.plaka||"-")+' · '+esc([a.marka,a.model].filter(Boolean).join(" "))+' · '+esc(a.cariAdi||"")+'</option>';}).join("");
+ if(active.some(function(a){return String(a.id)===String(cur);}))sel.value=cur;
+}
+function selectVehicle(){
+ selectedVehicle=findVehicle(document.getElementById("aracId").value);
+ if(!selectedVehicle){
+  document.getElementById("cariAdi").value="";
+  document.getElementById("vehicleInfo").innerHTML="Araç seçilmedi.";
+  return;
+ }
+ const c=findCari(selectedVehicle.cariId);
+ document.getElementById("cariAdi").value=(c&&c.name)||selectedVehicle.cariAdi||"";
+ document.getElementById("km").value=selectedVehicle.km||"";
+ document.getElementById("teslimEden").value=(c&&c.name)||selectedVehicle.cariAdi||"";
+ document.getElementById("teslimEdenTel").value=(c&&c.tel)||"";
+ document.getElementById("onaylayan").value=(c&&c.name)||selectedVehicle.cariAdi||"";
+ document.getElementById("vehicleInfo").innerHTML=
+  '<b>'+esc(selectedVehicle.plaka||"-")+'</b> · '+esc([selectedVehicle.marka,selectedVehicle.model,selectedVehicle.versiyon].filter(Boolean).join(" ")||"-")+
+  '<br>Araç Kodu: '+esc(selectedVehicle.aracCode||"-")+' · Şasi: '+esc(selectedVehicle.sasi||"-")+
+  '<br>Cari: '+esc((c&&c.name)||selectedVehicle.cariAdi||"-")+' · Son kayıtlı KM: '+esc(selectedVehicle.km||"-");
+}
+function checks(selector){return Array.from(document.querySelectorAll(selector+":checked")).map(function(x){return x.value;});}
+function setChecks(selector,arr){document.querySelectorAll(selector).forEach(function(x){x.checked=(arr||[]).includes(x.value);});}
+function photoChanged(){
+ const files=Array.from(document.getElementById("photos").files||[]);
+ photoNames=files.map(function(f){return f.name;});
+ document.getElementById("photoCount").innerText=files.length?files.length+" fotoğraf seçildi.":"Henüz fotoğraf seçilmedi.";
+}
+function resetForm(focus){
+ editId=null;selectedVehicle=null;photoNames=[];
+ populateVehicles();
+ document.querySelectorAll("input,textarea,select").forEach(function(el){
+  if(["search","aracId"].includes(el.id))return;
+  if(el.type==="checkbox")el.checked=false;
+  else if(el.type==="file")el.value="";
+  else el.value="";
+ });
+ document.getElementById("aracId").value="";
+ document.getElementById("kabulNo").value=nextNo();
+ document.getElementById("kabulTarihi").value=today();
+ document.getElementById("kabulSaati").value=nowTime();
+ document.getElementById("gelisSekli").value="Müşteri Getirdi";
+ document.getElementById("yururDurum").value="Evet";
+ document.getElementById("anahtarAdedi").value="1";
+ ["durumOn","durumArka","durumSol","durumSag","durumCam","durumLastik","durumIc","durumBagaj"].forEach(function(id){document.getElementById(id).value="İyi";});
+ document.getElementById("siviKacagi").value="Hayır";
+ document.getElementById("gostergeUyarisi").value="Hayır";
+ document.getElementById("stepne").value="Kontrol Edilmedi";
+ document.getElementById("iletisim").value="Telefon";
+ document.getElementById("onayZamani").value=nowTR();
+ document.getElementById("vehicleInfo").innerHTML="Araç seçilmedi.";
+ document.getElementById("photoCount").innerText="Henüz fotoğraf seçilmedi.";
+ document.getElementById("formTitle").innerText="Yeni Araç Kabul Formu";
+ if(focus)document.getElementById("aracId").focus();
+}
+function val(id){return document.getElementById(id).value.trim();}
+function checked(id){return document.getElementById(id).checked;}
+
+function saveAcceptance(prepareWork){
+ const aracId=document.getElementById("aracId").value;
+ const a=findVehicle(aracId);
+ if(!a){alert("Kayıtlı araç seçiniz.");return;}
+ const complaint=val("musteriSikayeti");
+ if(!complaint){alert("Müşteri şikâyeti / talebi alanını doldurun.");return;}
+ if(!val("km")){alert("Giriş kilometresini yazın.");return;}
+ if(!val("onaylayan")){alert("Onaylayan / teslim eden kişiyi yazın.");return;}
+
+ const old=editId!==null?accepts.find(function(x){return String(x.id)===String(editId);}):null;
+ const c=findCari(a.cariId);
+ const data={
+  id:old?old.id:Date.now(),
+  kabulNo:old?old.kabulNo:document.getElementById("kabulNo").value,
+  aracId:a.id,vehicleId:a.id,aracCode:a.aracCode||"",
+  cariId:a.cariId,cariCode:(c&&c.code)||a.cariCode||"",cariAdi:(c&&c.name)||a.cariAdi||"",
+  plaka:a.plaka||"",marka:a.marka||"",model:a.model||"",versiyon:a.versiyon||"",yil:a.yil||"",renk:a.renk||"",sasi:a.sasi||"",motorNo:a.motorNo||"",
+  kabulTarihi:val("kabulTarihi"),kabulSaati:val("kabulSaati"),km:val("km"),yakitSeviye:val("yakitSeviye"),
+  gelisSekli:val("gelisSekli"),yururDurum:val("yururDurum"),teslimEden:val("teslimEden"),teslimEdenTel:val("teslimEdenTel"),
+  anahtarEtiketNo:val("anahtarEtiketNo"),anahtarAdedi:val("anahtarAdedi"),ruhsatBirakildi:checked("ruhsatBirakildi"),yedekAnahtar:checked("yedekAnahtar"),cekiciBelgesi:checked("cekiciBelgesi"),
+  tahminiTeslimTarihi:val("tahminiTeslimTarihi"),tahminiTeslimSaati:val("tahminiTeslimSaati"),
+  musteriSikayeti:complaint,sorunKosulu:val("sorunKosulu"),siklik:val("siklik"),uyariLambalari:val("uyariLambalari"),oncekiMudahale:val("oncekiMudahale"),talepEdilenIslemler:val("talepEdilenIslemler"),
+  departmanlar:checks("#departmanlar input"),
+  kondisyon:{on:val("durumOn"),arka:val("durumArka"),sol:val("durumSol"),sag:val("durumSag"),cam:val("durumCam"),lastik:val("durumLastik"),ic:val("durumIc"),bagaj:val("durumBagaj")},
+  siviKacagi:val("siviKacagi"),gostergeUyarisi:val("gostergeUyarisi"),hasarNotu:val("hasarNotu"),
+  esyalar:val("esyalar"),stepne:val("stepne"),aksesuar:val("aksesuar"),
+  fotoAdlari:photoNames.slice(),fotoSayisi:photoNames.length,
+  iletisim:val("iletisim"),onayLimit:val("onayLimit"),testSurusu:checked("testSurusu"),ekIslemOnayi:checked("ekIslemOnayi"),hasarOnayi:checked("hasarOnayi"),
+  onaylayan:val("onaylayan"),onayZamani:val("onayZamani")||nowTR(),
+  durum:prepareWork?"İş Emrine Hazır":"Kabul Edildi",
+  createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
+ };
+ if(old){const i=accepts.findIndex(function(x){return String(x.id)===String(old.id);});accepts[i]=data;}else{accepts.unshift(data);}
+ saveArray(ACCEPT_KEY,accepts);
+
+ const vi=vehicles.findIndex(function(x){return String(x.id)===String(a.id);});
+ const newKm=Number(data.km||0),oldKm=Number(vehicles[vi].km||0);
+ if(vi>=0&&newKm>=oldKm){vehicles[vi].km=String(newKm);vehicles[vi].updatedAt=new Date().toISOString();saveArray(VEHICLE_KEY,vehicles);}
+
+ renderList();
+ alert(prepareWork?"Araç kabul kaydedildi ve İş Emrine Hazır durumuna alındı. Sonraki adımda bu kayıttan iş emrini oluşturacağız.":"Araç kabul kaydedildi.");
+ resetForm(false);
+}
+function editAcceptance(id){
+ const x=accepts.find(function(a){return String(a.id)===String(id);});if(!x)return;
+ editId=x.id;populateVehicles();
+ document.getElementById("formTitle").innerText=x.kabulNo+" · Araç Kabul Düzenle";
+ document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
+ const map=["kabulNo","kabulTarihi","kabulSaati","km","yakitSeviye","gelisSekli","yururDurum","teslimEden","teslimEdenTel","anahtarEtiketNo","anahtarAdedi","tahminiTeslimTarihi","tahminiTeslimSaati","musteriSikayeti","sorunKosulu","siklik","uyariLambalari","oncekiMudahale","talepEdilenIslemler","siviKacagi","gostergeUyarisi","hasarNotu","esyalar","stepne","aksesuar","iletisim","onayLimit","onaylayan","onayZamani"];
+ map.forEach(function(k){if(document.getElementById(k))document.getElementById(k).value=x[k]||"";});
+ document.getElementById("ruhsatBirakildi").checked=!!x.ruhsatBirakildi;
+ document.getElementById("yedekAnahtar").checked=!!x.yedekAnahtar;
+ document.getElementById("cekiciBelgesi").checked=!!x.cekiciBelgesi;
+ document.getElementById("testSurusu").checked=!!x.testSurusu;
+ document.getElementById("ekIslemOnayi").checked=!!x.ekIslemOnayi;
+ document.getElementById("hasarOnayi").checked=!!x.hasarOnayi;
+ setChecks("#departmanlar input",x.departmanlar||[]);
+ const k=x.kondisyon||{};
+ document.getElementById("durumOn").value=k.on||"İyi";document.getElementById("durumArka").value=k.arka||"İyi";document.getElementById("durumSol").value=k.sol||"İyi";document.getElementById("durumSag").value=k.sag||"İyi";document.getElementById("durumCam").value=k.cam||"İyi";document.getElementById("durumLastik").value=k.lastik||"İyi";document.getElementById("durumIc").value=k.ic||"İyi";document.getElementById("durumBagaj").value=k.bagaj||"İyi";
+ photoNames=(x.fotoAdlari||[]).slice();
+ document.getElementById("photoCount").innerText=photoNames.length?photoNames.length+" fotoğraf adı kayıtlı.":"Henüz fotoğraf seçilmedi.";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteAcceptance(id){
+ const x=accepts.find(function(a){return String(a.id)===String(id);});if(!x)return;
+ const linked=loadArray(WORK_KEY).some(function(w){return String(w.kabulId||"")===String(x.id)||String(w.kabulNo||"")===String(x.kabulNo);});
+ if(linked){alert("Bu kabul kaydına bağlı iş emri var. Silinemez.");return;}
+ if(confirm(x.kabulNo+" araç kabul kaydı silinsin mi?")){accepts=accepts.filter(function(a){return String(a.id)!==String(id);});saveArray(ACCEPT_KEY,accepts);renderList();}
+}
+function renderList(){
+ accepts=loadArray(ACCEPT_KEY);
+ const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();
+ const list=accepts.filter(function(x){return !q||[x.kabulNo,x.plaka,x.cariAdi,x.marka,x.model,x.musteriSikayeti].join(" ").toLocaleLowerCase("tr-TR").includes(q);});
+ document.getElementById("statTotal").innerText=accepts.length;
+ document.getElementById("statToday").innerText=accepts.filter(function(x){return x.kabulTarihi===today();}).length;
+ document.getElementById("statOpen").innerText=accepts.filter(function(x){return x.durum==="İş Emrine Hazır";}).length;
+ document.getElementById("statPhoto").innerText=accepts.filter(function(x){return Number(x.fotoSayisi||0)>0;}).length;
+ document.getElementById("listCount").innerText=list.length+" kayıt";
+ const el=document.getElementById("list");
+ if(!list.length){el.innerHTML='<div class="empty">Henüz araç kabul kaydı yok.</div>';return;}
+ el.innerHTML=list.map(function(x){
+  return '<div class="row"><div><div class="rowTitle">'+esc(x.kabulNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"Kabul Edildi")+'</span></div>'+
+   '<div class="rowSub">'+esc(x.cariAdi||"-")+' · '+esc([x.marka,x.model].filter(Boolean).join(" ")||"-")+' · '+esc(x.kabulTarihi||"")+' '+esc(x.kabulSaati||"")+
+   '<br>'+esc(x.musteriSikayeti||"-")+'</div></div>'+
+   '<div class="rowActions"><button class="edit" onclick="editAcceptance(&quot;'+String(x.id)+'&quot;)">Düzenle</button><button class="del" onclick="deleteAcceptance(&quot;'+String(x.id)+'&quot;)">Sil</button></div></div>';
+ }).join("");
+}
+
+window.addEventListener("storage",function(e){
+ if([VEHICLE_KEY,CARI_KEY,ACCEPT_KEY].includes(e.key)){populateVehicles();renderList();}
+});
+populateVehicles();resetForm(false);renderList();
+</script>
+</body>
+</html>
