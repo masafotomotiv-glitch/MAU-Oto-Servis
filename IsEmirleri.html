@@ -25,8 +25,24 @@ input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;
 .totalBox{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.total{border:1px solid #e5eaf0;border-radius:10px;padding:10px}.total span{display:block;font-size:11px;color:var(--muted)}.total b{font-size:17px}
 .saveRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}.saveRow button{border:0;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48;color:#fff}.progress{background:#0874d1;color:#fff}.backAccept{background:#eef2f6;color:#334155}
 .listHead{padding:13px 15px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;font-weight:900}.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.rowSub{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.actions{display:flex;gap:6px;align-items:center}.actions button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.open{background:#e8f7ef;color:#087840}.empty{text-align:center;color:#7b8794;padding:25px}
-@media(max-width:850px){.stats{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.totalBox{grid-template-columns:1fr 1fr}}
-@media(max-width:620px){.grid,.grid3,.saveRow{grid-template-columns:1fr}.full{grid-column:auto}.topbar{flex-wrap:wrap}.search{flex-basis:100%}}
+@media(max-width:850px){
+ .stats{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.totalBox{grid-template-columns:1fr 1fr}
+ .tableWrap{overflow:visible}
+ #laborTable,#partTable{display:block;min-width:0}
+ #laborTable thead,#partTable thead{display:none}
+ #laborTable tbody,#partTable tbody{display:block}
+ #laborTable tr,#partTable tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:1px solid #e5eaf0;border-radius:12px;padding:10px;margin-bottom:10px;background:#fbfcfe}
+ #laborTable td,#partTable td{display:block;border:0;padding:0}
+ #laborTable td::before,#partTable td::before{display:block;font-size:10px;font-weight:800;color:#64748b;margin:0 0 4px}
+ #laborTable td:nth-child(1)::before{content:"İşçilik Seç"}#laborTable td:nth-child(2)::before{content:"Bölüm"}#laborTable td:nth-child(3)::before{content:"İşçilik / İşlem"}#laborTable td:nth-child(4)::before{content:"Usta"}#laborTable td:nth-child(5)::before{content:"Saat"}#laborTable td:nth-child(6)::before{content:"Birim Fiyat"}#laborTable td:nth-child(7)::before{content:"Tutar"}
+ #partTable td:nth-child(1)::before{content:"Stoktan Seç"}#partTable td:nth-child(2)::before{content:"Parça / Malzeme"}#partTable td:nth-child(3)::before{content:"Kod"}#partTable td:nth-child(4)::before{content:"Adet"}#partTable td:nth-child(5)::before{content:"Birim Fiyat"}#partTable td:nth-child(6)::before{content:"Tutar"}#partTable td:nth-child(7)::before{content:"Durum"}
+ #laborTable td:last-child,#partTable td:last-child{grid-column:1/-1}
+}
+@media(max-width:620px){
+ .grid,.grid3,.saveRow{grid-template-columns:1fr}.full{grid-column:auto}.topbar{flex-wrap:wrap}.search{flex-basis:100%}
+ #laborTable tr,#partTable tr{grid-template-columns:1fr}
+ #laborTable td:last-child,#partTable td:last-child{grid-column:auto}
+}
 </style>
 </head>
 <body>
@@ -85,13 +101,13 @@ input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;
 
    <div class="section">
     <div class="sectionTitle">5. İşçilikler</div>
-    <div class="tableWrap"><table><thead><tr><th>İşçilik Seç</th><th>Bölüm</th><th>İşçilik / İşlem</th><th>Usta</th><th>Saat</th><th>Birim Fiyat</th><th>Tutar</th><th></th></tr></thead><tbody id="laborBody"></tbody></table></div>
+    <div class="tableWrap"><table id="laborTable"><thead><tr><th>İşçilik Seç</th><th>Bölüm</th><th>İşçilik / İşlem</th><th>Usta</th><th>Saat</th><th>Birim Fiyat</th><th>Tutar</th><th></th></tr></thead><tbody id="laborBody"></tbody></table></div>
     <button class="miniBtn add" onclick="addLabor()">+ İşçilik Ekle</button> <button class="miniBtn add" onclick="location.href='Hizmetler.html'">İşçilik Tanımları</button>
    </div>
 
    <div class="section">
     <div class="sectionTitle">6. Parça / Malzeme Talebi</div>
-    <div class="tableWrap"><table><thead><tr><th>Stoktan Seç</th><th>Parça / Malzeme</th><th>Kod</th><th>Adet</th><th>Birim Fiyat</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody id="partBody"></tbody></table></div>
+    <div class="tableWrap"><table id="partTable"><thead><tr><th>Stoktan Seç</th><th>Parça / Malzeme</th><th>Kod</th><th>Adet</th><th>Birim Fiyat</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody id="partBody"></tbody></table></div>
     <button class="miniBtn add" onclick="addPart()">+ Parça Ekle</button> <button class="miniBtn add" onclick="location.href='ParcaStok.html'">Parça & Stok</button>
    </div>
 
