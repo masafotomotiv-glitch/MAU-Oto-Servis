@@ -80,11 +80,9 @@ public class MainActivity extends Activity {
         // ruhsat fotoğrafı seçer ve OCR sonucunu sayfaya geri verir.
         webView.addJavascriptInterface(new AndroidBridge(), "MAUAndroid");
 
-        if (savedInstanceState == null) {
-            webView.loadUrl(START_URL + "?v=0.4-ruhsat-kritik-alanlar");
-        } else {
-            webView.restoreState(savedInstanceState);
-        }
+        webView.clearCache(true);
+        webView.clearHistory();
+        webView.loadUrl(START_URL + "?refresh=" + System.currentTimeMillis());
     }
 
     private class AndroidBridge {
