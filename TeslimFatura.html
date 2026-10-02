@@ -22,7 +22,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
  #invoicePrint th,#invoicePrint td{display:table-cell!important;border:1px solid #bbb!important;padding:6px!important;font-size:10px}
 }
 @media(max-width:720px){.flow{grid-template-columns:1fr 1fr}.grid,.actions{grid-template-columns:1fr}.full{grid-column:auto}.summary{grid-template-columns:1fr}.tableWrap{overflow:visible}table{min-width:0;display:block}thead{display:none}tbody{display:block}tr{display:grid;grid-template-columns:1fr 1fr;gap:6px;border:1px solid #e5eaf0;border-radius:10px;padding:9px;margin-bottom:8px}td{display:block;border:0;padding:2px}}
-</style><script src="lisans.js"></script>
+</style><script src="lisans.js"></script><script src="firma.js"></script>
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='IsEmirleri.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Fatura · Tahsilat · Araç Teslim</div></div></div></header>
 <div class="wrap">
@@ -93,19 +93,17 @@ function saveInvoice(){if(!active){alert("İş emri seçiniz.");return}const no=
 function printInvoice(){
  if(!active){alert("İş emri seçiniz.");return}
  const inv=invoiceFor(active);if(!inv){alert("Önce faturayı kaydediniz.");return}
- const settings=(()=>{try{return JSON.parse(localStorage.getItem("mau_ayarlar")||"{}")}catch(e){return{}}})();
  const ls=inv.iscilikler||[],ps=inv.parcalar||[],rows=[];
  ls.forEach(x=>rows.push(["İşçilik",x.islem||"-",Number(x.saat||0),"Saat",money(x.birimFiyat||0),money(Number(x.saat||0)*Number(x.birimFiyat||0))]));
  ps.forEach(x=>rows.push(["Parça",x.ad||"-",Number(x.adet||0),x.birim||"Adet",money(x.birimFiyat||0),money(Number(x.adet||0)*Number(x.birimFiyat||0))]));
  const logo=settings.logoData?'<img src="'+settings.logoData+'" style="max-width:120px;max-height:55px;object-fit:contain">':'<div style="font-size:28px;font-weight:900;color:#0b6db8">M••</div>';
- const html='<div style="display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:2px solid #173b62;padding-bottom:10px;margin-bottom:12px">'+
- '<div>'+logo+'<div style="font-size:18px;font-weight:900;margin-top:5px">'+esc(settings.firmaAdi||"MAU Oto Servis")+'</div><div style="font-size:10px;line-height:1.5">'+esc(settings.adres||"")+'<br>'+esc(settings.telefon||"")+'</div></div>'+
- '<div style="text-align:right"><div style="font-size:22px;font-weight:900">SATIŞ FATURASI</div><div><b>No:</b> '+esc(inv.faturaNo||"-")+'</div><div><b>Tarih:</b> '+esc(inv.faturaTarihi||inv.tarih||"-")+'</div></div></div>'+
+ const html=(window.MAUFirma?MAUFirma.header("SATIŞ FATURASI","No: "+(inv.faturaNo||"-")+" · Tarih: "+(inv.faturaTarihi||inv.tarih||"-")):'<h2>SATIŞ FATURASI</h2>')+
  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:11px"><div><b>Müşteri:</b> '+esc(inv.cariAdi||active.cariAdi||"-")+'<br><b>Cari Kodu:</b> '+esc(inv.cariCode||active.cariCode||"-")+'</div><div><b>Plaka:</b> '+esc(inv.plaka||active.plaka||"-")+'<br><b>İş Emri:</b> '+esc(inv.isEmriNo||active.isEmriNo||"-")+'</div></div>'+
  '<table><thead><tr><th>Tür</th><th>Açıklama</th><th>Miktar</th><th>Birim</th><th>Birim Fiyat</th><th>Tutar</th></tr></thead><tbody>'+
  rows.map(r=>'<tr>'+r.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table>'+
  '<div style="margin-top:12px;text-align:right;line-height:1.8;font-size:11px">Ara Toplam: <b>'+money(inv.araToplam||0)+'</b><br>KDV: <b>'+money(inv.kdvTutar||0)+'</b><br><span style="font-size:16px">Genel Toplam: <b>'+money(inv.genelToplam||inv.toplam||0)+'</b></span></div>'+
- (inv.aciklama?'<div style="margin-top:12px;font-size:10px"><b>Açıklama:</b> '+esc(inv.aciklama)+'</div>':"");
+ (inv.aciklama?'<div style="margin-top:12px;font-size:10px"><b>Açıklama:</b> '+esc(inv.aciklama)+'</div>':"")+
+ (window.MAUFirma?MAUFirma.footer():"");
  document.getElementById("invoicePrint").innerHTML=html;window.print()
 }
 function saveCollection(){if(!active){alert("İş emri seçiniz.");return}const amount=Number(document.getElementById("tahsilatTutar").value||0);if(!(amount>0)){alert("Tahsilat tutarı giriniz.");return}const remaining=Math.max(0,Number(active.genelToplam||0)-collectionsFor(active).reduce((s,x)=>s+Number(x.tutar||0),0));if(amount>remaining+0.001&&!confirm("Tahsilat kalan tutardan yüksek. Yine de kaydedilsin mi?"))return;const cols=load(COL_KEY);const data={id:Date.now(),makbuzNo:document.getElementById("makbuzNo").value.trim()||nextNo(COL_KEY,receiptPrefix(),"makbuzNo"),tarih:document.getElementById("tahsilatTarihi").value,tutar:amount,amount,isEmriId:active.id,isEmriNo:active.isEmriNo,cariId:active.cariId,cariCode:active.cariCode,cariAdi:active.cariAdi,plaka:active.plaka,yontem:document.getElementById("odemeYontemi").value,odemeYontemi:document.getElementById("odemeYontemi").value,aciklama:document.getElementById("tahsilatAciklama").value.trim(),durum:"Aktif",createdAt:new Date().toISOString()};cols.unshift(data);put(COL_KEY,cols);document.getElementById("makbuzNo").value=nextNo(COL_KEY,receiptPrefix(),"makbuzNo");document.getElementById("tahsilatTutar").value="";updateSummary();alert(data.makbuzNo+" tahsilat kaydedildi.")}
