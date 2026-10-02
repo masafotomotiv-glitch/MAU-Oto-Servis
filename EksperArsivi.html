@@ -51,6 +51,8 @@ header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:1
    <label class="check full"><input id="sendFlag" type="checkbox" checked> Bu dosyaları eksper gönderim paketine dahil et</label>
   </div>
   <div class="actions"><button class="btn green" onclick="saveFiles()">Dosyaları Arşive Ekle</button><button class="btn gray" onclick="resetAddForm()">Formu Temizle</button><button class="btn blue" onclick="printSummary()">Paket Özeti PDF / Yazdır</button><button class="btn blue" onclick="downloadZip()">Eksper ZIP Paketi</button></div>
+  <div style="margin-top:8px"><button class="btn gray" onclick="runArchiveSelfTest()">Arşiv Sistem Testi</button></div>
+  <div id="selfTestResult" class="note" style="margin-top:8px"></div>
   <div class="note" style="margin-top:9px">Gerçek dosyalar cihazın tarayıcı/APK veri alanındaki IndexedDB arşivinde saklanır. Paket yalnız “Eksper'e Gönderilecek” işaretli dosyaları içerir.</div>
  </div></div>
 
@@ -213,6 +215,26 @@ async function downloadZip(){
   a.href=u;a.download="EKSPER_"+base+".zip";a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
   claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claimId));if(i>=0){claims[i].eksperPaketSonTarih=new Date().toISOString();claims[i].eksperPaketDosyaSayisi=selected.length;put(CLAIM_KEY,claims);claim=claims[i]}render()
  }catch(e){alert("ZIP paketi hazırlanamadı: "+(e.message||e))}
+}
+async function runArchiveSelfTest(){
+ const out=document.getElementById("selfTestResult");out.className="note";out.textContent="Test çalışıyor...";
+ const id="SELFTEST-"+Date.now();
+ try{
+  const sample=new Blob(["MAU EKSPER ARSIV TEST"],{type:"text/plain;charset=utf-8"});
+  await dbPut({id,blob:sample});
+  const read=await dbGet(id);
+  if(!read)throw new Error("Dosya geri okunamadı.");
+  const txt=await read.blob.text();
+  if(txt!=="MAU EKSPER ARSIV TEST")throw new Error("Dosya içeriği doğrulanamadı.");
+  const zip=await makeZip([{name:"00_test.txt",blob:sample}]);
+  const bytes=new Uint8Array(await zip.arrayBuffer());
+  if(bytes.length<22||bytes[0]!==0x50||bytes[1]!==0x4b)throw new Error("ZIP paketi doğrulanamadı.");
+  await dbDelete(id);
+  out.className="good";out.innerHTML="<b>TEST BAŞARILI</b><br>Gerçek dosya yazma · okuma · silme ve ZIP oluşturma çalışıyor."
+ }catch(e){
+  try{await dbDelete(id)}catch(_){}
+  out.className="warn";out.innerHTML="<b>TEST HATASI</b><br>"+esc(e.message||e)
+ }
 }
 fillCats();renderClaim();render();
 </script>
