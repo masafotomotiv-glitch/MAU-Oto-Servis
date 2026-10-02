@@ -8,6 +8,18 @@
 *{box-sizing:border-box}
 :root{--blue:#0874d1;--blue2:#083fa7;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--green:#08a451;--red:#c12738;--amber:#a86400}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.movementTable{width:100%;min-width:0;table-layout:fixed}
+.movementTable th,.movementTable td{font-size:10px;padding:5px 4px;overflow-wrap:anywhere;word-break:break-word}
+.movementTable th:nth-child(1),.movementTable td:nth-child(1){width:10%}
+.movementTable th:nth-child(2),.movementTable td:nth-child(2){width:10%}
+.movementTable th:nth-child(3),.movementTable td:nth-child(3){width:10%}
+.movementTable th:nth-child(4),.movementTable td:nth-child(4){width:9%}
+.movementTable th:nth-child(5),.movementTable td:nth-child(5){width:9%}
+.movementTable th:nth-child(6),.movementTable td:nth-child(6){width:18%}
+.movementTable th:nth-child(7),.movementTable td:nth-child(7){width:9%}
+.movementTable th:nth-child(8),.movementTable td:nth-child(8){width:9%}
+.movementTable th:nth-child(9),.movementTable td:nth-child(9){width:9%}
+.movementTable th:nth-child(10),.movementTable td:nth-child(10){width:7%}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 header,.detailHead{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
 header{padding:18px}.detailHead{padding:16px}
@@ -537,7 +549,7 @@ function renderMovementTable(){
  const rows=list.length?list.map(h=>'<tr><td>'+esc(h.tarih||"")+'</td><td>'+esc(h.kaynak||"")+'</td><td>'+esc(h.belgeNo||"-")+'</td><td>'+esc(h.isEmriNo||"-")+'</td>'+
   '<td>'+esc(h.plaka||"-")+'</td><td>'+esc(h.aciklama||"-")+'</td><td>'+(h.borc?money(h.borc):"-")+'</td><td>'+(h.alacak?money(h.alacak):"-")+'</td><td><b>'+money(h.bakiye)+'</b></td><td>'+esc(h.durum||"Aktif")+'</td></tr>').join(""):
   '<tr><td colspan="10">Henüz otomatik cari hareketi yok.</td></tr>';
- document.getElementById("movementTable").innerHTML='<div class="tableWrap"><table style="min-width:1100px"><thead><tr><th>Tarih</th><th>Kaynak</th><th>Belge No</th><th>İş Emri</th><th>Plaka</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Bakiye</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ document.getElementById("movementTable").innerHTML='<div class="tableWrap"><table class="movementTable"><thead><tr><th>Tarih</th><th>Kaynak</th><th>Belge No</th><th>İş Emri</th><th>Plaka</th><th>Açıklama</th><th>Borç</th><th>Alacak</th><th>Bakiye</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function panelIsEmri(){
  const a=activeWorkOrders();
