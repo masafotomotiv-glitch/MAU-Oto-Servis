@@ -547,13 +547,41 @@ function panelIsEmri(){
  '<div class="quick"><button class="pdf" onclick="printSection(&quot;isemri&quot;)">📄 İş Emirleri / PDF</button></div>'+
  '<div class="tableWrap"><table><thead><tr><th>İş Emri No</th><th>Tarih</th><th>Plaka</th><th>Durum</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
+function invoiceLines(inv){
+ let iscilikler=Array.isArray(inv.iscilikler)?inv.iscilikler:[],parcalar=Array.isArray(inv.parcalar)?inv.parcalar:[];
+ if(!iscilikler.length&&!parcalar.length){
+  const wo=activeWorkOrders().find(w=>invoiceMatchesWorkOrder(inv,w));
+  if(wo){iscilikler=Array.isArray(wo.iscilikler)?wo.iscilikler:[];parcalar=Array.isArray(wo.parcalar)?wo.parcalar:[];}
+ }
+ return {iscilikler,parcalar};
+}
+function invoiceDetailTable(inv){
+ const data=invoiceLines(inv),rows=[];
+ data.iscilikler.forEach(x=>{
+  const qty=Number(x.saat||0),price=Number(x.birimFiyat||x.birim||0);
+  rows.push('<tr><td>İşçilik</td><td>'+esc(x.islem||x.ad||"-")+'</td><td>'+qty.toLocaleString("tr-TR")+'</td><td>Saat</td><td>'+money(price)+'</td><td>'+money(qty*price)+'</td></tr>');
+ });
+ data.parcalar.forEach(x=>{
+  const qty=Number(x.adet||x.miktar||0),price=Number(x.birimFiyat||x.fiyat||0);
+  rows.push('<tr><td>Parça</td><td>'+esc(x.ad||x.name||"-")+(x.kod?' <small>('+esc(x.kod)+')</small>':'')+'</td><td>'+qty.toLocaleString("tr-TR")+'</td><td>'+esc(x.birim||"Adet")+'</td><td>'+money(price)+'</td><td>'+money(qty*price)+'</td></tr>');
+ });
+ return rows.length?
+  '<div class="tableWrap"><table><thead><tr><th>Tür</th><th>İşlem / Parça</th><th>Miktar</th><th>Birim</th><th>Birim Fiyat</th><th>Tutar</th></tr></thead><tbody>'+rows.join("")+'</tbody></table></div>':
+  '<div class="note">Bu faturada satır detayı bulunmuyor.</div>';
+}
+function invoiceCard(inv){
+ const no=pick(inv,["faturaNo","no","belgeNo"],"-"),tarih=dateVal(inv)||"-",tip=pick(inv,["tip","tur","faturaTipi"],"-"),ie=pick(inv,["isEmriNo"],"-"),plaka=pick(inv,["plaka"],"-"),durum=pick(inv,["durum","status"],"Aktif");
+ const ara=num(inv,["araToplam"]),kdv=num(inv,["kdvTutar"]),toplam=num(inv,["genelToplam","toplam","tutar"]);
+ return '<div style="border:1px solid #dfe6ee;border-radius:12px;margin:0 0 12px;overflow:hidden;background:#fff">'+
+  '<div style="background:#f4f8fc;padding:11px 12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>'+esc(no)+'</b> · '+esc(tarih)+'<br><small>'+esc(tip)+' · İş Emri '+esc(ie)+' · '+esc(plaka)+'</small></div><div><b>'+money(toplam)+'</b><br><small>'+esc(durum)+'</small></div></div>'+
+  '<div style="padding:10px">'+invoiceDetailTable(inv)+
+  '<div style="text-align:right;margin-top:8px;font-size:12px">Ara Toplam: <b>'+money(ara||Math.max(0,toplam-kdv))+'</b><br>KDV: <b>'+money(kdv)+'</b><br>Genel Toplam: <b>'+money(toplam)+'</b></div></div></div>';
+}
 function panelFatura(){
  const a=activeInvoices();
- const rows=a.length?a.map(f=>'<tr><td>'+esc(pick(f,["faturaNo","no","belgeNo"],"-"))+'</td><td>'+esc(dateVal(f)||"-")+'</td><td>'+esc(pick(f,["tip","tur","faturaTipi"],"-"))+'</td><td>'+esc(pick(f,["isEmriNo"],"-"))+'</td><td>'+money(num(f,["genelToplam","toplam","tutar"]))+'</td><td>'+esc(pick(f,["durum","status"],"Aktif"))+'</td></tr>').join(""):
-  '<tr><td colspan="6">Bu cariye bağlı fatura yok.</td></tr>';
- document.getElementById("panel").innerHTML='<div class="panelTitle">Faturalar</div><div class="note"><b>Salt okunur.</b> Alış ve satış faturaları Faturalar bölümünden otomatik gelir.</div>'+
- '<div class="quick"><button class="pdf" onclick="printSection(&quot;fatura&quot;)">📄 Faturalar / PDF</button></div>'+
- '<div class="tableWrap"><table><thead><tr><th>Fatura No</th><th>Tarih</th><th>Tip</th><th>İş Emri</th><th>Tutar</th><th>Durum</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+ const cards=a.length?a.map(invoiceCard).join(""):'<div class="note">Bu cariye bağlı fatura yok.</div>';
+ document.getElementById("panel").innerHTML='<div class="panelTitle">Faturalar</div><div class="note"><b>Salt okunur.</b> Her fatura kendi işçilik ve parça satırlarıyla birlikte gösterilir.</div>'+
+ '<div class="quick"><button class="pdf" onclick="printSection(&quot;fatura&quot;)">📄 Faturalar / PDF</button></div>'+cards;
 }
 function panelHasar(){
  const a=activeClaims();
@@ -667,15 +695,21 @@ function printSection(type){
 
  if(type==="fatura"){
   const list=activeInvoices();
-  const rows=rowsFrom(list,[
-   f=>pick(f,["faturaNo","no","belgeNo"],"-"),
-   f=>dateVal(f)||"-",
-   f=>pick(f,["tip","tur","faturaTipi"],"-"),
-   f=>pick(f,["isEmriNo"],"-"),
-   f=>money(num(f,["genelToplam","toplam","tutar"])),
-   f=>pick(f,["durum","status"],"Aktif")
-  ]);
-  body=table(["Fatura No","Tarih","Tip","İş Emri","Tutar","Durum"],rows);
+  body=list.length?list.map(function(f){
+   const data=invoiceLines(f),lineRows=[];
+   data.iscilikler.forEach(function(x){
+    const qty=Number(x.saat||0),price=Number(x.birimFiyat||x.birim||0);
+    lineRows.push('<tr><td>İşçilik</td><td>'+esc(x.islem||x.ad||"-")+'</td><td>'+esc(qty)+'</td><td>Saat</td><td>'+money(price)+'</td><td>'+money(qty*price)+'</td></tr>');
+   });
+   data.parcalar.forEach(function(x){
+    const qty=Number(x.adet||x.miktar||0),price=Number(x.birimFiyat||x.fiyat||0);
+    lineRows.push('<tr><td>Parça</td><td>'+esc(x.ad||x.name||"-")+(x.kod?' ('+esc(x.kod)+')':'')+'</td><td>'+esc(qty)+'</td><td>'+esc(x.birim||"Adet")+'</td><td>'+money(price)+'</td><td>'+money(qty*price)+'</td></tr>');
+   });
+   const total=num(f,["genelToplam","toplam","tutar"]),tax=num(f,["kdvTutar"]),sub=num(f,["araToplam"])||Math.max(0,total-tax);
+   return '<div class="box" style="margin-bottom:12px"><b>'+esc(pick(f,["faturaNo","no","belgeNo"],"-"))+'</b> · '+esc(dateVal(f)||"-")+' · İş Emri '+esc(pick(f,["isEmriNo"],"-"))+' · '+esc(pick(f,["plaka"],"-"))+'</div>'+
+    table(["Tür","İşlem / Parça","Miktar","Birim","Birim Fiyat","Tutar"],lineRows.join(""))+
+    '<div class="tot" style="margin:6px 0 18px">Ara Toplam: <b>'+money(sub)+'</b><br>KDV: <b>'+money(tax)+'</b><br>Genel Toplam: <b>'+money(total)+'</b></div>';
+  }).join(""):'<div class="box">Bu cariye bağlı fatura yok.</div>';
  }
 
  if(type==="hasar"){
