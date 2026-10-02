@@ -28,6 +28,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_USER_HOME: ${{ github.workspace }}/android-test/.android-user
     timeout-minutes: 20
 
     steps:
@@ -125,14 +127,14 @@ jobs:
       - name: Stable debug signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: mau-ocr-debug-keystore-v1
+          path: android-test/.android-user/debug.keystore
+          key: mau-pilot-keystore-v3
 
       - name: Create debug signing key if missing
         run: |
-          mkdir -p ~/.android
-          if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
+          mkdir -p android-test/.android-user
+          if [ ! -f android-test/.android-user/debug.keystore ]; then
+            keytool -genkeypair -keystore android-test/.android-user/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=MAU Pilot,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
           fi
 
       - name: Build debug APK
