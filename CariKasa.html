@@ -104,7 +104,10 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 </div></div>
 
 <script>
-const KEYS={cariler:"mau_cariler",invoices:"mau_faturalar",collections:"mau_tahsilatlar",payments:"mau_odemeler",accounts:"mau_kasa_hesaplari",cashMoves:"mau_kasa_hareketleri"};
+const KEYS={cariler:"mau_cariler",invoices:"mau_faturalar",collections:"mau_tahsilatlar",payments:"mau_odemeler",accounts:"mau_kasa_hesaplari",cashMoves:"mau_kasa_hareketleri",settings:"mau_ayarlar"};
+function settings(){try{return JSON.parse(localStorage.getItem(KEYS.settings)||"{}")}catch(e){return{}}}
+function receiptPrefix(){return settings().makbuzPrefix||"MKB-"}
+function defaultPayMethod(){return settings().odemeYontemi||"Nakit"}
 function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
 function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -157,8 +160,8 @@ function setType(t){
 function resetForm(resetType=true){
  if(resetType)setType(activeType);
  ["cariId","tutar","referansNo","aciklama"].forEach(id=>document.getElementById(id).value="");
- document.getElementById("tarih").value=today();document.getElementById("yontem").value="Nakit";document.getElementById("hesapId").value=mapMethodToAccount("Nakit");
- document.getElementById("belgeNo").value=activeType==="Tahsilat"?nextNo(KEYS.collections,"MKB-","makbuzNo"):activeType==="Ödeme"?nextNo(KEYS.payments,"ODM-","makbuzNo"):nextNo(KEYS.cashMoves,activeType==="Gelir"?"GEL-":"GID-","belgeNo");
+ document.getElementById("tarih").value=today();document.getElementById("yontem").value=defaultPayMethod();document.getElementById("hesapId").value=mapMethodToAccount(defaultPayMethod());
+ document.getElementById("belgeNo").value=activeType==="Tahsilat"?nextNo(KEYS.collections,receiptPrefix(),"makbuzNo"):activeType==="Ödeme"?nextNo(KEYS.payments,"ODM-","makbuzNo"):nextNo(KEYS.cashMoves,activeType==="Gelir"?"GEL-":"GID-","belgeNo");
  document.getElementById("transferDate").value=today();document.getElementById("transferAmount").value="";document.getElementById("transferNo").value=nextNo(KEYS.cashMoves,"TRF-","belgeNo");document.getElementById("transferNote").value="";
 }
 document.getElementById("yontem").addEventListener("change",()=>{document.getElementById("hesapId").value=mapMethodToAccount(document.getElementById("yontem").value)});
@@ -172,7 +175,7 @@ function saveTransaction(){
  if(!accountId){alert("Kasa / banka hesabı seçiniz.");return}
  const cari=load(KEYS.cariler).find(x=>String(x.id)===String(cariId)),common={id:Date.now(),tarih,tutar,amount:tutar,cariId:cari?.id||"",cariCode:cari?.code||"",cariAdi:cari?.name||"",hesapId:accountId,hesapAdi:accountName(accountId),yontem:document.getElementById("yontem").value,odemeYontemi:document.getElementById("yontem").value,referansNo:document.getElementById("referansNo").value.trim(),aciklama:document.getElementById("aciklama").value.trim(),durum:"Aktif",createdAt:new Date().toISOString()};
  if(activeType==="Tahsilat"){
-  const arr=load(KEYS.collections);arr.unshift({...common,makbuzNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.collections,"MKB-","makbuzNo")});put(KEYS.collections,arr)
+  const arr=load(KEYS.collections);arr.unshift({...common,makbuzNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.collections,receiptPrefix(),"makbuzNo")});put(KEYS.collections,arr)
  }else if(activeType==="Ödeme"){
   const arr=load(KEYS.payments);arr.unshift({...common,makbuzNo:document.getElementById("belgeNo").value.trim()||nextNo(KEYS.payments,"ODM-","makbuzNo")});put(KEYS.payments,arr)
  }else{
