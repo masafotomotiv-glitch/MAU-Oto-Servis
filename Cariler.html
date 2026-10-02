@@ -424,6 +424,10 @@ function activePayments(){return activeCari?allPayments().filter(x=>belongsToCar
 function activeClaims(){return activeCari?allClaims().filter(x=>belongsToCari(x,activeCari)):[];}
 function activeDocs(){return activeCari?allDocs().filter(x=>belongsToCari(x,activeCari)):[];}
 
+function financialActive(x){
+ const s=String(pick(x,["durum","status"],"Aktif")).toLocaleLowerCase("tr-TR");
+ return !["iptal","pasif","taslak"].some(v=>s.includes(v));
+}
 function invoiceMatchesWorkOrder(inv,wo){
  const iid=pick(inv,["isEmriId","workOrderId"],"");
  const wid=pick(wo,["id","uuid"],"");
@@ -451,7 +455,7 @@ function buildMovements(){
   const status=String(pick(w,["durum","status"],"")).toLocaleLowerCase("tr-TR");
   const closed=["kapandı","kapali","kapalı","tamamlandı","tamamlandi","teslim","closed","completed"].some(x=>status.includes(x));
   if(!closed)return;
-  const faturalandi=invs.some(inv=>invoiceMatchesWorkOrder(inv,w));
+  const faturalandi=invs.some(inv=>financialActive(inv)&&invoiceMatchesWorkOrder(inv,w));
   out.push({
    id:pick(w,["id","uuid"],Date.now()),eventKey:"wo:"+pick(w,["id","uuid","isEmriNo","no"],Date.now()),
    tarih:dateVal(w),kaynak:"İş Emri",belgeNo:"",isEmriNo:pick(w,["isEmriNo","no","workOrderNo"],""),
@@ -469,7 +473,7 @@ function buildMovements(){
    tarih:dateVal(f),kaynak:alis?"Alış Faturası":"Satış Faturası",belgeNo:pick(f,["faturaNo","no","belgeNo"],""),
    isEmriNo:pick(f,["isEmriNo","workOrderNo"],""),plaka:pick(f,["plaka","vehiclePlate"],""),
    aciklama:pick(f,["aciklama","description"],alis?"Tedarikçi alış faturası":"Müşteri satış faturası"),
-   borc:alis?0:tutar,alacak:alis?tutar:0,etki:true,durum:pick(f,["durum","status"],"Aktif")
+   borc:alis?0:tutar,alacak:alis?tutar:0,etki:financialActive(f),durum:pick(f,["durum","status"],"Aktif")
   });
  });
 
@@ -479,7 +483,7 @@ function buildMovements(){
    id:pick(t,["id","uuid"],Date.now()),eventKey:"tah:"+pick(t,["id","uuid","makbuzNo","no"],Date.now()),
    tarih:dateVal(t),kaynak:"Tahsilat",belgeNo:pick(t,["makbuzNo","no","belgeNo"],""),
    isEmriNo:pick(t,["isEmriNo"],""),plaka:pick(t,["plaka"],""),aciklama:pick(t,["aciklama"],"Tahsilat"),
-   borc:0,alacak:tutar,etki:true,durum:pick(t,["durum"],"Aktif")
+   borc:0,alacak:tutar,etki:financialActive(t),durum:pick(t,["durum"],"Aktif")
   });
  });
 
@@ -489,7 +493,7 @@ function buildMovements(){
    id:pick(o,["id","uuid"],Date.now()),eventKey:"odm:"+pick(o,["id","uuid","makbuzNo","no"],Date.now()),
    tarih:dateVal(o),kaynak:"Ödeme",belgeNo:pick(o,["makbuzNo","no","belgeNo"],""),
    isEmriNo:pick(o,["isEmriNo"],""),plaka:pick(o,["plaka"],""),aciklama:pick(o,["aciklama"],"Ödeme"),
-   borc:tutar,alacak:0,etki:true,durum:pick(o,["durum"],"Aktif")
+   borc:tutar,alacak:0,etki:financialActive(o),durum:pick(o,["durum"],"Aktif")
   });
  });
 
