@@ -31,15 +31,15 @@ function apply(target,title,meta){
  if(el)el.innerHTML=header(title,meta);
  return el;
 }
-function injectStyle(){
- if(document.getElementById("mauFirmaStyle"))return;
- const st=document.createElement("style");st.id="mauFirmaStyle";st.textContent=
- '.mau-doc-company{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:2px solid #173b62;padding:10px 0 12px;margin:0 0 14px;font-family:Arial,sans-serif;color:#18324d}'+
+const DOC_CSS='.mau-doc-company{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:2px solid #173b62;padding:10px 0 12px;margin:0 0 14px;font-family:Arial,sans-serif;color:#18324d}'+
  '.mau-doc-company-left{display:flex;gap:12px;align-items:flex-start;min-width:0}.mau-doc-logo{max-width:150px;max-height:70px;object-fit:contain;display:block}.mau-doc-company-name{font-size:20px;font-weight:900;line-height:1.2}.mau-doc-company-info{font-size:10px;line-height:1.55;margin-top:5px;color:#485b70}.mau-doc-company-right{text-align:right;min-width:170px}.mau-doc-title{font-size:21px;font-weight:900;color:#18324d}.mau-doc-meta{font-size:10px;color:#64748b;margin-top:5px;line-height:1.4}.mau-doc-footer{margin-top:18px;padding-top:8px;border-top:1px solid #dfe5eb;font-size:9px;color:#6f8094;text-align:center}'+
  '@media(max-width:600px){.mau-doc-company{display:block}.mau-doc-company-right{text-align:left;margin-top:10px}.mau-doc-logo{max-width:120px}}'+
  '@media print{.mau-doc-company{break-inside:avoid}.mau-doc-company-info,.mau-doc-meta,.mau-doc-footer{color:#333!important}}';
+function injectStyle(){
+ if(document.getElementById("mauFirmaStyle"))return;
+ const st=document.createElement("style");st.id="mauFirmaStyle";st.textContent=DOC_CSS;
  document.head.appendChild(st);
 }
 injectStyle();
-window.MAUFirma={get:get,esc:esc,header:header,footer:footer,apply:apply,refreshStyle:injectStyle};
+window.MAUFirma={get:get,esc:esc,header:header,footer:footer,apply:apply,cssText:DOC_CSS,refreshStyle:injectStyle};
 })();
