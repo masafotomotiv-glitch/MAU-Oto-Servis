@@ -44,7 +44,10 @@ function assess(){
  return {mode:"production",write:active,active,status:active?"active":"readonly",daysLeft:daysLeft(s.validUntil),reason,state:s,config:cfg}
 }
 
-function safeLicenseKey(k){return k===STATE_KEY||k===DEVICE_KEY||k===CONFIG_KEY||String(k||"").startsWith("mau_lisans_")}
+function safeLicenseKey(k){
+ const key=String(k||"");
+ return k===STATE_KEY||k===DEVICE_KEY||k===CONFIG_KEY||key.startsWith("mau_lisans_")||(BUILD.mode==="development"&&key.startsWith("mau_qa_"))
+}
 let readonlyPatched=false;
 function patchReadonlyStorage(){
  if(readonlyPatched)return;readonlyPatched=true;
