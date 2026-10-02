@@ -10,8 +10,8 @@ android {
         applicationId "com.mau.otoservis.ocrtest"
         minSdk 26
         targetSdk 36
-        versionCode 3
-        versionName "0.3-ruhsat-ocr-side-by-side"
+        versionCode 4
+        versionName "0.4-ruhsat-kritik-alanlar"
     }
 
     buildTypes {
