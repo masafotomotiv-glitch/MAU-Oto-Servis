@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Eksper Arşivi</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--b2:#0d3e70;--g:#148a50;--r:#b42335;--a:#9a6500;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(90deg,var(--b2),var(--b));color:#fff;padding:15px}.head{max-width:1160px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1b;color:#fff;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:1160px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:13px 15px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.claim{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.info{border:1px solid #e2e8ef;border-radius:9px;padding:10px;background:#f9fbfd}.info span{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.info b{font-size:13px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid #e2e8ef;border-radius:9px;padding:10px;background:#f9fbfd}.stat span{display:block;font-size:10px;color:var(--muted)}.stat b{font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.full{grid-column:1/-1}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:10px;background:#fff}.field textarea{min-height:65px}.check{display:flex;gap:8px;align-items:center;border:1px solid #dfe6ee;border-radius:8px;padding:9px;background:#f8fafc;font-size:11px}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:11px 9px;font-weight:900}.blue{background:#0b76c5;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.red{background:#ffe9ec;color:#a22030}
+.categoryGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.cat{border:1px solid #dfe6ee;border-radius:9px;padding:8px;background:#f8fafc;font-size:10px}.cat b{display:block;font-size:13px;margin-top:3px}.cat.ok{background:#edf9f2;border-color:#cbe9d7;color:#126c40}.cat.miss{background:#fff8e9;border-color:#efddb0;color:#835b00}
+.toolbar{display:grid;grid-template-columns:1fr 200px 200px;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select{width:100%;border:1px solid #d9e1e9;border-radius:8px;padding:10px;background:#fff}
+.fileList{display:grid;gap:8px}.fileCard{border:1px solid #dfe6ee;border-radius:10px;padding:10px;display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.thumb{width:72px;height:58px;border-radius:8px;background:#eef3f8;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;font-weight:900;color:#60758b}.thumb img{width:100%;height:100%;object-fit:cover}.fTitle{font-weight:900;font-size:12px;overflow-wrap:anywhere}.fMeta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:3px}.badge{display:inline-block;border-radius:9px;padding:3px 6px;background:#eaf3ff;color:#075fa8;font-size:9px;font-weight:900;margin-right:4px}.send{background:#eaf8ef;color:#147044}.fBtns{display:grid;grid-template-columns:1fr 1fr;gap:5px}.fBtns button{border:0;border-radius:7px;padding:7px;font-size:9px;font-weight:900}.empty{text-align:center;padding:30px 10px;color:#7d8c9d;font-size:12px}.note{font-size:10px;color:var(--muted);line-height:1.55}.warn{background:#fff7e7;border:1px solid #eed7a2;color:#7c5400;border-radius:8px;padding:9px;font-size:10px;line-height:1.5}.good{background:#edf9f2;border:1px solid #cde9d8;color:#146b40;border-radius:8px;padding:9px;font-size:10px}
+#preview{display:none;position:fixed;inset:0;background:#000b;z-index:100;align-items:center;justify-content:center;padding:14px}.previewBox{max-width:980px;width:100%;max-height:94vh;background:#fff;border-radius:12px;overflow:auto}.previewTop{padding:10px;display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #e5ebf1}.previewBody{padding:10px;text-align:center}.previewBody img{max-width:100%;max-height:78vh}.previewBody iframe{width:100%;height:78vh;border:0}
+#printArea{display:none}
+@media(max-width:800px){.claim,.stats,.grid,.categoryGrid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.fileCard{grid-template-columns:58px 1fr}.thumb{width:58px;height:50px}.fBtns{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}}
+@media(max-width:520px){.claim,.stats,.grid,.categoryGrid,.actions{grid-template-columns:1fr}.fileCard{grid-template-columns:1fr}.thumb{width:100%;height:150px}.fBtns{grid-template-columns:1fr 1fr}}
+@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;background:#fff;color:#111;padding:10mm;font-family:Arial,sans-serif}#printArea table{width:100%;border-collapse:collapse;table-layout:fixed}#printArea th,#printArea td{border:1px solid #bbb;padding:6px;font-size:9px;overflow-wrap:anywhere}#printArea th{background:#f1f1f1}}
+</style>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="goBack()">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Eksper Arşivi · Fotoğraf · Belge · Gönderim Paketi</div></div></div></header>
+
+<div class="wrap">
+ <div class="card"><div class="cardHead">Hasar Dosyası</div><div class="body">
+  <div id="claimInfo" class="claim"></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Arşiv Durumu</div><div class="body">
+  <div class="stats">
+   <div class="stat"><span>Toplam Dosya</span><b id="sTotal">0</b></div>
+   <div class="stat"><span>Eksper'e Gönderilecek</span><b id="sSend">0</b></div>
+   <div class="stat"><span>Toplam Boyut</span><b id="sSize">0 MB</b></div>
+   <div class="stat"><span>Son Paket</span><b id="sPack">-</b></div>
+  </div>
+  <div id="requiredGrid" class="categoryGrid" style="margin-top:10px"></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Belge / Fotoğraf Ekle</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>Kategori</label><select id="category"></select></div>
+   <div class="field"><label>Aşama</label><select id="stage"><option>İlk Kabul</option><option>Olay Yeri</option><option>Hasar Tespiti</option><option>Söküm Sonrası</option><option>Onarım Aşaması</option><option>Tamamlanmış Araç</option><option>Ekspertiz / Fatura</option><option>Diğer</option></select></div>
+   <div class="field"><label>Etiket / Açıklama</label><input id="label" placeholder="Örn. Sağ ön çamurluk yakın çekim"></div>
+   <div class="field"><label>Dosyalar</label><input id="files" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"></div>
+   <div class="field full"><label>Not</label><textarea id="note" placeholder="Eksper için kısa açıklama..."></textarea></div>
+   <label class="check full"><input id="sendFlag" type="checkbox" checked> Bu dosyaları eksper gönderim paketine dahil et</label>
+  </div>
+  <div class="actions"><button class="btn green" onclick="saveFiles()">Dosyaları Arşive Ekle</button><button class="btn gray" onclick="resetAddForm()">Formu Temizle</button><button class="btn blue" onclick="printSummary()">Paket Özeti PDF / Yazdır</button><button class="btn blue" onclick="downloadZip()">Eksper ZIP Paketi</button></div>
+  <div class="note" style="margin-top:9px">Gerçek dosyalar cihazın tarayıcı/APK veri alanındaki IndexedDB arşivinde saklanır. Paket yalnız “Eksper'e Gönderilecek” işaretli dosyaları içerir.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">Arşiv</div><div class="body">
+  <div class="toolbar"><input id="search" placeholder="Dosya adı, kategori veya not ara..." oninput="render()"><select id="filterCat" onchange="render()"><option value="">Tüm Kategoriler</option></select><select id="filterSend" onchange="render()"><option value="">Tümü</option><option value="send">Gönderilecek</option><option value="internal">Servis İçi</option></select></div>
+  <div id="fileList" class="fileList"></div>
+ </div></div>
+</div>
+
+<div id="preview"><div class="previewBox"><div class="previewTop"><b id="previewTitle">Önizleme</b><button class="btn gray" onclick="closePreview()">Kapat</button></div><div id="previewBody" class="previewBody"></div></div></div>
+<div id="printArea"></div>
+
+<script>
+const CLAIM_KEY="mau_hasar_dosyalari",META_KEY="mau_eksper_arsiv_meta",SETTINGS_KEY="mau_ayarlar",DB_NAME="mau_oto_files",STORE="eksperFiles";
+const CATEGORIES=[
+ ["01_Ruhsat-Belgeler","Ruhsat / Resmi Evrak"],
+ ["01_Ruhsat-Belgeler","Kimlik"],
+ ["01_Ruhsat-Belgeler","Kaza Tespit Tutanağı"],
+ ["01_Ruhsat-Belgeler","Poliçe / Sigorta Evrakı"],
+ ["01_Ruhsat-Belgeler","IBAN"],
+ ["01_Ruhsat-Belgeler","Vekalet / Yetki"],
+ ["02_Arac-Tanimlama","Şasi / VIN"],
+ ["02_Arac-Tanimlama","KM Göstergesi"],
+ ["02_Arac-Tanimlama","Araç Genel Görünüm"],
+ ["03_Olay-Yeri","Olay Yeri"],
+ ["04_Hasar","Hasar Fotoğrafı"],
+ ["05_Sokum-Sonrasi","Söküm Sonrası"],
+ ["06_Onarim-Asamalari","Onarım Aşaması"],
+ ["07_Tamamlanmis-Arac","Tamamlanmış Araç"],
+ ["08_Ekspertiz-Fatura","Ekspertiz / Teklif"],
+ ["08_Ekspertiz-Fatura","Fatura / Mali Evrak"],
+ ["09_Diger","Diğer"]
+];
+const REQUIRED=["Ruhsat / Resmi Evrak","Kimlik","Kaza Tespit Tutanağı","Şasi / VIN","KM Göstergesi","Hasar Fotoğrafı"];
+const claimId=new URLSearchParams(location.search).get("dosyaId");
+let claims=load(CLAIM_KEY),claim=claims.find(x=>String(x.id)===String(claimId)),previewUrl="";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function sizeText(n){n=Number(n||0);if(n<1024)return n+" B";if(n<1024*1024)return (n/1024).toLocaleString("tr-TR",{maximumFractionDigits:1})+" KB";return (n/1024/1024).toLocaleString("tr-TR",{maximumFractionDigits:2})+" MB"}
+function safeName(v){return String(v||"dosya").replace(/[\\/:*?"<>|]+/g,"_").replace(/\s+/g," ").trim()}
+function goBack(){location.href="HasarSigorta.html"}
+function metaAll(){return load(META_KEY)}
+function metaForClaim(){return metaAll().filter(x=>String(x.claimId)===String(claimId)).sort((a,b)=>Number(a.order||0)-Number(b.order||0)||String(a.createdAt||"").localeCompare(String(b.createdAt||"")))}
+function saveMeta(arr){put(META_KEY,arr)}
+function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:"id"})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function dbPut(rec){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).put(rec);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+async function dbGet(id){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,"readonly"),r=tx.objectStore(STORE).get(id);r.onsuccess=()=>{db.close();res(r.result||null)};r.onerror=()=>{db.close();rej(r.error)}})}
+async function dbDelete(id){const db=await openDb();return new Promise((res,rej)=>{const tx=db.transaction(STORE,"readwrite");tx.objectStore(STORE).delete(id);tx.oncomplete=()=>{db.close();res()};tx.onerror=()=>{db.close();rej(tx.error)}})}
+function renderClaim(){
+ if(!claim){document.getElementById("claimInfo").innerHTML='<div class="warn" style="grid-column:1/-1">Hasar dosyası bulunamadı.</div>';return}
+ const items=[["Dosya No",claim.dosyaNo||claim.sigortaDosyaNo||"-"],["Plaka",claim.plaka||"-"],["Müşteri",claim.cariAdi||"-"],["Sigorta",claim.sigortaSirketi||claim.sigorta||"-"],["Eksper Firma",claim.eksperFirma||"-"],["Eksper",claim.eksper||"-"],["Olay Tarihi",(claim.olayTarihi||"-")+" "+(claim.olaySaati||"")],["Durum",claim.durum||"-"]];
+ document.getElementById("claimInfo").innerHTML=items.map(x=>'<div class="info"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join("")
+}
+function fillCats(){
+ const opts=CATEGORIES.map(x=>'<option value="'+esc(x[1])+'">'+esc(x[1])+'</option>').join("");
+ document.getElementById("category").innerHTML=opts;document.getElementById("filterCat").innerHTML='<option value="">Tüm Kategoriler</option>'+opts
+}
+function resetAddForm(){document.getElementById("label").value="";document.getElementById("note").value="";document.getElementById("files").value="";document.getElementById("sendFlag").checked=true}
+async function saveFiles(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const files=Array.from(document.getElementById("files").files||[]);if(!files.length){alert("Dosya seçiniz.");return}
+ const cat=document.getElementById("category").value,stage=document.getElementById("stage").value,label=document.getElementById("label").value.trim(),note=document.getElementById("note").value.trim(),send=document.getElementById("sendFlag").checked,all=metaAll();
+ let order=metaForClaim().reduce((m,x)=>Math.max(m,Number(x.order||0)),0);
+ try{
+  for(const file of files){
+   const id="EXF-"+Date.now()+"-"+Math.random().toString(36).slice(2,8),folder=(CATEGORIES.find(x=>x[1]===cat)||["09_Diger"])[0];
+   await dbPut({id,blob:file});
+   all.push({id,claimId:String(claimId),fileName:file.name,mime:file.type||"application/octet-stream",size:file.size,category:cat,folder,stage,label,note,sendToExpert:send,order:++order,createdAt:new Date().toISOString()})
+  }
+  saveMeta(all);resetAddForm();render();alert(files.length+" dosya arşive eklendi.")
+ }catch(e){alert("Dosya kaydedilemedi: "+(e.message||e))}
+}
+function requiredStatus(list){
+ document.getElementById("requiredGrid").innerHTML=REQUIRED.map(name=>{const ok=list.some(x=>x.category===name);return '<div class="cat '+(ok?"ok":"miss")+'">'+esc(name)+'<b>'+(ok?"Var":"Eksik")+'</b></div>'}).join("")
+}
+function render(){
+ const all=metaForClaim(),q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim(),fc=document.getElementById("filterCat").value,fs=document.getElementById("filterSend").value;
+ const list=all.filter(x=>(!q||[x.fileName,x.category,x.stage,x.label,x.note].join(" ").toLocaleLowerCase("tr-TR").includes(q))&&(!fc||x.category===fc)&&(!fs||(fs==="send"?x.sendToExpert:!x.sendToExpert)));
+ document.getElementById("sTotal").textContent=all.length;document.getElementById("sSend").textContent=all.filter(x=>x.sendToExpert).length;document.getElementById("sSize").textContent=sizeText(all.reduce((s,x)=>s+Number(x.size||0),0));document.getElementById("sPack").textContent=claim?.eksperPaketSonTarih?new Date(claim.eksperPaketSonTarih).toLocaleDateString("tr-TR"):"-";requiredStatus(all);
+ const el=document.getElementById("fileList");if(!list.length){el.innerHTML='<div class="empty">Bu görünümde dosya yok.</div>';return}
+ el.innerHTML=list.map(x=>'<div class="fileCard"><div class="thumb" id="thumb-'+x.id+'">'+(x.mime.startsWith("image/")?"GÖRSEL":x.mime.includes("pdf")?"PDF":"DOSYA")+'</div><div><div class="fTitle">'+esc(x.fileName)+'</div><div class="fMeta"><span class="badge">'+esc(x.category)+'</span><span class="badge">'+esc(x.stage)+'</span>'+(x.sendToExpert?'<span class="badge send">Eksper Paketi</span>':'')+'<br>'+esc(x.label||"")+(x.note?'<br>'+esc(x.note):'')+'<br>'+sizeText(x.size)+' · '+new Date(x.createdAt).toLocaleString("tr-TR")+'</div></div><div class="fBtns"><button class="blue" onclick="previewFile(&quot;'+x.id+'&quot;)">Aç</button><button class="gray" onclick="toggleSend(&quot;'+x.id+'&quot;)">'+(x.sendToExpert?"Paketten Çıkar":"Pakete Ekle")+'</button><button class="gray" onclick="moveFile(&quot;'+x.id+'&quot;,-1)">↑</button><button class="red" onclick="deleteFile(&quot;'+x.id+'&quot;)">Sil</button></div></div>').join("");
+ list.filter(x=>x.mime.startsWith("image/")).slice(0,24).forEach(async x=>{try{const r=await dbGet(x.id);if(!r)return;const u=URL.createObjectURL(r.blob),img=document.createElement("img");img.onload=()=>URL.revokeObjectURL(u);img.src=u;const t=document.getElementById("thumb-"+x.id);if(t){t.innerHTML="";t.appendChild(img)}}catch(e){}})
+}
+async function previewFile(id){
+ const m=metaAll().find(x=>x.id===id),r=await dbGet(id);if(!m||!r){alert("Dosya bulunamadı.");return}
+ closePreview();previewUrl=URL.createObjectURL(r.blob);document.getElementById("previewTitle").textContent=m.fileName;const body=document.getElementById("previewBody");
+ if(m.mime.startsWith("image/"))body.innerHTML='<img src="'+previewUrl+'">';
+ else if(m.mime.includes("pdf"))body.innerHTML='<iframe src="'+previewUrl+'"></iframe>';
+ else {body.innerHTML='<div class="good">Bu dosya türü tarayıcı içinde önizlenemiyor.</div><div style="margin-top:10px"><button class="btn blue" onclick="downloadOne(&quot;'+id+'&quot;)">Dosyayı İndir</button></div>'}
+ document.getElementById("preview").style.display="flex"
+}
+function closePreview(){document.getElementById("preview").style.display="none";document.getElementById("previewBody").innerHTML="";if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=""}}
+async function downloadOne(id){const m=metaAll().find(x=>x.id===id),r=await dbGet(id);if(!m||!r)return;const u=URL.createObjectURL(r.blob),a=document.createElement("a");a.href=u;a.download=m.fileName;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function toggleSend(id){const a=metaAll(),i=a.findIndex(x=>x.id===id);if(i<0)return;a[i].sendToExpert=!a[i].sendToExpert;saveMeta(a);render()}
+function moveFile(id,dir){const a=metaAll(),group=a.filter(x=>String(x.claimId)===String(claimId)).sort((x,y)=>Number(x.order)-Number(y.order)),i=group.findIndex(x=>x.id===id),j=i+dir;if(i<0||j<0||j>=group.length)return;const oi=group[i].order;group[i].order=group[j].order;group[j].order=oi;const map=new Map(group.map(x=>[x.id,x.order]));a.forEach(x=>{if(map.has(x.id))x.order=map.get(x.id)});saveMeta(a);render()}
+async function deleteFile(id){const m=metaAll().find(x=>x.id===id);if(!m||!confirm(m.fileName+" arşivden silinsin mi?"))return;await dbDelete(id);saveMeta(metaAll().filter(x=>x.id!==id));render()}
+function summaryText(selected){
+ const s=(()=>{try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}")}catch(e){return{}}})();
+ return [
+  "MAU OTO SERVİS - EKSPER GÖNDERİM DOSYASI",
+  "Firma: "+(s.firmaAdi||"MAU Oto Servis"),
+  "Hasar Dosya No: "+(claim?.dosyaNo||claim?.sigortaDosyaNo||"-"),
+  "Plaka: "+(claim?.plaka||"-"),
+  "Müşteri: "+(claim?.cariAdi||"-"),
+  "Sigorta: "+(claim?.sigortaSirketi||claim?.sigorta||"-"),
+  "Eksper Firma: "+(claim?.eksperFirma||"-"),
+  "Eksper: "+(claim?.eksper||"-"),
+  "Olay: "+(claim?.olayTarihi||"-")+" "+(claim?.olaySaati||""),
+  "Hasar: "+(claim?.hasarAciklama||"-"),
+  "",
+  "PAKET DOSYALARI:",
+  ...selected.map((x,i)=>(i+1)+". ["+x.category+"] "+x.fileName+(x.label?" - "+x.label:"")),
+  "",
+  "Hazırlanma: "+new Date().toLocaleString("tr-TR")
+ ].join("\r\n")
+}
+function printSummary(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const selected=metaForClaim().filter(x=>x.sendToExpert),s=(()=>{try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}")}catch(e){return{}}})();
+ const rows=selected.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.category)+'</td><td>'+esc(x.stage)+'</td><td>'+esc(x.fileName)+'</td><td>'+esc(x.label||"")+'</td></tr>').join("");
+ const missing=REQUIRED.filter(r=>!metaForClaim().some(x=>x.category===r)).join(", ");
+ document.getElementById("printArea").innerHTML='<h2>'+esc(s.firmaAdi||"MAU Oto Servis")+'</h2><h3>Eksper Gönderim Paketi</h3><table><tr><th>Dosya No</th><td>'+esc(claim.dosyaNo||claim.sigortaDosyaNo||"-")+'</td><th>Plaka</th><td>'+esc(claim.plaka||"-")+'</td></tr><tr><th>Müşteri</th><td>'+esc(claim.cariAdi||"-")+'</td><th>Sigorta</th><td>'+esc(claim.sigortaSirketi||claim.sigorta||"-")+'</td></tr><tr><th>Eksper Firma</th><td>'+esc(claim.eksperFirma||"-")+'</td><th>Eksper</th><td>'+esc(claim.eksper||"-")+'</td></tr><tr><th>Olay</th><td>'+esc((claim.olayTarihi||"-")+" "+(claim.olaySaati||""))+'</td><th>Durum</th><td>'+esc(claim.durum||"-")+'</td></tr></table><h4>Hasar Açıklaması</h4><p>'+esc(claim.hasarAciklama||"-")+'</p><h4>Gönderilecek Dosyalar ('+selected.length+')</h4><table><thead><tr><th>#</th><th>Kategori</th><th>Aşama</th><th>Dosya</th><th>Etiket</th></tr></thead><tbody>'+rows+'</tbody></table>'+(missing?'<p><b>Arşivde eksik temel kategori:</b> '+esc(missing)+'</p>':'')+'<p style="font-size:9px">Hazırlanma: '+new Date().toLocaleString("tr-TR")+'</p>';
+ window.print()
+}
+function crcTable(){const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t}const CRC_TABLE=crcTable();
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=CRC_TABLE[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0}
+function dosTime(d){return ((d.getHours()&31)<<11)|((d.getMinutes()&63)<<5)|((Math.floor(d.getSeconds()/2))&31)}
+function dosDate(d){return (((d.getFullYear()-1980)&127)<<9)|(((d.getMonth()+1)&15)<<5)|(d.getDate()&31)}
+function u16(v){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,v,true);return b}
+function u32(v){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,v>>>0,true);return b}
+function concat(parts){const n=parts.reduce((s,p)=>s+p.length,0),o=new Uint8Array(n);let at=0;parts.forEach(p=>{o.set(p,at);at+=p.length});return o}
+async function makeZip(entries){
+ const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;const now=new Date(),tm=dosTime(now),dt=dosDate(now);
+ for(const e of entries){
+  const name=enc.encode(e.name),data=new Uint8Array(await e.blob.arrayBuffer()),crc=crc32(data);
+  const local=concat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(tm),u16(dt),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+  locals.push(local);
+  const central=concat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(tm),u16(dt),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]);
+  centrals.push(central);offset+=local.length
+ }
+ const centralData=concat(centrals),localData=concat(locals),end=concat([u32(0x06054b50),u16(0),u16(0),u16(entries.length),u16(entries.length),u32(centralData.length),u32(localData.length),u16(0)]);
+ return new Blob([localData,centralData,end],{type:"application/zip"})
+}
+async function downloadZip(){
+ if(!claim){alert("Hasar dosyası bulunamadı.");return}
+ const selected=metaForClaim().filter(x=>x.sendToExpert);if(!selected.length){alert("Eksper paketine dahil edilmiş dosya yok.");return}
+ const missing=REQUIRED.filter(r=>!metaForClaim().some(x=>x.category===r));
+ if(missing.length&&!confirm("Temel arşiv kategorilerinden eksik olanlar var:\n\n"+missing.join("\n")+"\n\nYine de ZIP paketi hazırlansın mı?"))return;
+ const entries=[],manifest=[];
+ for(const m of selected){const r=await dbGet(m.id);if(!r)continue;const path=(m.folder||"09_Diger")+"/"+String(m.order||0).padStart(3,"0")+"_"+safeName(m.fileName);entries.push({name:path,blob:r.blob});manifest.push({...m,blob:undefined})}
+ entries.unshift({name:"00_Dosya_Ozeti.txt",blob:new Blob([summaryText(selected)],{type:"text/plain;charset=utf-8"})});
+ entries.unshift({name:"00_Manifest.json",blob:new Blob([JSON.stringify({claimId,claimNo:claim.dosyaNo||claim.sigortaDosyaNo,plate:claim.plaka,generatedAt:new Date().toISOString(),files:manifest},null,2)],{type:"application/json;charset=utf-8"})});
+ try{
+  const zip=await makeZip(entries),u=URL.createObjectURL(zip),a=document.createElement("a"),base=safeName((claim.plaka||"ARAC")+"_"+(claim.dosyaNo||claim.sigortaDosyaNo||"DOSYA"));
+  a.href=u;a.download="EKSPER_"+base+".zip";a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
+  claims=load(CLAIM_KEY);const i=claims.findIndex(x=>String(x.id)===String(claimId));if(i>=0){claims[i].eksperPaketSonTarih=new Date().toISOString();claims[i].eksperPaketDosyaSayisi=selected.length;put(CLAIM_KEY,claims);claim=claims[i]}render()
+ }catch(e){alert("ZIP paketi hazırlanamadı: "+(e.message||e))}
+}
+fillCats();renderClaim();render();
+</script>
+</body>
+</html>
