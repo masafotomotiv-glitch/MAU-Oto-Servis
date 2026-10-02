@@ -1,276 +1,90 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAU Oto Servis - İş Emirleri</title>
 <style>
-*{box-sizing:border-box}
-:root{--blue:#0874d1;--blue2:#083fa7;--green:#0a944a;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#d9e1ea;--red:#b42335;--amber:#a86400}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-button,input,textarea,select{font:inherit}button{cursor:pointer}
-header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:16px}
-.head{max-width:1200px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1d;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}
-.logo{font-size:22px;font-weight:900}.sub{font-size:12px;opacity:.88;margin-top:3px}
-.container{max-width:1200px;margin:auto;padding:16px}.topbar{display:flex;gap:9px;margin-bottom:12px}.search{flex:1;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff}.newBtn{border:0;background:var(--green);color:#fff;font-weight:900;border-radius:10px;padding:13px 16px}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.stat{background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px #0000000b}.stat b{display:block;color:#0864b8;font-size:21px}.stat span{font-size:11px;color:var(--muted)}
-.card{background:#fff;border-radius:14px;box-shadow:0 2px 12px #0000000b;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;background:#eef6ff;border-bottom:1px solid #d8e8f7;font-weight:900;color:#075ca8}.body{padding:15px}
-.section{border-top:1px solid #edf0f4;padding-top:15px;margin-top:15px}.section:first-child{border-top:0;padding-top:0;margin-top:0}.sectionTitle{font-weight:900;color:#173b62;font-size:16px;margin-bottom:10px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field{margin-bottom:10px}.full{grid-column:1/-1}
-label{display:block;font-size:12px;font-weight:800;color:#4d5b69;margin-bottom:5px}.req:after{content:" *";color:var(--red)}
-input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#fff}textarea{min-height:78px;resize:vertical}input[readonly],textarea[readonly]{background:#f5f7fa;color:#52606d}
-.info{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;line-height:1.6;font-size:12px}.badge{display:inline-block;background:#eaf3ff;color:#075ba8;border-radius:10px;padding:4px 8px;font-size:10px;font-weight:800}
-.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:800px}th,td{border-bottom:1px solid #edf0f4;padding:8px 6px;text-align:left;font-size:11px;vertical-align:top}th{background:#f7f9fc}td input,td select{padding:8px;font-size:11px}
-.miniBtn{border:0;border-radius:8px;padding:8px 10px;font-weight:800}.add{background:#e8f7ef;color:#087840}.remove{background:#ffe8eb;color:#a21c2b}
-.totalBox{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.total{border:1px solid #e5eaf0;border-radius:10px;padding:10px}.total span{display:block;font-size:11px;color:var(--muted)}.total b{font-size:17px}
-.saveRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}.saveRow button{border:0;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48;color:#fff}.progress{background:#0874d1;color:#fff}.backAccept{background:#eef2f6;color:#334155}
-.listHead{padding:13px 15px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;font-weight:900}.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.rowSub{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.actions{display:flex;gap:6px;align-items:center}.actions button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.open{background:#e8f7ef;color:#087840}.empty{text-align:center;color:#7b8794;padding:25px}
-@media(max-width:850px){
- .stats{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.totalBox{grid-template-columns:1fr 1fr}
- .tableWrap{overflow:visible}
- #laborTable,#partTable{display:block;min-width:0}
- #laborTable thead,#partTable thead{display:none}
- #laborTable tbody,#partTable tbody{display:block}
- #laborTable tr,#partTable tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:1px solid #e5eaf0;border-radius:12px;padding:10px;margin-bottom:10px;background:#fbfcfe}
- #laborTable td,#partTable td{display:block;border:0;padding:0}
- #laborTable td::before,#partTable td::before{display:block;font-size:10px;font-weight:800;color:#64748b;margin:0 0 4px}
- #laborTable td:nth-child(1)::before{content:"İşçilik Seç"}#laborTable td:nth-child(2)::before{content:"Bölüm"}#laborTable td:nth-child(3)::before{content:"İşçilik / İşlem"}#laborTable td:nth-child(4)::before{content:"Usta"}#laborTable td:nth-child(5)::before{content:"Saat"}#laborTable td:nth-child(6)::before{content:"Birim Fiyat"}#laborTable td:nth-child(7)::before{content:"Tutar"}
- #partTable td:nth-child(1)::before{content:"Stoktan Seç"}#partTable td:nth-child(2)::before{content:"Parça / Malzeme"}#partTable td:nth-child(3)::before{content:"Kod"}#partTable td:nth-child(4)::before{content:"Adet"}#partTable td:nth-child(5)::before{content:"Birim Fiyat"}#partTable td:nth-child(6)::before{content:"Tutar"}#partTable td:nth-child(7)::before{content:"Durum"}
- #laborTable td:last-child,#partTable td:last-child{grid-column:1/-1}
-}
-@media(max-width:620px){
- .grid,.grid3,.saveRow{grid-template-columns:1fr}.full{grid-column:auto}.topbar{flex-wrap:wrap}.search{flex-basis:100%}
- #laborTable tr,#partTable tr{grid-template-columns:1fr}
- #laborTable td:last-child,#partTable td:last-child{grid-column:auto}
-}
+*{box-sizing:border-box}:root{--b:#0874d1;--b2:#083fa7;--g:#0a944a;--bg:#f3f6fb;--line:#d9e1ea;--muted:#64748b}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#1f2937}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:16px}.head{max-width:1100px;margin:auto;display:flex;align-items:center;gap:12px}.back{border:0;background:#ffffff1b;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}.title{font-size:22px;font-weight:900}.sub{font-size:12px;opacity:.86;margin-top:3px}
+.wrap{max-width:1100px;margin:auto;padding:16px}.toolbar{display:flex;gap:8px;margin-bottom:12px}.search{flex:1;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.new{border:0;background:var(--g);color:#fff;border-radius:10px;padding:12px 15px;font-weight:900}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.stat{background:#fff;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:21px;color:#0864b8}.stat span{font-size:11px;color:var(--muted)}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px #0000000b;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;background:#eef6ff;border-bottom:1px solid #d7e8f7;font-weight:900;color:#075ca8}.body{padding:15px}
+.section{border-top:1px solid #edf0f4;padding-top:15px;margin-top:15px}.section:first-child{border-top:0;margin-top:0;padding-top:0}.sectionTitle{font-size:16px;font-weight:900;color:#173b62;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field{margin-bottom:9px}.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:800;color:#4d5b69;margin-bottom:5px}.req:after{content:" *";color:#b42335}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#fff}textarea{min-height:78px;resize:vertical}input[readonly],textarea[readonly]{background:#f5f7fa}
+.info{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;font-size:12px;line-height:1.6}.badge{display:inline-block;padding:4px 8px;border-radius:10px;background:#eaf3ff;color:#075ba8;font-size:10px;font-weight:800}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}.step{padding:9px;border-radius:9px;background:#eef2f6;color:#64748b;text-align:center;font-size:11px;font-weight:800}.step.active{background:#ddecff;color:#075ba8}.step.done{background:#e8f7ef;color:#087840}
+.saveRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.saveRow button{border:0;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48;color:#fff}.next{background:#0874d1;color:#fff}
+.list{padding:10px}.row{border:1px solid #e5eaf0;border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.rowTitle{font-weight:900}.meta{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.actions button{border:0;border-radius:8px;padding:8px 10px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.ops{background:#e8f7ef;color:#087840}.quote{background:#fff2df;color:#9b6200}.empty{text-align:center;color:var(--muted);padding:30px}
+@media(max-width:750px){.stats{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}}
+@media(max-width:580px){.grid,.grid3,.saveRow{grid-template-columns:1fr}.full{grid-column:auto}.toolbar{flex-wrap:wrap}.search{flex-basis:100%}.row{grid-template-columns:1fr}}
 </style>
-</head>
-<body>
-<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="logo">M•• MAU OTO SERVİS</div><div class="sub">İş Emirleri · Arıza Tespiti · İşçilik · Parça · Onay · Durum Takibi</div></div></div></header>
+</head><body>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">İş Emri Planlama · Araç Kabulden Atölyeye Geçiş</div></div></div></header>
+<div class="wrap">
+ <div class="flow"><div class="step done">1 Araç Kabul</div><div class="step active">2 İş Emri Planla</div><div class="step">3 İşlemler / Tespit</div><div class="step">4 Teklif / Onay</div><div class="step">5 İşleme Başla</div></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="İş emri no, plaka, müşteri ara..." oninput="renderList()"><button class="new" onclick="resetForm(true)">+ Yeni İş Emri</button></div>
+ <div class="stats"><div class="stat"><b id="sTotal">0</b><span>Toplam İş Emri</span></div><div class="stat"><b id="sPlan">0</b><span>Planlandı</span></div><div class="stat"><b id="sQuote">0</b><span>Teklif / Onay</span></div><div class="stat"><b id="sWork">0</b><span>İşlemde</span></div></div>
 
-<div class="container">
- <div class="topbar"><input id="search" class="search" placeholder="İş emri no, kabul no, plaka, müşteri ara..." oninput="renderList()"><button class="newBtn" onclick="resetForm(true)">+ Yeni İş Emri</button></div>
- <div class="stats">
-  <div class="stat"><b id="sTotal">0</b><span>Toplam</span></div><div class="stat"><b id="sOpen">0</b><span>Açık</span></div><div class="stat"><b id="sWait">0</b><span>Onay/Parça Bekleyen</span></div><div class="stat"><b id="sWork">0</b><span>İşlemde</span></div><div class="stat"><b id="sReady">0</b><span>Teslime Hazır</span></div>
- </div>
+ <div class="card"><div id="formTitle" class="cardHead">Yeni İş Emri Planlama</div><div class="body">
+  <div class="section"><div class="sectionTitle">1. Araç Kabul Kaydı</div>
+   <div class="field"><label class="req">Araç Kabul</label><select id="kabulId" onchange="selectAcceptance()"><option value="">İş emrine hazır kabul seçiniz...</option></select></div>
+   <div id="sourceInfo" class="info">Araç kabul kaydı seçilmedi.</div>
+  </div>
 
- <div class="card">
-  <div id="formTitle" class="cardHead">Yeni İş Emri</div>
-  <div class="body">
-   <div class="section">
-    <div class="sectionTitle">1. Araç Kabul Kaynağı</div>
-    <div class="grid">
-     <div class="field full"><label class="req">Araç Kabul Kaydı</label><select id="kabulId" onchange="selectAcceptance()"><option value="">İş emrine hazır kabul seçiniz...</option></select></div>
-     <div class="field"><label>İş Emri No</label><input id="isEmriNo" readonly></div>
-     <div class="field"><label>Durum</label><select id="durum"><option>Açık</option><option>İncelemede</option><option>Onay Bekliyor</option><option>Parça Bekliyor</option><option>İşlemde</option><option>Tamamlandı</option><option>Teslime Hazır</option><option>Kapalı</option><option>İptal</option></select></div>
-    </div>
-    <div id="sourceInfo" class="info">Araç kabul kaydı seçilmedi.</div>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">2. İş Emri Planlama</div>
-    <div class="grid3">
-     <div class="field"><label class="req">İş Emri Tarihi</label><input id="tarih" type="date"></div>
-     <div class="field"><label>Saat</label><input id="saat" type="time"></div>
-     <div class="field"><label>Öncelik</label><select id="oncelik"><option>Normal</option><option>Acil</option><option>Beklemeli</option><option>Randevulu</option></select></div>
-     <div class="field"><label>Servis Danışmanı</label><select id="danismanId"><option value="">Personel seçiniz...</option></select></div>
-     <div class="field"><label>Sorumlu Usta / Personel</label><select id="sorumluId"><option value="">Usta / personel seçiniz...</option></select></div>
-     <div class="field"><label>Tahmini Teslim</label><input id="tahminiTeslim" type="datetime-local"></div>
-    </div>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">3. Müşteri Şikâyeti ve Kabul Bilgisi</div>
-    <div class="grid">
-     <div class="field full"><label>Müşterinin Şikâyeti / Talebi</label><textarea id="musteriSikayeti" readonly></textarea></div>
-     <div class="field"><label>Sorun Koşulu</label><input id="sorunKosulu" readonly></div>
-     <div class="field"><label>Gösterge / Uyarı</label><input id="uyariLambalari" readonly></div>
-     <div class="field full"><label>Talep Edilen İşlemler</label><textarea id="talepEdilenIslemler" readonly></textarea></div>
-    </div>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">4. Usta Ön İnceleme / Arıza Tespiti</div>
-    <div class="grid">
-     <div class="field full"><label>Teknik Ön İnceleme</label><textarea id="onInceleme" placeholder="Ustanın ilk kontrol bulguları..."></textarea></div>
-     <div class="field full"><label>Arıza Tespiti / Diagnostik Sonucu</label><textarea id="tespit" placeholder="Arıza kodları, ölçümler, mekanik/elektrik bulguları..."></textarea></div>
-     <div class="field"><label>Test Sürüşü Sonucu</label><input id="testSurusuSonucu"></div>
-     <div class="field"><label>Güvenlik Riski</label><select id="guvenlikRiski"><option>Yok</option><option>Düşük</option><option>Orta</option><option>Yüksek - Araç Kullanılmamalı</option></select></div>
-    </div>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">5. İşçilikler</div>
-    <div class="tableWrap"><table id="laborTable"><thead><tr><th>İşçilik Seç</th><th>Bölüm</th><th>İşçilik / İşlem</th><th>Usta</th><th>Saat</th><th>Birim Fiyat</th><th>Tutar</th><th></th></tr></thead><tbody id="laborBody"></tbody></table></div>
-    <button class="miniBtn add" onclick="addLabor()">+ İşçilik Ekle</button> <button class="miniBtn add" onclick="location.href='Hizmetler.html'">İşçilik Tanımları</button>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">6. Parça / Malzeme Talebi</div>
-    <div class="tableWrap"><table id="partTable"><thead><tr><th>Stoktan Seç</th><th>Parça / Malzeme</th><th>Kod</th><th>Adet</th><th>Birim Fiyat</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody id="partBody"></tbody></table></div>
-    <button class="miniBtn add" onclick="addPart()">+ Parça Ekle</button> <button class="miniBtn add" onclick="location.href='ParcaStok.html'">Parça & Stok</button>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">7. Teklif / Müşteri Onayı</div>
-    <div class="grid3">
-     <div class="field"><label>İndirim (TL)</label><input id="indirim" type="number" min="0" value="0" oninput="calcTotals()"></div>
-     <div class="field"><label>KDV (%)</label><input id="kdv" type="number" min="0" value="20" oninput="calcTotals()"></div>
-     <div class="field"><label>Onay Durumu</label><select id="onayDurumu"><option>Onay Bekliyor</option><option>Telefonla Onaylandı</option><option>WhatsApp ile Onaylandı</option><option>Yazılı Onaylandı</option><option>Reddedildi</option><option>Onay Gerekmiyor</option></select></div>
-     <div class="field"><label>Onaylayan</label><input id="onaylayan"></div>
-     <div class="field"><label>Onay Tarihi/Saati</label><input id="onayTarihi" type="datetime-local"></div>
-     <div class="field"><label>Onay Notu</label><input id="onayNotu"></div>
-    </div>
-    <div class="totalBox">
-     <div class="total"><span>İşçilik</span><b id="laborTotal">0,00 ₺</b></div>
-     <div class="total"><span>Parça</span><b id="partTotal">0,00 ₺</b></div>
-     <div class="total"><span>KDV</span><b id="taxTotal">0,00 ₺</b></div>
-     <div class="total"><span>Genel Toplam</span><b id="grandTotal">0,00 ₺</b></div>
-    </div>
-    <div style="margin-top:10px"><button class="miniBtn add" onclick="goQuote()">Teklif / Müşteri Onayı Ekranı →</button></div>
-   </div>
-
-   <div class="section">
-    <div class="sectionTitle">8. İş Emri Notları</div>
-    <div class="grid">
-     <div class="field full"><label>İç Servis Notu</label><textarea id="servisNotu" placeholder="Müşteriye gösterilmeyecek iç notlar..."></textarea></div>
-     <div class="field full"><label>Müşteriye Bildirilecek Not</label><textarea id="musteriNotu" placeholder="Teslim/teklif sırasında müşteriye iletilecek bilgi..."></textarea></div>
-    </div>
-   </div>
-
-   <div class="saveRow">
-    <button class="backAccept" onclick="location.href='AracKabul.html'">← Araç Kabule Dön</button>
-    <button class="save" onclick="saveWorkOrder(false)">✓ İş Emrini Kaydet</button>
-    <button class="progress" onclick="saveWorkOrder(true)">Kaydet · İşleme Başla →</button>
+  <div class="section"><div class="sectionTitle">2. İş Emri Planlama</div>
+   <div class="grid3">
+    <div class="field"><label>İş Emri No</label><input id="isEmriNo" readonly></div>
+    <div class="field"><label class="req">Tarih</label><input id="tarih" type="date"></div>
+    <div class="field"><label>Saat</label><input id="saat" type="time"></div>
+    <div class="field"><label>Öncelik</label><select id="oncelik"><option>Normal</option><option>Acil</option><option>Beklemeli</option><option>Randevulu</option></select></div>
+    <div class="field"><label>Servis Danışmanı</label><select id="danismanId"><option value="">Personel seçiniz...</option></select></div>
+    <div class="field"><label>Sorumlu Usta / Personel</label><select id="sorumluId"><option value="">Usta / personel seçiniz...</option></select></div>
+    <div class="field"><label>Tahmini Teslim</label><input id="tahminiTeslim" type="datetime-local"></div>
+    <div class="field"><label>Planlanan Bölüm</label><select id="planBolum"><option>Mekanik</option><option>Elektrik</option><option>Kaporta</option><option>Boya</option><option>Lastik</option><option>Periyodik Bakım</option><option>Diagnostik</option><option>Birden Fazla Bölüm</option></select></div>
+    <div class="field"><label>Durum</label><select id="durum"><option>Planlandı</option><option>İnceleme Bekliyor</option><option>Beklemede</option></select></div>
    </div>
   </div>
- </div>
 
- <div class="card"><div class="listHead"><span>İş Emirleri</span><span id="listCount">0 kayıt</span></div><div id="list" class="list"></div></div>
+  <div class="section"><div class="sectionTitle">3. Müşteri Şikâyeti / Talebi</div>
+   <div class="grid">
+    <div class="field full"><label>Müşteri Şikâyeti / Talebi</label><textarea id="musteriSikayeti" readonly></textarea></div>
+    <div class="field"><label>Sorun Koşulu</label><input id="sorunKosulu" readonly></div>
+    <div class="field"><label>Gösterge / Uyarı</label><input id="uyariLambalari" readonly></div>
+    <div class="field full"><label>Talep Edilen İşlemler</label><textarea id="talepEdilenIslemler" readonly></textarea></div>
+   </div>
+  </div>
+
+  <div class="section"><div class="sectionTitle">4. Planlama Notları</div>
+   <div class="grid">
+    <div class="field full"><label>Servis Danışmanı Notu</label><textarea id="servisNotu" placeholder="Atölyeye aktarılacak planlama notu..."></textarea></div>
+    <div class="field full"><label>Müşteriye Bildirilecek Not</label><textarea id="musteriNotu" placeholder="Tahmini süre, ek bilgi, iletişim notu..."></textarea></div>
+   </div>
+  </div>
+
+  <div class="saveRow"><button class="save" onclick="savePlan(false)">✓ İş Emrini Kaydet</button><button class="next" onclick="savePlan(true)">Kaydet · İşlemleri Oluştur →</button></div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">İş Emirleri</div><div id="list" class="list"></div></div>
 </div>
-
 <script>
-const ACCEPT_KEY="mau_arac_kabulleri",WORK_KEY="mau_is_emirleri",VEHICLE_KEY="mau_araclar",CARI_KEY="mau_cariler",PERSON_KEY="mau_personel",LABOR_KEY="mau_iscilik_tanimlari",PART_KEY="mau_stok_parcalar";
-function loadArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
-function saveArray(k,v){localStorage.setItem(k,JSON.stringify(v));}
-function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+const ACCEPT_KEY="mau_arac_kabulleri",WORK_KEY="mau_is_emirleri",PERSON_KEY="mau_personel";
+function loadArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveArray(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function today(){return new Date().toISOString().slice(0,10)} function timeNow(){const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
-function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺";}
-let accepts=loadArray(ACCEPT_KEY),works=loadArray(WORK_KEY),vehicles=loadArray(VEHICLE_KEY),cariler=loadArray(CARI_KEY),personel=loadArray(PERSON_KEY),laborDefs=loadArray(LABOR_KEY),parts=loadArray(PART_KEY),editId=null,activeAcceptance=null;
-
-function nextNo(){let max=0;works.forEach(x=>{const n=parseInt(String(x.isEmriNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>max)max=n;});return "IE-"+String(max+1).padStart(5,"0");}
-function findAcceptance(id){return accepts.find(x=>String(x.id)===String(id));}
-function findVehicle(id){return vehicles.find(x=>String(x.id)===String(id));}
-function refreshMasters(){personel=loadArray(PERSON_KEY);laborDefs=loadArray(LABOR_KEY);parts=loadArray(PART_KEY);}
-function activeStaff(){return personel.filter(x=>x.active!==false&&x.status!=="Pasif");}
-function advisorStaff(){return activeStaff().filter(x=>["Servis Danışmanı","Araç Kabul","Yönetici"].includes(x.role));}
-function techStaff(){return activeStaff().filter(x=>["Usta","Teknisyen","Usta Başı"].includes(x.role));}
-function personName(id){const p=personel.find(x=>String(x.id)===String(id));return p?p.name:"";}
-function fillPersonnel(danismanId="",sorumluId=""){refreshMasters();const d=document.getElementById("danismanId"),s=document.getElementById("sorumluId");d.innerHTML='<option value="">Personel seçiniz...</option>'+advisorStaff().map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.role)+' · '+esc(x.department||"")+'</option>').join("");s.innerHTML='<option value="">Usta / personel seçiniz...</option>'+activeStaff().map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.role)+' · '+esc(x.department||"")+'</option>').join("");d.value=String(danismanId||"");s.value=String(sorumluId||"");}
-function laborOptions(selected){refreshMasters();return '<option value="">Serbest / seçiniz...</option>'+laborDefs.filter(x=>x.active!==false&&x.status!=="Pasif").map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(selected||"")?'selected':'')+'>'+esc(x.code||"")+' · '+esc(x.department||"")+' · '+esc(x.name||"")+'</option>').join("");}
-function techOptions(selected){return '<option value="">Usta seçiniz...</option>'+techStaff().map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(selected||"")?'selected':'')+'>'+esc(x.name)+' · '+esc(x.department||"")+'</option>').join("");}
-function partOptions(selected){refreshMasters();return '<option value="">Serbest / seçiniz...</option>'+parts.filter(x=>x.active!==false&&x.status!=="Pasif").map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(selected||"")?'selected':'')+'>'+esc(x.code||"")+' · '+esc(x.name||"")+' · Stok '+Number(x.stock||0).toLocaleString("tr-TR")+'</option>').join("");}
-function populateAccepts(){
- accepts=loadArray(ACCEPT_KEY);works=loadArray(WORK_KEY);
- const used=new Set(works.filter(w=>String(w.id)!==String(editId)).map(w=>String(w.kabulId||"")));
- const sel=document.getElementById("kabulId"),cur=sel.value;
- const ready=accepts.filter(a=>!used.has(String(a.id))&&(a.durum==="İş Emrine Hazır"||a.durum==="Kabul Edildi"));
- sel.innerHTML='<option value="">İş emrine hazır kabul seçiniz...</option>'+ready.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.kabulNo)+' · '+esc(a.plaka)+' · '+esc(a.cariAdi||"")+'</option>').join("");
- if(ready.some(a=>String(a.id)===String(cur)))sel.value=cur;
-}
-function selectAcceptance(){
- activeAcceptance=findAcceptance(document.getElementById("kabulId").value);
- if(!activeAcceptance){document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";return;}
- const a=activeAcceptance;
- document.getElementById("musteriSikayeti").value=a.musteriSikayeti||"";
- document.getElementById("sorunKosulu").value=a.sorunKosulu||"";
- document.getElementById("uyariLambalari").value=a.uyariLambalari||"";
- document.getElementById("talepEdilenIslemler").value=a.talepEdilenIslemler||"";
- if(a.tahminiTeslimTarihi)document.getElementById("tahminiTeslim").value=a.tahminiTeslimTarihi+"T"+(a.tahminiTeslimSaati||"17:00");
- document.getElementById("onaylayan").value=a.onaylayan||a.teslimEden||a.cariAdi||"";
- document.getElementById("sourceInfo").innerHTML=
-  '<b>'+esc(a.kabulNo)+' · '+esc(a.plaka)+'</b> <span class="badge">'+esc(a.durum||"")+'</span><br>'+
-  esc(a.cariAdi||"-")+' · '+esc([a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+
-  '<br>Giriş KM: '+esc(a.km||"-")+' · Yakıt/Şarj: '+esc(a.yakitSeviye||"-")+' · Kabul: '+esc(a.kabulTarihi||"")+' '+esc(a.kabulSaati||"")+
-  '<br>İlk yönlendirme: '+esc((a.departmanlar||[]).join(", ")||"-");
- if(!document.querySelector("#laborBody tr")&&a.departmanlar&&a.departmanlar.length) a.departmanlar.forEach(d=>addLabor({bolum:d,islem:a.talepEdilenIslemler||"",usta:"",saat:"",birim:""}));
-}
-function tdInput(cls,val,type="text",extra=""){return '<input class="'+cls+'" type="'+type+'" value="'+esc(val||"")+'" '+extra+' oninput="calcTotals()">';}
-function applyLaborMaster(sel){
- const tr=sel.closest("tr"),id=sel.value,def=laborDefs.find(x=>String(x.id)===String(id));tr.dataset.laborId=id||"";
- if(!def)return;tr.querySelector(".lBolum").value=def.department||"Mekanik";tr.querySelector(".lIslem").value=def.name||"";tr.querySelector(".lSaat").value=def.hours||"";tr.querySelector(".lBirim").value=def.price||"";calcTotals();
-}
-function addLabor(x={}){
- refreshMasters();const tr=document.createElement("tr");
- tr.dataset.laborId=x.hizmetId||"";
- tr.innerHTML='<td><select class="lTanim" onchange="applyLaborMaster(this)">'+laborOptions(x.hizmetId)+'</select></td>'+
- '<td><select class="lBolum"><option>Mekanik</option><option>Elektrik</option><option>Kaporta</option><option>Boya</option><option>Lastik</option><option>Periyodik Bakım</option><option>Diagnostik</option><option>Diğer</option></select></td>'+
- '<td>'+tdInput("lIslem",x.islem)+'</td><td><select class="lUsta">'+techOptions(x.ustaId)+'</select></td><td>'+tdInput("lSaat",x.saat,"number",'min="0" step="0.25"')+'</td><td>'+tdInput("lBirim",x.birimFiyat??x.birim,"number",'min="0" step="0.01"')+'</td><td class="lTutar">0,00 ₺</td><td><button class="miniBtn remove" onclick="this.closest(\'tr\').remove();calcTotals()">Sil</button></td>';
- document.getElementById("laborBody").appendChild(tr);tr.querySelector(".lBolum").value=x.bolum||"Mekanik";calcTotals();
-}
-function applyPartMaster(sel){
- const tr=sel.closest("tr"),id=sel.value,p=parts.find(x=>String(x.id)===String(id));tr.dataset.partId=id||"";
- if(!p)return;tr.querySelector(".pAd").value=p.name||"";tr.querySelector(".pKod").value=p.code||p.oem||"";tr.querySelector(".pBirim").value=p.salePrice||0;if(!tr.querySelector(".pAdet").value)tr.querySelector(".pAdet").value=1;tr.querySelector(".pDurum").value=Number(p.stock||0)>=Number(tr.querySelector(".pAdet").value||1)?"Stokta":"Talep";calcTotals();
-}
-function addPart(x={}){
- refreshMasters();const tr=document.createElement("tr");tr.dataset.partId=x.parcaId||"";
- tr.innerHTML='<td><select class="pTanim" onchange="applyPartMaster(this)">'+partOptions(x.parcaId)+'</select></td><td>'+tdInput("pAd",x.ad)+'</td><td>'+tdInput("pKod",x.kod)+'</td><td>'+tdInput("pAdet",x.adet||1,"number",'min="0" step="1"')+'</td><td>'+tdInput("pBirim",x.birimFiyat??x.birim,"number",'min="0" step="0.01"')+'</td><td class="pTutar">0,00 ₺</td><td><select class="pDurum"><option>Talep</option><option>Stokta</option><option>Sipariş Verildi</option><option>Bekleniyor</option><option>Temin Edildi</option><option>Takıldı</option><option>İptal</option></select></td><td><button class="miniBtn remove" onclick="this.closest(\'tr\').remove();calcTotals()">Sil</button></td>';
- document.getElementById("partBody").appendChild(tr);tr.querySelector(".pDurum").value=x.durum||"Talep";calcTotals();
-}
-function laborItems(){return Array.from(document.querySelectorAll("#laborBody tr")).map(tr=>{const hid=tr.dataset.laborId||"",def=laborDefs.find(x=>String(x.id)===String(hid)),uid=tr.querySelector(".lUsta").value;return {hizmetId:hid,hizmetKodu:def?def.code:"",bolum:tr.querySelector(".lBolum").value,islem:tr.querySelector(".lIslem").value.trim(),ustaId:uid,usta:personName(uid),saat:Number(tr.querySelector(".lSaat").value||0),birimFiyat:Number(tr.querySelector(".lBirim").value||0)};}).filter(x=>x.islem||x.saat||x.birimFiyat);}
-function partItems(){return Array.from(document.querySelectorAll("#partBody tr")).map(tr=>{const pid=tr.dataset.partId||"",p=parts.find(x=>String(x.id)===String(pid));return {parcaId:pid,ad:tr.querySelector(".pAd").value.trim(),kod:tr.querySelector(".pKod").value.trim(),oem:p?p.oem:"",adet:Number(tr.querySelector(".pAdet").value||0),birimFiyat:Number(tr.querySelector(".pBirim").value||0),durum:tr.querySelector(".pDurum").value,stokSnapshot:p?Number(p.stock||0):null};}).filter(x=>x.ad||x.kod);}
-function calcTotals(){
- let lt=0;document.querySelectorAll("#laborBody tr").forEach(tr=>{const v=Number(tr.querySelector(".lSaat").value||0)*Number(tr.querySelector(".lBirim").value||0);tr.querySelector(".lTutar").innerText=money(v);lt+=v;});
- let pt=0;document.querySelectorAll("#partBody tr").forEach(tr=>{const v=Number(tr.querySelector(".pAdet").value||0)*Number(tr.querySelector(".pBirim").value||0);tr.querySelector(".pTutar").innerText=money(v);pt+=v;});
- const ind=Math.max(0,Number(document.getElementById("indirim").value||0)),net=Math.max(0,lt+pt-ind),tax=net*Math.max(0,Number(document.getElementById("kdv").value||0))/100,grand=net+tax;
- document.getElementById("laborTotal").innerText=money(lt);document.getElementById("partTotal").innerText=money(pt);document.getElementById("taxTotal").innerText=money(tax);document.getElementById("grandTotal").innerText=money(grand);
- return {iscilikToplam:lt,parcaToplam:pt,indirim:ind,araToplam:net,kdvTutar:tax,genelToplam:grand};
-}
-function clearRows(){document.getElementById("laborBody").innerHTML="";document.getElementById("partBody").innerHTML="";}
-function resetForm(focus){
- editId=null;activeAcceptance=null;populateAccepts();refreshMasters();fillPersonnel();clearRows();
- document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.id==="kabulId")return;if(el.type==="checkbox")el.checked=false;else el.value="";});
- document.getElementById("kabulId").value="";document.getElementById("isEmriNo").value=nextNo();document.getElementById("durum").value="Açık";document.getElementById("tarih").value=today();document.getElementById("saat").value=timeNow();document.getElementById("oncelik").value="Normal";document.getElementById("guvenlikRiski").value="Yok";document.getElementById("indirim").value="0";document.getElementById("kdv").value="20";document.getElementById("onayDurumu").value="Onay Bekliyor";document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";document.getElementById("formTitle").innerText="Yeni İş Emri";addLabor();addPart();calcTotals();if(focus)document.getElementById("kabulId").focus();
-}
-function val(id){return document.getElementById(id).value.trim();}
-function saveWorkOrder(start){
- const kabulId=document.getElementById("kabulId").value,a=findAcceptance(kabulId);if(!a){alert("Araç kabul kaydı seçiniz.");return;}
- const totals=calcTotals(),old=editId!==null?works.find(w=>String(w.id)===String(editId)):null;
- if(start&&totals.genelToplam>0&&!["Telefonla Onaylandı","WhatsApp ile Onaylandı","Yazılı Onaylandı","Onaylandı","Onay Gerekmiyor"].includes(val("onayDurumu"))){alert("Ücretli işleme başlamadan önce Teklif / Müşteri Onayı tamamlanmalıdır.");return;}
- const data={id:old?old.id:Date.now(),isEmriNo:old?old.isEmriNo:val("isEmriNo"),kabulId:a.id,kabulNo:a.kabulNo,aracId:a.aracId||a.vehicleId,vehicleId:a.aracId||a.vehicleId,cariId:a.cariId,cariCode:a.cariCode,cariAdi:a.cariAdi,plaka:a.plaka,marka:a.marka,model:a.model,versiyon:a.versiyon,sasi:a.sasi,motorNo:a.motorNo,km:a.km,
- tarih:val("tarih"),saat:val("saat"),durum:start?"İşlemde":val("durum"),oncelik:val("oncelik"),danismanId:document.getElementById("danismanId").value,danisman:personName(document.getElementById("danismanId").value),sorumluId:document.getElementById("sorumluId").value,sorumlu:personName(document.getElementById("sorumluId").value),tahminiTeslim:val("tahminiTeslim"),
- musteriSikayeti:a.musteriSikayeti||"",sorunKosulu:a.sorunKosulu||"",uyariLambalari:a.uyariLambalari||"",talepEdilenIslemler:a.talepEdilenIslemler||"",departmanlar:a.departmanlar||[],
- onInceleme:val("onInceleme"),tespit:val("tespit"),testSurusuSonucu:val("testSurusuSonucu"),guvenlikRiski:val("guvenlikRiski"),iscilikler:laborItems(),parcalar:partItems(),
- indirim:totals.indirim,kdv:Number(val("kdv")||0),iscilikToplam:totals.iscilikToplam,parcaToplam:totals.parcaToplam,araToplam:totals.araToplam,kdvTutar:totals.kdvTutar,genelToplam:totals.genelToplam,toplam:totals.genelToplam,tutar:totals.genelToplam,
- onayDurumu:val("onayDurumu"),onaylayan:val("onaylayan"),onayTarihi:val("onayTarihi"),onayNotu:val("onayNotu"),servisNotu:val("servisNotu"),musteriNotu:val("musteriNotu"),createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
- if(old){works[works.findIndex(w=>String(w.id)===String(old.id))]=data;}else works.unshift(data);saveArray(WORK_KEY,works);
- accepts=loadArray(ACCEPT_KEY);const ai=accepts.findIndex(x=>String(x.id)===String(a.id));if(ai>=0){accepts[ai].durum=start?"İşlemde":"İş Emri Oluşturuldu";accepts[ai].isEmriNo=data.isEmriNo;accepts[ai].isEmriId=data.id;accepts[ai].updatedAt=new Date().toISOString();saveArray(ACCEPT_KEY,accepts);}
- renderList();alert(start?"İş emri kaydedildi ve İşlemde durumuna alındı.":"İş emri kaydedildi.");resetForm(false);
-}
-function editWork(id){
- const w=works.find(x=>String(x.id)===String(id));if(!w)return;editId=w.id;populateAccepts();
- const sel=document.getElementById("kabulId");if(!Array.from(sel.options).some(o=>String(o.value)===String(w.kabulId))){const a=findAcceptance(w.kabulId);if(a){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o);}}
- sel.value=String(w.kabulId||"");selectAcceptance();document.getElementById("formTitle").innerText=w.isEmriNo+" · İş Emri Düzenle";
- fillPersonnel(w.danismanId,w.sorumluId);
- ["isEmriNo","tarih","saat","durum","oncelik","tahminiTeslim","onInceleme","tespit","testSurusuSonucu","guvenlikRiski","indirim","kdv","onayDurumu","onaylayan","onayTarihi","onayNotu","servisNotu","musteriNotu"].forEach(k=>{if(document.getElementById(k)&&w[k]!=null)document.getElementById(k).value=w[k];});
- clearRows();(w.iscilikler||[]).forEach(addLabor);if(!(w.iscilikler||[]).length)addLabor();(w.parcalar||[]).forEach(addPart);if(!(w.parcalar||[]).length)addPart();calcTotals();window.scrollTo({top:0,behavior:"smooth"});
-}
-function renderList(){
- works=loadArray(WORK_KEY);const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();const list=works.filter(w=>!q||[w.isEmriNo,w.kabulNo,w.plaka,w.cariAdi,w.durum,w.musteriSikayeti].join(" ").toLocaleLowerCase("tr-TR").includes(q));
- document.getElementById("sTotal").innerText=works.length;document.getElementById("sOpen").innerText=works.filter(w=>["Açık","İncelemede"].includes(w.durum)).length;document.getElementById("sWait").innerText=works.filter(w=>["Onay Bekliyor","Parça Bekliyor"].includes(w.durum)).length;document.getElementById("sWork").innerText=works.filter(w=>w.durum==="İşlemde").length;document.getElementById("sReady").innerText=works.filter(w=>w.durum==="Teslime Hazır").length;document.getElementById("listCount").innerText=list.length+" kayıt";
- const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="empty">Henüz iş emri yok.</div>';return;}
- el.innerHTML=list.map(w=>'<div class="row"><div><div class="rowTitle">'+esc(w.isEmriNo)+' · '+esc(w.plaka)+' <span class="badge">'+esc(w.durum||"")+'</span></div><div class="rowSub">'+esc(w.cariAdi||"-")+' · '+esc([w.marka,w.model].filter(Boolean).join(" ")||"-")+' · '+esc(w.tarih||"")+' '+esc(w.saat||"")+'<br>'+esc(w.musteriSikayeti||"-")+'<br><b>'+money(w.genelToplam||0)+'</b></div></div><div class="actions"><button class="edit" onclick="editWork(&quot;'+String(w.id)+'&quot;)">Düzenle</button><button class="open" onclick="openQuoteFor(&quot;'+String(w.id)+'&quot;)">Teklif / Onay</button></div></div>').join("");
-}
-function openQuoteFor(id){location.href="Teklifler.html?isEmriId="+encodeURIComponent(id);}
-function goQuote(){if(editId==null){alert("Önce iş emrini kaydedin. Kaydedilen iş emrinin yanındaki Teklif / Onay düğmesini kullanabilirsiniz.");return;}openQuoteFor(editId);}
-function preloadFromQuery(){
- const p=new URLSearchParams(location.search),kid=p.get("kabulId");if(!kid)return;
- populateAccepts();const a=findAcceptance(kid);if(!a)return;
- const sel=document.getElementById("kabulId");if(!Array.from(sel.options).some(o=>String(o.value)===String(kid))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o);}
- sel.value=kid;selectAcceptance();
-}
-window.addEventListener("storage",e=>{if([ACCEPT_KEY,WORK_KEY,VEHICLE_KEY,CARI_KEY,PERSON_KEY,LABOR_KEY,PART_KEY].includes(e.key)){refreshMasters();populateAccepts();fillPersonnel(document.getElementById("danismanId").value,document.getElementById("sorumluId").value);renderList();}});
-resetForm(false);renderList();preloadFromQuery();
-</script>
-</body>
-</html>
+let accepts=loadArray(ACCEPT_KEY),works=loadArray(WORK_KEY),personel=loadArray(PERSON_KEY),editId=null,activeAcceptance=null;
+function nextNo(){let m=0;works.forEach(w=>{const n=parseInt(String(w.isEmriNo||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "IE-"+String(m+1).padStart(5,"0")}
+function pName(id){const p=personel.find(x=>String(x.id)===String(id));return p?p.name:""}
+function fillPersonnel(did="",sid=""){personel=loadArray(PERSON_KEY);const active=personel.filter(x=>x.active!==false&&x.status!=="Pasif");const advisors=active.filter(x=>["Servis Danışmanı","Araç Kabul","Yönetici"].includes(x.role));document.getElementById("danismanId").innerHTML='<option value="">Personel seçiniz...</option>'+advisors.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.role)+'</option>').join("");document.getElementById("sorumluId").innerHTML='<option value="">Usta / personel seçiniz...</option>'+active.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' · '+esc(x.department||x.role)+'</option>').join("");document.getElementById("danismanId").value=String(did||"");document.getElementById("sorumluId").value=String(sid||"")}
+function populateAccepts(){accepts=loadArray(ACCEPT_KEY);works=loadArray(WORK_KEY);const used=new Set(works.filter(w=>String(w.id)!==String(editId)).map(w=>String(w.kabulId||"")));const ready=accepts.filter(a=>!used.has(String(a.id))&&["İş Emrine Hazır","Kabul Edildi"].includes(a.durum));document.getElementById("kabulId").innerHTML='<option value="">İş emrine hazır kabul seçiniz...</option>'+ready.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.kabulNo)+' · '+esc(a.plaka)+' · '+esc(a.cariAdi||"")+'</option>').join("")}
+function selectAcceptance(){activeAcceptance=accepts.find(x=>String(x.id)===String(document.getElementById("kabulId").value));if(!activeAcceptance){document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";return}const a=activeAcceptance;document.getElementById("musteriSikayeti").value=a.musteriSikayeti||"";document.getElementById("sorunKosulu").value=a.sorunKosulu||"";document.getElementById("uyariLambalari").value=a.uyariLambalari||"";document.getElementById("talepEdilenIslemler").value=a.talepEdilenIslemler||"";if(a.tahminiTeslimTarihi)document.getElementById("tahminiTeslim").value=a.tahminiTeslimTarihi+"T"+(a.tahminiTeslimSaati||"17:00");if((a.departmanlar||[]).length===1)document.getElementById("planBolum").value=a.departmanlar[0];else if((a.departmanlar||[]).length>1)document.getElementById("planBolum").value="Birden Fazla Bölüm";document.getElementById("sourceInfo").innerHTML='<b>'+esc(a.kabulNo)+' · '+esc(a.plaka)+'</b> <span class="badge">'+esc(a.durum||"")+'</span><br>'+esc(a.cariAdi||"-")+' · '+esc([a.marka,a.model,a.versiyon].filter(Boolean).join(" ")||"-")+'<br>Giriş KM: '+esc(a.km||"-")+' · Kabul: '+esc(a.kabulTarihi||"")+' '+esc(a.kabulSaati||"")}
+function resetForm(focus){editId=null;activeAcceptance=null;populateAccepts();fillPersonnel();document.querySelectorAll(".body input,.body textarea,.body select").forEach(el=>{if(el.id==="kabulId")return;el.value=""});document.getElementById("kabulId").value="";document.getElementById("isEmriNo").value=nextNo();document.getElementById("tarih").value=today();document.getElementById("saat").value=timeNow();document.getElementById("oncelik").value="Normal";document.getElementById("planBolum").value="Mekanik";document.getElementById("durum").value="Planlandı";document.getElementById("sourceInfo").innerHTML="Araç kabul kaydı seçilmedi.";document.getElementById("formTitle").innerText="Yeni İş Emri Planlama";if(focus)document.getElementById("kabulId").focus()}
+function val(id){return document.getElementById(id).value.trim()}
+function savePlan(goOps){const a=accepts.find(x=>String(x.id)===String(document.getElementById("kabulId").value));if(!a){alert("Araç kabul kaydı seçiniz.");return}const old=editId!=null?works.find(w=>String(w.id)===String(editId)):null;const id=old?old.id:Date.now();const data={...(old||{}),id,isEmriNo:old?old.isEmriNo:val("isEmriNo"),kabulId:a.id,kabulNo:a.kabulNo,aracId:a.aracId||a.vehicleId,vehicleId:a.aracId||a.vehicleId,cariId:a.cariId,cariCode:a.cariCode,cariAdi:a.cariAdi,plaka:a.plaka,marka:a.marka,model:a.model,versiyon:a.versiyon,sasi:a.sasi,motorNo:a.motorNo,km:a.km,tarih:val("tarih"),saat:val("saat"),oncelik:val("oncelik"),danismanId:document.getElementById("danismanId").value,danisman:pName(document.getElementById("danismanId").value),sorumluId:document.getElementById("sorumluId").value,sorumlu:pName(document.getElementById("sorumluId").value),tahminiTeslim:val("tahminiTeslim"),planBolum:val("planBolum"),durum:old&&["İşlemde","Tamamlandı","Teslime Hazır","Kapalı"].includes(old.durum)?old.durum:val("durum"),musteriSikayeti:a.musteriSikayeti||"",sorunKosulu:a.sorunKosulu||"",uyariLambalari:a.uyariLambalari||"",talepEdilenIslemler:a.talepEdilenIslemler||"",departmanlar:a.departmanlar||[],servisNotu:val("servisNotu"),musteriNotu:val("musteriNotu"),createdAt:old&&old.createdAt?old.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};works=loadArray(WORK_KEY);const wi=works.findIndex(w=>String(w.id)===String(id));if(wi>=0)works[wi]=data;else works.unshift(data);saveArray(WORK_KEY,works);accepts=loadArray(ACCEPT_KEY);const ai=accepts.findIndex(x=>String(x.id)===String(a.id));if(ai>=0){accepts[ai].durum="İş Emri Oluşturuldu";accepts[ai].isEmriId=id;accepts[ai].isEmriNo=data.isEmriNo;accepts[ai].updatedAt=new Date().toISOString();saveArray(ACCEPT_KEY,accepts)}renderList();if(goOps){location.href="Islemler.html?isEmriId="+encodeURIComponent(id);return}alert("İş emri planı kaydedildi.");resetForm(false)}
+function editWork(id){works=loadArray(WORK_KEY);const w=works.find(x=>String(x.id)===String(id));if(!w)return;editId=w.id;populateAccepts();const a=accepts.find(x=>String(x.id)===String(w.kabulId));const sel=document.getElementById("kabulId");if(a&&!Array.from(sel.options).some(o=>String(o.value)===String(a.id))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=String(w.kabulId||"");selectAcceptance();fillPersonnel(w.danismanId,w.sorumluId);["isEmriNo","tarih","saat","oncelik","tahminiTeslim","planBolum","durum","servisNotu","musteriNotu"].forEach(k=>{if(document.getElementById(k)&&w[k]!=null)document.getElementById(k).value=w[k]});document.getElementById("formTitle").innerText=w.isEmriNo+" · İş Emri Planını Düzenle";window.scrollTo({top:0,behavior:"smooth"})}
+function renderList(){works=loadArray(WORK_KEY);const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();const list=works.filter(w=>!q||[w.isEmriNo,w.plaka,w.cariAdi,w.durum,w.musteriSikayeti].join(" ").toLocaleLowerCase("tr-TR").includes(q));document.getElementById("sTotal").innerText=works.length;document.getElementById("sPlan").innerText=works.filter(w=>["Planlandı","İnceleme Bekliyor","Beklemede"].includes(w.durum)).length;document.getElementById("sQuote").innerText=works.filter(w=>String(w.onayDurumu||"").includes("Onay")||w.durum==="Onay Bekliyor").length;document.getElementById("sWork").innerText=works.filter(w=>w.durum==="İşlemde").length;const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="empty">Henüz iş emri yok.</div>';return}el.innerHTML=list.map(w=>'<div class="row"><div><div class="rowTitle">'+esc(w.isEmriNo)+' · '+esc(w.plaka)+' <span class="badge">'+esc(w.durum||"")+'</span></div><div class="meta">'+esc(w.cariAdi||"-")+' · '+esc(w.planBolum||"-")+' · '+esc(w.danisman||"-")+'<br>'+esc(w.musteriSikayeti||"-")+'</div></div><div class="actions"><button class="edit" onclick="editWork(&quot;'+w.id+'&quot;)">Planı Düzenle</button><button class="ops" onclick="location.href=\'Islemler.html?isEmriId='+encodeURIComponent(&quot;'+w.id+'&quot;)">İşlemler</button><button class="quote" onclick="location.href=\'Teklifler.html?isEmriId='+encodeURIComponent(&quot;'+w.id+'&quot;)">Teklif / Onay</button></div></div>').join("")}
+function preload(){const p=new URLSearchParams(location.search),kid=p.get("kabulId");if(!kid)return;const a=accepts.find(x=>String(x.id)===String(kid));if(!a)return;const sel=document.getElementById("kabulId");if(!Array.from(sel.options).some(o=>String(o.value)===String(kid))){const o=document.createElement("option");o.value=a.id;o.textContent=a.kabulNo+" · "+a.plaka+" · "+(a.cariAdi||"");sel.appendChild(o)}sel.value=kid;selectAcceptance()}
+resetForm(false);renderList();preload();
+</script></body></html>
