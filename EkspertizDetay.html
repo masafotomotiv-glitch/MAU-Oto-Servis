@@ -83,7 +83,8 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <div id="report"><div class="reportTop"><button class="btn backBtn" onclick="closeReport()">← Uygulamaya Dön</button><button class="btn pdf" onclick="window.print()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
 
 <script>
-const CLAIM_KEY="mau_hasar_dosyalari",PART_KEY="mau_stok_parcalar",LABOR_KEY="mau_iscilik_tanimlari";
+const CLAIM_KEY="mau_hasar_dosyalari",PART_KEY="mau_stok_parcalar",LABOR_KEY="mau_iscilik_tanimlari",SETTINGS_KEY="mau_ayarlar";
+function defaultKdv(){try{const s=JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"),v=Number(s.kdv);return Number.isFinite(v)?v:20}catch(e){return 20}}
 function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
 function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -175,7 +176,7 @@ function renderClaim(){
 function loadDetail(){
  if(!claim){renderClaim();return}
  renderClaim();const d=claim.ekspertizDetay||{};(d.parcalar||[]).forEach(addPart);if(!(d.parcalar||[]).length)addPart();(d.iscilikler||[]).forEach(addLabor);if(!(d.iscilikler||[]).length)addLabor();
- document.getElementById("kdv").value=d.kdvOrani??claim.kdvOrani??20;document.getElementById("ekspertizDurumu").value=d.durum||"Hazırlanıyor";document.getElementById("genelNot").value=d.not||"";calc();
+ document.getElementById("kdv").value=d.kdvOrani??claim.kdvOrani??defaultKdv();document.getElementById("ekspertizDurumu").value=d.durum||"Hazırlanıyor";document.getElementById("genelNot").value=d.not||"";calc();
 }
 function reportTable(headers,rows){return '<table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'}
 function openReport(){
