@@ -125,14 +125,14 @@ jobs:
       - name: Stable debug signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: mau-ocr-debug-keystore-v1
+          path: android-test/.signing/mau-pilot.keystore
+          key: mau-pilot-keystore-v2
 
       - name: Create debug signing key if missing
         run: |
-          mkdir -p ~/.android
-          if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
+          mkdir -p android-test/.signing
+          if [ ! -f android-test/.signing/mau-pilot.keystore ]; then
+            keytool -genkeypair -keystore android-test/.signing/mau-pilot.keystore -storepass android -alias maupilot -keypass android -dname "CN=MAU Pilot,O=MAU,C=TR" -keyalg RSA -keysize 2048 -validity 10000
           fi
 
       - name: Build debug APK
