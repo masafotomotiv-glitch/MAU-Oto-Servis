@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MAU Oto Servis - Kalite Kontrol</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0874d1;--b2:#083fa7;--g:#0a944a;--bg:#f3f6fb;--line:#d9e1ea;--muted:#64748b}
+body{margin:0;font-family:Arial;background:var(--bg);color:#1f2937}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:16px}.head{max-width:1000px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1b;color:#fff;width:42px;height:42px;border-radius:10px;font-size:22px}.title{font-size:22px;font-weight:900}.sub{font-size:12px;opacity:.86}
+.wrap{max-width:1000px;margin:auto;padding:16px}.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px #0000000b;overflow:hidden;margin-bottom:12px}.head2{padding:14px 16px;background:#eef6ff;border-bottom:1px solid #d7e8f7;color:#075ca8;font-weight:900}.body{padding:15px}.info{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;font-size:12px;line-height:1.65}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.field{margin-bottom:10px}label{display:block;font-size:12px;font-weight:800;color:#4d5b69;margin-bottom:5px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px}textarea{min-height:75px}.check{display:flex;align-items:center;gap:8px;border:1px solid #e5eaf0;border-radius:10px;padding:11px;margin-bottom:8px}.check input{width:auto}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.actions button{border:0;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48;color:#fff}.backBtn{background:#eaf2ff;color:#0756a5}
+@media(max-width:650px){.grid,.actions{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body>
+<header><div class="head"><button class="back" onclick="location.href='AtolyeTakip.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Kalite Kontrol · Son Kontrol · Teslime Hazırlık</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="head2">İş Emri</div><div class="body"><div class="field"><label>Kalite Kontrol Bekleyen İş Emri</label><select id="workId" onchange="selectWork()"><option value="">İş emri seçiniz...</option></select></div><div id="info" class="info">İş emri seçilmedi.</div></div></div>
+ <div class="card"><div class="head2">Son Kontrol</div><div class="body">
+  <div class="check"><input id="c1" type="checkbox"><label for="c1">Yapılan işçilikler kontrol edildi</label></div>
+  <div class="check"><input id="c2" type="checkbox"><label for="c2">Takılan / kullanılan parçalar kontrol edildi</label></div>
+  <div class="check"><input id="c3" type="checkbox"><label for="c3">Sıvı kaçakları / bağlantılar kontrol edildi</label></div>
+  <div class="check"><input id="c4" type="checkbox"><label for="c4">Gösterge uyarıları kontrol edildi</label></div>
+  <div class="check"><input id="c5" type="checkbox"><label for="c5">Test sürüşü / fonksiyon kontrolü yapıldı</label></div>
+  <div class="grid"><div class="field"><label>Kontrol Eden</label><input id="kontrolEden"></div><div class="field"><label>Son KM</label><input id="sonKm" type="number" min="0"></div><div class="field full"><label>Kalite Kontrol Notu</label><textarea id="qcNotu"></textarea></div></div>
+  <div class="actions"><button class="backBtn" onclick="goBack()">← Atölyeye Dön</button><button class="save" onclick="completeQC()">✓ Kontrol Tamam · Teslime Hazır</button></div>
+ </div></div>
+</div>
+<script>
+const WORK_KEY="mau_is_emirleri";
+function load(){try{const v=JSON.parse(localStorage.getItem(WORK_KEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(v){localStorage.setItem(WORK_KEY,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+let works=load(),active=null;
+function fill(){works=load();const list=works.filter(w=>["Kalite Kontrol Bekliyor","Teslime Hazır"].includes(w.durum));document.getElementById("workId").innerHTML='<option value="">İş emri seçiniz...</option>'+list.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.isEmriNo)+' · '+esc(w.plaka)+' · '+esc(w.cariAdi||"")+'</option>').join("")}
+function selectWork(){works=load();active=works.find(w=>String(w.id)===String(document.getElementById("workId").value));if(!active){document.getElementById("info").innerHTML="İş emri seçilmedi.";return}document.getElementById("info").innerHTML='<b>'+esc(active.isEmriNo)+' · '+esc(active.plaka)+'</b><br>'+esc(active.cariAdi||"-")+' · '+esc(active.durum||"")+'<br>Atölye notu: '+esc(active.atolyeNotu||"-");document.getElementById("kontrolEden").value=active.qcKontrolEden||active.kontrolEden||"";document.getElementById("sonKm").value=active.sonKm||active.km||"";document.getElementById("qcNotu").value=active.qcNotu||"";["c1","c2","c3","c4","c5"].forEach((id,i)=>document.getElementById(id).checked=!!(active.qcChecks||[])[i])}
+function completeQC(){if(!active){alert("İş emri seçiniz.");return}const checks=["c1","c2","c3","c4","c5"].map(id=>document.getElementById(id).checked);if(checks.some(x=>!x)){alert("Tüm kalite kontrol maddelerini tamamlayın.");return}works=load();const i=works.findIndex(w=>String(w.id)===String(active.id));if(i<0)return;works[i].qcChecks=checks;works[i].qcKontrolEden=document.getElementById("kontrolEden").value.trim();works[i].sonKm=Number(document.getElementById("sonKm").value||0);works[i].qcNotu=document.getElementById("qcNotu").value.trim();works[i].durum="Teslime Hazır";works[i].qcTarihi=new Date().toISOString();works[i].updatedAt=new Date().toISOString();put(works);active=works[i];alert("Kalite kontrol tamamlandı. Araç Teslime Hazır durumuna alındı.")}
+function goBack(){if(!active){location.href="IsEmirleri.html";return}location.href="AtolyeTakip.html?isEmriId="+encodeURIComponent(active.id)}
+function preload(){const id=new URLSearchParams(location.search).get("isEmriId");if(!id)return;document.getElementById("workId").value=id;selectWork()}
+fill();preload();
+</script></body></html>
