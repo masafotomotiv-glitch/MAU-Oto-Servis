@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">MAU Oto Servis</title>
+  <desc id="desc">MAU çift odak simgesi ile MAU Oto Servis açık zemin logosu</desc>
+  <g transform="translate(34 31) scale(1.16)">
+    <path fill="#13D9B5" d="M24 218V38c0-8 6-14 14-14h18l70 63-25 25-45-41v147H24z"/>
+    <path fill="#22C8F4" d="M232 218V38c0-8-6-14-14-14h-18l-70 63 25 25 45-41v147h32z"/>
+    <path fill="#13D9B5" d="M84 112l30 28-20 20-34-31 24-17zm10 52 25-20v76H94v-56z"/>
+    <path fill="#22C8F4" d="M172 112l-30 28 20 20 34-31-24-17zm-10 52-25-20v76h25v-56z"/>
+    <circle cx="128" cy="132" r="29" fill="#071A2E" stroke="#294B61" stroke-width="3"/>
+    <path d="M118 132h20" stroke="#D8F8F5" stroke-width="4" stroke-linecap="round" opacity=".72"/>
+    <circle cx="116" cy="132" r="8" fill="#13D9B5"/>
+    <circle cx="140" cy="132" r="8" fill="#22C8F4"/>
+  </g>
+  <g fill="#0D1B2A" font-family="Montserrat, 'DejaVu Sans', Arial, sans-serif">
+    <text x="700" y="202" text-anchor="middle" font-size="150" font-weight="600" textLength="625" lengthAdjust="spacingAndGlyphs">MAU</text>
+    <text x="700" y="276" text-anchor="middle" font-size="38" font-weight="600" textLength="625" lengthAdjust="spacingAndGlyphs">OTO SERVİS</text>
+  </g>
+</svg>
