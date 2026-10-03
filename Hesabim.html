@@ -51,10 +51,10 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 
  <div class="card"><div class="cardHead">Şifre Değiştir</div><div class="body">
   <div class="grid">
-   <div class="field"><label>Yeni Şifre</label><input id="newPassword" type="password" placeholder="En az 4 karakter"></div>
+   <div class="field"><label>Yeni Şifre</label><input id="newPassword" type="password" placeholder="En az 8 karakter"></div>
    <div class="field"><label>Yeni Şifre Tekrar</label><input id="newPassword2" type="password"></div>
   </div>
-  <div class="note" style="margin-top:8px">Bu şifre kullanıcı hesabı için yerel cihazda tutulur. Ortak kullanıcı sistemi kurulunca merkezi yetkilendirmeye taşınacaktır.</div>
+  <div class="note" style="margin-top:8px">Şifre düz metin olarak saklanmaz. Güvenli parola özeti kullanılır; APK içinde yerel kayıtlar Android güvenli kasası ile korunur.</div>
  </div></div>
 
  <div class="card"><div class="cardHead">Hesap Durumu</div><div class="body">
@@ -71,7 +71,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 
 </div>
 <script>
-const PROFILE_KEY="mau_hesabim",PASSWORD_KEY="mau_kullanici_sifresi",SETTINGS_KEY="mau_ayarlar";
+const PROFILE_KEY="mau_hesabim",SETTINGS_KEY="mau_ayarlar";
 let pendingPhoto="";
 function loadObj(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return{}}}
 function defaults(){return {adSoyad:"Kullanıcı",kullaniciAdi:"admin",rol:"Yönetici",telefon:"",eposta:"",foto:"",aktif:true,updatedAt:""}}
@@ -97,11 +97,19 @@ function selectPhoto(){
  const r=new FileReader();r.onload=function(){const im=new Image();im.onload=function(){const size=240,canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;const ctx=canvas.getContext("2d"),scale=Math.max(size/im.width,size/im.height),w=im.width*scale,h=im.height*scale;ctx.drawImage(im,(size-w)/2,(size-h)/2,w,h);pendingPhoto=canvas.toDataURL("image/webp",0.85);renderHeader({...defaults(),...loadObj(PROFILE_KEY),adSoyad:document.getElementById("adSoyad").value,rol:document.getElementById("rol").value,foto:pendingPhoto})};im.src=r.result};r.readAsDataURL(f)
 }
 function removePhoto(){pendingPhoto="";document.getElementById("photoFile").value="";renderHeader({...defaults(),...loadObj(PROFILE_KEY),adSoyad:document.getElementById("adSoyad").value,rol:document.getElementById("rol").value,foto:""})}
-function saveProfile(){
+async function saveProfile(){
  const ad=document.getElementById("adSoyad").value.trim(),user=document.getElementById("kullaniciAdi").value.trim();if(!ad||!user){alert("Ad soyad ve kullanıcı adı zorunlu.");return}
- const p1=document.getElementById("newPassword").value,p2=document.getElementById("newPassword2").value;if(p1||p2){if(p1.length<4){alert("Şifre en az 4 karakter olmalı.");return}if(p1!==p2){alert("Şifreler aynı değil.");return}}
- const p={adSoyad:ad,kullaniciAdi:user,rol:document.getElementById("rol").value,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),foto:pendingPhoto,aktif:true,updatedAt:new Date().toISOString()};
- localStorage.setItem(PROFILE_KEY,JSON.stringify(p));if(p1)localStorage.setItem(PASSWORD_KEY,p1);renderHeader(p);document.getElementById("newPassword").value="";document.getElementById("newPassword2").value="";alert("Hesap bilgileri kaydedildi.")
+ const p1=document.getElementById("newPassword").value,p2=document.getElementById("newPassword2").value;
+ if(p1||p2){if(p1.length<8){alert("Şifre en az 8 karakter olmalı.");return}if(p1!==p2){alert("Şifreler aynı değil.");return}}
+ try{
+  if(p1)await MAUAuth.setPassword(user,p1);else MAUAuth.updateUsername(user);
+  const p={adSoyad:ad,kullaniciAdi:user,rol:document.getElementById("rol").value,telefon:document.getElementById("telefon").value.trim(),eposta:document.getElementById("eposta").value.trim(),foto:pendingPhoto,aktif:true,updatedAt:new Date().toISOString()};
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(p));
+  renderHeader(p);
+  document.getElementById("newPassword").value="";
+  document.getElementById("newPassword2").value="";
+  alert("Hesap bilgileri güvenli şekilde kaydedildi.");
+ }catch(e){alert(e.message||String(e))}
 }
 loadProfile();
 </script>
