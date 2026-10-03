@@ -110,6 +110,7 @@ textarea{min-height:75px}.save{width:100%;background:#09a44f;color:#fff;border:0
 <div class="container">
  <div class="toolbar">
   <input id="search" class="search" placeholder="Ad, firma, telefon, vergi no, cari kodu ara..." oninput="render()">
+  <button class="add" style="background:#0b6ba8" onclick="separateSuppliers()">Tedarikçileri Ayır</button>
   <button class="add" onclick="openForm()">+ Yeni Cari</button>
  </div>
 
@@ -381,6 +382,71 @@ function deleteCari(id){
   cariler=cariler.filter(function(x){return String(x.id)!==String(c.id);});
   saveCariler();render();
  }
+}
+
+function normName(v){
+ return String(v||"").toLocaleUpperCase("tr-TR").replace(/[^A-ZÇĞİÖŞÜ0-9]+/g," ").replace(/\s+/g," ").trim();
+}
+function invoiceIsPurchase(x){
+ const t=String(pick(x,["tip","tur","faturaTipi","type"],"")).toLocaleLowerCase("tr-TR");
+ return /alış|alis|gelen|purchase|tedarik/.test(t);
+}
+function supplierEvidence(c){
+ const cid=String(c.id||""),cn=normName(c.name),stock=loadArray("mau_stok_parcalar");
+ const stockHits=stock.filter(x=>{
+  const sid=String(x.supplierId||x.tedarikciId||"");
+  const sn=normName(x.supplierName||x.tedarikciAdi||x.tedarikci||"");
+  return (sid&&cid&&sid===cid)||(sn&&cn&&sn===cn);
+ });
+ const payHits=allPayments().filter(x=>belongsToCari(x,c));
+ const purchaseHits=allInvoices().filter(x=>invoiceIsPurchase(x)&&belongsToCari(x,c));
+ const customerInvoices=allInvoices().filter(x=>!invoiceIsPurchase(x)&&belongsToCari(x,c));
+ const customerHits={
+  vehicles:allVehicles().filter(x=>belongsToCari(x,c)).length,
+  works:allWorkOrders().filter(x=>belongsToCari(x,c)).length,
+  collections:allCollections().filter(x=>belongsToCari(x,c)).length,
+  sales:customerInvoices.length
+ };
+ return {stock:stockHits.length,payments:payHits.length,purchases:purchaseHits.length,customer:customerHits};
+}
+function separateSuppliers(){
+ const pure=[],dual=[];
+ cariler.forEach(c=>{
+  if((c.roles||[]).includes("Sigorta Şirketi")||(c.roles||[]).includes("Eksper Firması"))return;
+  const ev=supplierEvidence(c),sup=ev.stock+ev.payments+ev.purchases;
+  if(!sup)return;
+  const cust=ev.customer.vehicles+ev.customer.works+ev.customer.collections+ev.customer.sales;
+  const item={c,ev,sup,cust};
+  if(cust===0)pure.push(item);else if(!(c.roles||[]).includes("Tedarikçi"))dual.push(item);
+ });
+ const newPure=pure.filter(x=>!(x.c.roles||[]).includes("Tedarikçi")||(x.c.roles||[]).includes("Müşteri"));
+ if(!newPure.length&&!dual.length){alert("Tedarikçi olarak ayrılacak yeni cari bulunamadı.");return}
+ const lines=[];
+ if(newPure.length){
+  lines.push("Sadece tedarikçi olarak ayrılacak ("+newPure.length+"):");
+  newPure.slice(0,12).forEach(x=>lines.push("• "+x.c.name+"  [stok "+x.ev.stock+", ödeme "+x.ev.payments+", alış "+x.ev.purchases+"]"));
+  if(newPure.length>12)lines.push("• ... ve "+(newPure.length-12)+" cari daha");
+ }
+ if(dual.length){
+  lines.push("");
+  lines.push("Hem müşteri hem tedarikçi kalacak ("+dual.length+"):");
+  dual.slice(0,8).forEach(x=>lines.push("• "+x.c.name));
+  if(dual.length>8)lines.push("• ... ve "+(dual.length-8)+" cari daha");
+ }
+ lines.push("");
+ lines.push("Sadece tedarikçi olanlarda Müşteri rolü kaldırılacak. Çift ilişkisi olanlarda iki rol birlikte korunacak. Devam edilsin mi?");
+ if(!confirm(lines.join("\n")))return;
+ let changed=0;
+ newPure.forEach(x=>{
+  const roles=(x.c.roles||[]).filter(r=>r!=="Müşteri"&&r!=="Tedarikçi");
+  roles.push("Tedarikçi");x.c.roles=roles;x.c.supplierSeparatedAt=new Date().toISOString();changed++;
+ });
+ dual.forEach(x=>{
+  const roles=Array.from(new Set([...(x.c.roles||[]),"Tedarikçi"]));
+  x.c.roles=roles;x.c.supplierSeparatedAt=new Date().toISOString();changed++;
+ });
+ saveCariler();render();
+ alert(changed+" cari tedarikçi ilişkisine göre ayrıldı. Müşteri/Tedarikçi sayaçları güncellendi.");
 }
 function render(){
  const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
