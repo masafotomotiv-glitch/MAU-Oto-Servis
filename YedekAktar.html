@@ -179,24 +179,61 @@ async function inspectLegacyTestPackage(){
   packageLog(packageSummary(pkg));document.getElementById("legacyPackageImportBtn").disabled=false
  }catch(e){packageLog("Paket okunamadı: "+(e.message||e))}
 }
+function packagePlaceholder(v){
+ const s=fold(v);
+ return !s||s==="0"||s==="00"||s==="000"||s==="1"||s==="11";
+}
+function sameLegacySource(a,b){
+ const x=String(a&&a.legacySourceId||""),y=String(b&&b.legacySourceId||"");
+ return !!x&&!!y&&x===y;
+}
 function findPackageExisting(list,item,key){
- if(key==="mau_cariler"){
-  const code=fold(item.code),vn=fold(item.vn||item.tc),tel=fold(item.tel),name=fold(item.name);
-  return list.find(function(x){return(code&&fold(x.code)===code)||(vn&&fold(x.vn||x.tc)===vn)||(tel&&fold(x.tel)===tel)||(name&&fold(x.name)===name)})
+ const src=String(item.legacySourceId||"");
+ if(src){
+  const bySrc=list.find(function(x){return String(x.legacySourceId||"")===src});
+  if(bySrc)return bySrc;
  }
- if(key==="mau_araclar"){const p=normPlate(item.plaka);return list.find(function(x){return p&&normPlate(x.plaka)===p})}
- if(key==="mau_stok_parcalar"){const code=fold(item.code),name=fold(item.name);return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})}
- if(key==="mau_hasar_dosyalari"){const no=fold(item.dosyaNo||item.sigortaDosyaNo);return list.find(function(x){return no&&fold(x.dosyaNo||x.sigortaDosyaNo)===no})}
- if(key==="mau_faturalar"){const no=fold(item.faturaNo);return list.find(function(x){return no&&fold(x.faturaNo)===no})}
- if(key==="mau_tahsilatlar"||key==="mau_odemeler"){const no=fold(item.makbuzNo),src=String(item.legacySourceId||"");return list.find(function(x){return(no&&fold(x.makbuzNo)===no)||(src&&String(x.legacySourceId||"")===src)})}
- if(key==="mau_cari_hareketler"){const src=String(item.legacySourceId||""),ev=String(item.eventKey||"");return list.find(function(x){return(src&&String(x.legacySourceId||"")===src)||(ev&&String(x.eventKey||"")===ev)||(String(x.id||"")===String(item.id||""))})}
+ if(key==="mau_cariler"){
+  const code=fold(item.code);
+  if(code){const byCode=list.find(function(x){return fold(x.code)===code});if(byCode)return byCode}
+  const vn=fold(item.vn||item.tc);
+  if(vn&&!packagePlaceholder(vn)){const byVn=list.find(function(x){return fold(x.vn||x.tc)===vn});if(byVn)return byVn}
+  const tel=fold(item.tel);
+  if(tel&&!packagePlaceholder(tel)&&tel.length>=7){const byTel=list.find(function(x){return fold(x.tel)===tel});if(byTel)return byTel}
+  const name=fold(item.name);
+  if(name){return list.find(function(x){return fold(x.name)===name})||null}
+  return null
+ }
+ if(key==="mau_araclar"){const p=normPlate(item.plaka);return list.find(function(x){return p&&normPlate(x.plaka)===p})||null}
+ if(key==="mau_stok_parcalar"){const code=fold(item.code),name=fold(item.name);return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})||null}
+ if(key==="mau_hasar_dosyalari"){const no=fold(item.dosyaNo||item.sigortaDosyaNo);return list.find(function(x){return no&&fold(x.dosyaNo||x.sigortaDosyaNo)===no})||null}
+ if(key==="mau_faturalar"){const no=fold(item.faturaNo);return list.find(function(x){return no&&fold(x.faturaNo)===no})||null}
+ if(key==="mau_tahsilatlar"||key==="mau_odemeler"){const no=fold(item.makbuzNo);return list.find(function(x){return no&&fold(x.makbuzNo)===no})||null}
+ if(key==="mau_cari_hareketler"){const ev=String(item.eventKey||"");return list.find(function(x){return(ev&&String(x.eventKey||"")===ev)||(String(x.id||"")===String(item.id||""))})||null}
  return null
 }
+function reconcilePackageExisting(key,existing,item){
+ if(!sameLegacySource(existing,item))return false;
+ let fields=[];
+ if(key==="mau_araclar")fields=["cariId","cariCode","cariAdi"];
+ else if(key==="mau_hasar_dosyalari")fields=["cariId","cariCode","cariAdi","aracId","vehicleId","plaka"];
+ else if(key==="mau_faturalar"||key==="mau_tahsilatlar"||key==="mau_odemeler"||key==="mau_cari_hareketler")fields=["cariId","cariCode","cariAdi","plaka"];
+ else return false;
+ let changed=false;
+ fields.forEach(function(k){
+  if(item[k]!==undefined&&String(existing[k]??"")!==String(item[k]??"")){existing[k]=item[k];changed=true}
+ });
+ if(changed)existing.updatedAt=new Date().toISOString();
+ return changed
+}
 function insertPackageItems(key,items,prepare){
- const list=loadArray(key),result={added:0,skipped:0,map:new Map(),records:new Map()};
+ const list=loadArray(key),result={added:0,skipped:0,updated:0,map:new Map(),records:new Map()};
  (items||[]).forEach(function(raw){
   const sourceId=String(raw.id),item=prepare?prepare(cloneData(raw),result):cloneData(raw),existing=findPackageExisting(list,item,key);
-  if(existing){result.skipped++;result.map.set(sourceId,existing.id);result.records.set(sourceId,existing);return}
+  if(existing){
+   if(reconcilePackageExisting(key,existing,item))result.updated++;else result.skipped++;
+   result.map.set(sourceId,existing.id);result.records.set(sourceId,existing);return
+  }
   list.unshift(item);result.added++;result.map.set(sourceId,item.id);result.records.set(sourceId,item)
  });
  saveArray(key,list);return result
@@ -236,14 +273,14 @@ async function importLegacyTestPackage(){
  if(!confirm("Seçili paket "+total+" kaydı mevcut verileri silmeden sisteme ekleyecek. Aynı kayıt varsa atlanacak. Devam edilsin mi?"))return;
  try{
   const r=importLegacyTestPackageData(legacyTestPackage),lines=["ESKİ YEDEK PAKETİ İŞLENDİ"];
-  let added=0,skipped=0;
-  LEGACY_TEST_KEYS.forEach(function(t){const x=r.results[t.key]||{added:0,skipped:0};added+=x.added;skipped+=x.skipped;lines.push(t.title+": "+x.added+" eklendi · "+x.skipped+" zaten vardı")});
-  lines.push("Toplam: "+added+" eklendi · "+skipped+" atlandı");
+  let added=0,skipped=0,updated=0;
+  LEGACY_TEST_KEYS.forEach(function(t){const x=r.results[t.key]||{added:0,skipped:0,updated:0};added+=x.added;skipped+=x.skipped;updated+=(x.updated||0);lines.push(t.title+": "+x.added+" eklendi · "+(x.updated||0)+" bağlantı düzeltildi · "+x.skipped+" zaten vardı")});
+  lines.push("Toplam: "+added+" eklendi · "+updated+" bağlantı düzeltildi · "+skipped+" atlandı");
   if(r.warnings.length)lines.push("Uyarı: "+r.warnings.join(" | "));
   lines.push("Şimdi Cariler → Araçlar → Stok → Hasar/Sigorta → Faturalar → Cari/Kasa sırasıyla kontrol edin.");
   packageLog(lines.join("\n"));
-  localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:"legacy-test-package",format:legacyTestPackage.format,source:legacyTestPackage.sourceBackup||"",added:added,skipped:skipped,at:new Date().toISOString()}));
-  alert("Eski yedek paketi işlendi. "+added+" kayıt eklendi, "+skipped+" kayıt zaten vardı.")
+  localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:"legacy-test-package",format:legacyTestPackage.format,source:legacyTestPackage.sourceBackup||"",added:added,updated:updated,skipped:skipped,at:new Date().toISOString()}));
+  alert("Eski yedek paketi işlendi. "+added+" kayıt eklendi, "+updated+" bağlantı düzeltildi, "+skipped+" kayıt zaten vardı.")
  }catch(e){packageLog("PAKET HATASI: "+(e.message||e));alert("Paket yüklenemedi: "+(e.message||e))}
 }
 function parseCSV(text){
