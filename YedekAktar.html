@@ -22,11 +22,18 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <header><div class="head"><button class="back" onclick="location.href='Yedekleme.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Eski Yedek Test Aktarımı · Güvenli Tek Kayıt Modu</div></div></div></header>
 <div class="wrap">
  <div class="card"><div class="cardHead">Test Kuralı</div><div class="body">
-  <div class="warn"><b>Toplu aktarım kapalıdır.</b> Bu ekranda seçilen dosyadan yalnızca <b>ilk uygun 1 kayıt</b> sisteme alınır. Önce her yedek türünü birer kayıtla test edeceğiz.</div>
-  <div class="info">Dosya destekleri: <b>.xlsx, .csv, .json</b>. Excel dosyası cihaz üzerinde okunur; harici sunucuya gönderilmez.</div>
+  <div class="warn"><b>Tam eski veri aktarımı hâlâ kapalıdır.</b> Önce hazırlanmış güvenli test paketini ve tek-kayıt aktarımını kontrol edeceğiz. Testler doğruysa tüm eski veriyi aynı kurallarla dönüştüreceğiz.</div>
+  <div class="info">Hazır test paketi yalnız seçilmiş örnek kayıtları <b>mevcut verileri silmeden</b> ekler ve aynı paket ikinci kez yüklenirse kopya oluşturmaz. Tek-kayıt bölümü .xlsx, .csv ve .json dosyalarını cihaz üzerinde okur; harici sunucuya göndermez.</div>
  </div></div>
 
- <div class="card"><div class="cardHead">1. Yedek Türünü ve Dosyayı Seç</div><div class="body">
+ <div class="card"><div class="cardHead">1. Hazır Eski Yedek Test Paketi</div><div class="body">
+  <div class="good"><b>Kontrollü paket:</b> 2 cari · 2 araç · 1 stok · 2 hasar/sigorta · 1 fatura · 1 tahsilat. Siparişler ve Teklifler yedeğindeki seçilmiş örnekler Hasar & Sigorta yapısına dönüştürülmüştür.</div>
+  <div class="field"><label>MAU Eski Yedek Test Paketi (.json)</label><input id="legacyTestPackageFile" type="file" accept=".json,application/json" onchange="inspectLegacyTestPackage()"></div>
+  <div class="actions"><button class="btn gray" onclick="inspectLegacyTestPackage()">Paketi Kontrol Et</button><button id="legacyPackageImportBtn" class="btn green" onclick="importLegacyTestPackage()" disabled>✓ Test Paketini Yükle</button></div>
+  <div id="legacyPackageLog" class="log">Test paketi seçilmedi.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. Tek Türden 1 Kayıt İçin Dosya Seç</div><div class="body">
   <div class="grid">
    <div class="field"><label>Yedek Türü</label><select id="kind" onchange="resetPreview()">
     <option value="cariler">Cariler / Müşteriler</option>
@@ -41,7 +48,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
   <div id="log" class="log">Dosya seçilmedi.</div>
  </div></div>
 
- <div class="card"><div class="cardHead">2. Önizleme</div><div class="body">
+ <div class="card"><div class="cardHead">3. Tek Kayıt Önizleme</div><div class="body">
   <div class="stats">
    <div class="stat"><span>Dosyadaki Satır</span><b id="rowCount">0</b></div>
    <div class="stat"><span>Uygun Kayıt</span><b id="validCount">0</b></div>
@@ -60,6 +67,16 @@ const TARGETS={
  isemirleri:{key:"mau_is_emirleri",title:"İş Emirleri"}
 };
 let parsedRows=[],normalizedRows=[],activeFileName="";
+const LEGACY_TEST_FORMAT="MAU-LEGACY-TEST-PACKAGE-1";
+const LEGACY_TEST_KEYS=[
+ {key:"mau_cariler",title:"Cariler"},
+ {key:"mau_araclar",title:"Araçlar"},
+ {key:"mau_stok_parcalar",title:"Stok"},
+ {key:"mau_hasar_dosyalari",title:"Hasar / Sigorta"},
+ {key:"mau_faturalar",title:"Faturalar"},
+ {key:"mau_tahsilatlar",title:"Tahsilatlar"}
+];
+let legacyTestPackage=null;
 
 function log(t){document.getElementById("log").textContent=t}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -127,6 +144,102 @@ function token(x,kind){
  if(kind==="tahsilatlar")return fold(x.makbuzNo)||[fold(x.cariCode),fold(x.tarih),String(x.tutar)].join("|");
  if(kind==="isemirleri")return fold(x.isEmriNo);
  return fold(JSON.stringify(x))
+}
+
+function packageLog(t){document.getElementById("legacyPackageLog").textContent=t}
+function cloneData(x){return JSON.parse(JSON.stringify(x))}
+function normPlate(v){return fold(v)}
+function packageRecordCount(pkg){return LEGACY_TEST_KEYS.reduce(function(n,t){return n+((pkg.data&&Array.isArray(pkg.data[t.key]))?pkg.data[t.key].length:0)},0)}
+function validateLegacyTestPackage(pkg){
+ if(!pkg||pkg.format!==LEGACY_TEST_FORMAT)throw new Error("Bu dosya MAU eski yedek test paketi değil.");
+ if(!pkg.data||typeof pkg.data!=="object"||Array.isArray(pkg.data))throw new Error("Paket veri bölümü bulunamadı.");
+ const allowed=new Set(LEGACY_TEST_KEYS.map(function(x){return x.key}));
+ const extra=Object.keys(pkg.data).filter(function(k){return !allowed.has(k)});
+ if(extra.length)throw new Error("Paket beklenmeyen veri alanı içeriyor: "+extra.join(", "));
+ LEGACY_TEST_KEYS.forEach(function(t){if(pkg.data[t.key]!=null&&!Array.isArray(pkg.data[t.key]))throw new Error(t.title+" bölümü liste biçiminde değil.")});
+ const total=packageRecordCount(pkg);
+ if(!total)throw new Error("Paket içinde aktarılacak kayıt yok.");
+ return total
+}
+function packageSummary(pkg){
+ const lines=["PAKET UYGUN · "+packageRecordCount(pkg)+" örnek kayıt"];
+ LEGACY_TEST_KEYS.forEach(function(t){lines.push(t.title+": "+((pkg.data&&pkg.data[t.key]||[]).length))});
+ if(pkg.sourceBackup)lines.push("Kaynak: "+pkg.sourceBackup);
+ lines.push("Mod: mevcut verileri silmeden ekle · tekrar yüklemede kopya oluşturma");
+ return lines.join("\n")
+}
+async function inspectLegacyTestPackage(){
+ const input=document.getElementById("legacyTestPackageFile"),f=input&&input.files&&input.files[0];
+ legacyTestPackage=null;document.getElementById("legacyPackageImportBtn").disabled=true;
+ if(!f){packageLog("Test paketi seçilmedi.");return}
+ try{
+  const pkg=JSON.parse(await f.text());validateLegacyTestPackage(pkg);legacyTestPackage=pkg;
+  packageLog(packageSummary(pkg));document.getElementById("legacyPackageImportBtn").disabled=false
+ }catch(e){packageLog("Paket okunamadı: "+(e.message||e))}
+}
+function findPackageExisting(list,item,key){
+ if(key==="mau_cariler"){
+  const code=fold(item.code),vn=fold(item.vn||item.tc),tel=fold(item.tel),name=fold(item.name);
+  return list.find(function(x){return(code&&fold(x.code)===code)||(vn&&fold(x.vn||x.tc)===vn)||(tel&&fold(x.tel)===tel)||(name&&fold(x.name)===name)})
+ }
+ if(key==="mau_araclar"){const p=normPlate(item.plaka);return list.find(function(x){return p&&normPlate(x.plaka)===p})}
+ if(key==="mau_stok_parcalar"){const code=fold(item.code),name=fold(item.name);return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})}
+ if(key==="mau_hasar_dosyalari"){const no=fold(item.dosyaNo||item.sigortaDosyaNo);return list.find(function(x){return no&&fold(x.dosyaNo||x.sigortaDosyaNo)===no})}
+ if(key==="mau_faturalar"){const no=fold(item.faturaNo);return list.find(function(x){return no&&fold(x.faturaNo)===no})}
+ if(key==="mau_tahsilatlar"){const no=fold(item.makbuzNo),src=String(item.legacySourceId||"");return list.find(function(x){return(no&&fold(x.makbuzNo)===no)||(src&&String(x.legacySourceId||"")===src)})}
+ return null
+}
+function insertPackageItems(key,items,prepare){
+ const list=loadArray(key),result={added:0,skipped:0,map:new Map(),records:new Map()};
+ (items||[]).forEach(function(raw){
+  const sourceId=String(raw.id),item=prepare?prepare(cloneData(raw),result):cloneData(raw),existing=findPackageExisting(list,item,key);
+  if(existing){result.skipped++;result.map.set(sourceId,existing.id);result.records.set(sourceId,existing);return}
+  list.unshift(item);result.added++;result.map.set(sourceId,item.id);result.records.set(sourceId,item)
+ });
+ saveArray(key,list);return result
+}
+function mappedRecord(result,sourceId){return result&&result.records.get(String(sourceId))}
+function actualCariFields(item,cariResult){
+ const c=mappedRecord(cariResult,item.cariId);if(!c)return item;
+ item.cariId=c.id;item.cariCode=c.code||item.cariCode||"";item.cariAdi=c.name||item.cariAdi||"";return item
+}
+function importLegacyTestPackageData(pkg){
+ validateLegacyTestPackage(pkg);
+ const d=pkg.data||{},out={},warnings=[];
+ const car=insertPackageItems("mau_cariler",d.mau_cariler||[]);
+ out.mau_cariler=car;
+ const veh=insertPackageItems("mau_araclar",d.mau_araclar||[],function(item){
+  item=actualCariFields(item,car);return item
+ });
+ out.mau_araclar=veh;
+ out.mau_stok_parcalar=insertPackageItems("mau_stok_parcalar",d.mau_stok_parcalar||[]);
+ out.mau_hasar_dosyalari=insertPackageItems("mau_hasar_dosyalari",d.mau_hasar_dosyalari||[],function(item){
+  item=actualCariFields(item,car);
+  const v=mappedRecord(veh,item.aracId||item.vehicleId);
+  if(v){item.aracId=v.id;item.vehicleId=v.id;item.plaka=v.plaka||item.plaka||""}
+  else warnings.push("Hasar dosyasının araç bağlantısı bulunamadı: "+(item.dosyaNo||item.sigortaDosyaNo||"-"));
+  return item
+ });
+ out.mau_faturalar=insertPackageItems("mau_faturalar",d.mau_faturalar||[],function(item){return actualCariFields(item,car)});
+ out.mau_tahsilatlar=insertPackageItems("mau_tahsilatlar",d.mau_tahsilatlar||[],function(item){return actualCariFields(item,car)});
+ return {results:out,warnings:warnings}
+}
+async function importLegacyTestPackage(){
+ if(window.MAULicense&&typeof window.MAULicense.requireWrite==="function"&&!window.MAULicense.requireWrite())return;
+ if(!legacyTestPackage){await inspectLegacyTestPackage();if(!legacyTestPackage)return}
+ const total=packageRecordCount(legacyTestPackage);
+ if(!confirm("Seçili test paketi "+total+" örnek kaydı mevcut verileri silmeden sisteme ekleyecek. Aynı kayıt varsa atlanacak. Devam edilsin mi?"))return;
+ try{
+  const r=importLegacyTestPackageData(legacyTestPackage),lines=["TEST PAKETİ İŞLENDİ"];
+  let added=0,skipped=0;
+  LEGACY_TEST_KEYS.forEach(function(t){const x=r.results[t.key]||{added:0,skipped:0};added+=x.added;skipped+=x.skipped;lines.push(t.title+": "+x.added+" eklendi · "+x.skipped+" zaten vardı")});
+  lines.push("Toplam: "+added+" eklendi · "+skipped+" atlandı");
+  if(r.warnings.length)lines.push("Uyarı: "+r.warnings.join(" | "));
+  lines.push("Şimdi Cariler → Araçlar → Stok → Hasar/Sigorta → Faturalar → Cari/Kasa sırasıyla kontrol edin.");
+  packageLog(lines.join("\n"));
+  localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:"legacy-test-package",format:legacyTestPackage.format,source:legacyTestPackage.sourceBackup||"",added:added,skipped:skipped,at:new Date().toISOString()}));
+  alert("Eski yedek test paketi işlendi. "+added+" kayıt eklendi, "+skipped+" kayıt zaten vardı.")
+ }catch(e){packageLog("TEST PAKETİ HATASI: "+(e.message||e));alert("Test paketi yüklenemedi: "+(e.message||e))}
 }
 function parseCSV(text){
  const first=(text.split(/\r?\n/)[0]||"");const sep=(first.split(";").length>first.split(",").length)?";":(first.split("\t").length>first.split(",").length?"\t":",");
