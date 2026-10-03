@@ -52,6 +52,8 @@ jobs:
               "HasarSigorta.html",
               "EkspertizDetay.html",
               "TeslimFatura.html",
+              "Faturalar.html",
+              "Islemler.html",
               "Teklifler.html",
               "EksperArsivi.html",
           ]
@@ -97,7 +99,9 @@ jobs:
               "Yedekleme.html": ["MAU-FULL-BACKUP-1", "beginBinarySave", "inspectFullBackup", "restoreFullBackup"],
               "HasarSigorta.html": ["printReportNative", "MAUAndroid.printPage"],
               "EkspertizDetay.html": ["printReportNative", "MAUAndroid.printPage"],
-              "TeslimFatura.html": ["MAUAndroid.printPage"],
+              "TeslimFatura.html": ["MAUAndroid.printPage", "preparedInvoice", "closeForInvoice"],
+              "Faturalar.html": ["paidAmount", "remainAmount", "KDV %"],
+              "Islemler.html": ["kdvOrani", "discountTotal"],
               "Teklifler.html": ["MAUAndroid.printPage"],
               "EksperArsivi.html": ["MAUAndroid.printPage"],
           }
