@@ -468,7 +468,7 @@ body{
         <div class="top-icon">⚙</div>
         Ayarlar
       </div>
-      <div class="top-item" onclick="window.location.href='Cikis.html'" style="cursor:pointer">
+      <div class="top-item" onclick="try{MAUAuth.logout()}catch(e){};window.location.replace('Giris.html?v='+Date.now())" style="cursor:pointer">
         <div class="top-icon">↪</div>
         Çıkış
       </div>
