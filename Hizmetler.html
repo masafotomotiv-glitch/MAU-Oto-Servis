@@ -14,7 +14,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='Personel.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">İşçilik / Hizmet Tanımları · Bölüm · Süre · Fiyat · KDV</div></div></div></header>
 <div class="wrap">
- <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn secondary" onclick="migrateLegacyLaborFromStock(true);render()">Stoktaki İşçilikleri Aktar</button><button class="btn secondary" onclick="separateLaborFromStock()">İşçilikleri Stoktan Ayır</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn secondary" onclick="migrateLegacyLaborFromStock(true);render()">Stoktaki İşçilikleri Aktar</button><button class="btn secondary" onclick="separateLaborFromStock()">İşçilikleri Stoktan Ayır</button><button class="btn secondary" onclick="mergeDuplicateStockFromLabor()">Stok Mükerrerlerini Birleştir</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
  <div class="stats"><div class="stat"><b id="total">0</b><span>Toplam</span></div><div class="stat"><b id="active">0</b><span>Aktif</span></div><div class="stat"><b id="mechanic">0</b><span>Mekanik / Bakım</span></div><div class="stat"><b id="body">0</b><span>Kaporta / Boya</span></div></div>
  <div id="list"></div>
 </div>
@@ -112,6 +112,37 @@ function separateLaborFromStock(){
  localStorage.setItem("mau_stok_iscilik_arsiv",JSON.stringify(archive));
  localStorage.setItem("mau_stok_parcalar",JSON.stringify(stock.filter(x=>!ids.has(String(x.id)))));
  alert(rows.length+" işçilik stoktan ayrıldı. İşçilikler bölümündeki tanımlar korunuyor.");
+}
+
+function mergeDuplicateStockFromLabor(){
+ let stock=[];try{const v=JSON.parse(localStorage.getItem("mau_stok_parcalar")||"[]");stock=Array.isArray(v)?v:[]}catch(e){stock=[]}
+ const groups=new Map();
+ stock.forEach(x=>{
+  const code=serviceFold(x.code||x.barcode),name=serviceFold(x.name);
+  if(!code||!name)return;
+  const k=code+"||"+name;
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(x);
+ });
+ const dupGroups=[...groups.values()].filter(g=>g.length>1);
+ const extra=dupGroups.reduce((n,g)=>n+g.length-1,0);
+ if(!extra){alert("Mükerrer stok kartı bulunmadı.");return}
+ if(!confirm(dupGroups.length+" ürün grubunda "+extra+" mükerrer stok kartı birleştirilecek. Miktarlar toplanacak, eski kartlar arşivlenecek. Devam edilsin mi?"))return;
+ let archive=[];try{const v=JSON.parse(localStorage.getItem("mau_stok_mukerrer_arsiv")||"[]");archive=Array.isArray(v)?v:[]}catch(e){archive=[]}
+ const archived=new Set(archive.map(x=>String(x.id))),removeIds=new Set();
+ dupGroups.forEach(g=>{
+  const keep=g[0];
+  let qty=0,min=0;
+  g.forEach(x=>{qty+=Number(x.stock||0);min=Math.max(min,Number(x.minStock||0))});
+  keep.stock=qty;keep.minStock=min;keep.updatedAt=new Date().toISOString();
+  g.slice(1).forEach(x=>{
+    removeIds.add(String(x.id));
+    if(!archived.has(String(x.id)))archive.unshift({...x,archivedAt:new Date().toISOString(),archiveReason:"Mükerrer stok kartı birleştirildi"});
+  });
+ });
+ localStorage.setItem("mau_stok_mukerrer_arsiv",JSON.stringify(archive));
+ localStorage.setItem("mau_stok_parcalar",JSON.stringify(stock.filter(x=>!removeIds.has(String(x.id)))));
+ alert(dupGroups.length+" ürün grubu birleştirildi; "+extra+" mükerrer kart stoktan kaldırıldı.");
 }
 
 let items=load(),editId=null;function nextCode(){let m=0;items.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "ISC-"+String(m+1).padStart(5,"0")}
