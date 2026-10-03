@@ -36,12 +36,17 @@ jobs:
 
       - name: Validate report and backup web code
         run: |
+          node --check auth.js
           python3 - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
           import subprocess, tempfile, sys
 
           files = [
+              "Giris.html",
+              "Hesabim.html",
+              "Cikis.html",
+              "index.html",
               "Raporlar.html",
               "Yedekleme.html",
               "HasarSigorta.html",
