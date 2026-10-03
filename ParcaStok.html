@@ -14,7 +14,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Parça & Stok · OEM · Tedarikçi · Kritik Stok · Alış/Satış Fiyatı</div></div></div></header>
 <div class="wrap">
- <div class="toolbar"><input id="search" class="search" placeholder="Parça adı, kodu, OEM, marka, barkod ara..." oninput="render()"><button class="btn" style="background:#eaf2ff;color:#0756a5" onclick="laborCleanup()">İşçilikleri Stoktan Ayır</button><button class="btn new" onclick="openForm()">+ Yeni Parça</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="Parça adı, kodu, OEM, marka, barkod ara..." oninput="render()"><button class="btn" style="background:#eaf2ff;color:#0756a5" onclick="laborCleanup()">İşçilikleri Stoktan Ayır</button><button class="btn" style="background:#fff4dd;color:#8a5700" onclick="mergeDuplicateStock()">Mükerrerleri Birleştir</button><button class="btn new" onclick="openForm()">+ Yeni Parça</button></div>
  <div class="stats"><div class="stat"><b id="total">0</b><span>Toplam Kalem</span></div><div class="stat"><b id="qty">0</b><span>Toplam Miktar</span></div><div class="stat"><b id="critical">0</b><span>Kritik Stok</span></div><div class="stat"><b id="value">0 ₺</b><span>Stok Alış Değeri</span></div></div>
  <div id="list"></div>
 </div>
@@ -54,6 +54,37 @@ function laborCleanup(){
  put(LABOR_ARCHIVE_KEY,archive);put(KEY,stock.filter(x=>!ids.has(String(x.id))));
  items=load(KEY);render();alert(rows.length+" işçilik stoktan ayrıldı.");
 }
+function mergeDuplicateStock(){
+ const stock=load(KEY),groups=new Map();
+ stock.forEach(x=>{
+  const code=lf(x.code||x.barcode),name=lf(x.name);
+  if(!code||!name)return;
+  const k=code+"||"+name;
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(x);
+ });
+ const dupGroups=[...groups.values()].filter(g=>g.length>1);
+ const dupCount=dupGroups.reduce((a,g)=>a+g.length-1,0);
+ if(!dupCount){alert("Mükerrer stok kartı bulunmadı.");return}
+ if(!confirm(dupGroups.length+" üründe "+dupCount+" mükerrer kart tek karta birleştirilecek. Miktarlar toplanacak, eski kartlar arşivlenecek. Devam edilsin mi?"))return;
+ let archive=load("mau_stok_mukerrer_arsiv"),archiveIds=new Set(archive.map(x=>String(x.id))),removeIds=new Set();
+ dupGroups.forEach(g=>{
+  const keep=g[0];
+  let qty=0,min=0;
+  g.forEach(x=>{qty+=Number(x.stock||0);min=Math.max(min,Number(x.minStock||0))});
+  keep.stock=qty;keep.minStock=min;keep.updatedAt=new Date().toISOString();
+  keep.note=(keep.note?keep.note+" · ":"")+"Mükerrer stok kartları birleştirildi ("+g.length+" kaynak kayıt).";
+  g.slice(1).forEach(x=>{
+   removeIds.add(String(x.id));
+   if(!archiveIds.has(String(x.id)))archive.unshift({...x,archivedAt:new Date().toISOString(),archiveReason:"Mükerrer stok kartı birleştirme"});
+  });
+ });
+ put("mau_stok_mukerrer_arsiv",archive);
+ put(KEY,stock.filter(x=>!removeIds.has(String(x.id))));
+ items=load(KEY);render();
+ alert(dupGroups.length+" ürün grubu birleştirildi; "+dupCount+" mükerrer kart stok listesinden kaldırıldı.");
+}
+
 let items=load(KEY),editId=null;
 function nextCode(){let m=0;items.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "PRC-"+String(m+1).padStart(5,"0")}
 function fillSuppliers(){const cs=load(CARI_KEY).filter(c=>(c.roles||[]).includes("Tedarikçi")&&c.active!==false);document.getElementById("supplierId").innerHTML='<option value="">Seçiniz</option>'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.code||"")+' - '+esc(c.name||"")+'</option>').join("")}
