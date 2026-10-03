@@ -123,7 +123,14 @@ function searchGroups(q){
   rw.forEach(w=>groupPlate(w).works.push(w));ri.forEach(x=>groupPlate(x).invoices.push(x));
   return [...groups.values()].sort((a,b)=>String(a.plate).localeCompare(String(b.plate),"tr"));
  }
- const sw=works.filter(w=>hayWork(w).includes(q)),si=invoices.filter(x=>hayInvoice(x).includes(q)),sc=cariSeeds(q);
+ const qTokens=norm(q).split(" ").filter(Boolean),strictName=qTokens.length>=2&&qTokens.every(t=>/[a-zçğıöşü]/i.test(t));
+ let sw=works.filter(w=>hayWork(w).includes(q)),si=invoices.filter(x=>hayInvoice(x).includes(q)),sc=cariSeeds(q);
+ if(strictName){
+  const ownNameMatches=x=>{const n=partyCore(x.cariAdi||x.tedarikciAdi||"");return n&&qTokens.every(t=>n.includes(t))};
+  sw=sw.filter(ownNameMatches);
+  si=si.filter(ownNameMatches);
+  sc=sc.filter(x=>{const n=partyCore(x.name||"");return n&&qTokens.every(t=>n.includes(t))});
+ }
  const plates=new Set(),ids=new Set(),codes=new Set(),names=new Set();
  function add(x){
   if(x.plaka)plates.add(norm(x.plaka));
@@ -134,7 +141,11 @@ function searchGroups(q){
  sw.forEach(add);si.forEach(add);sc.forEach(c=>{if(c.id)ids.add(String(c.id));if(c.code)codes.add(String(c.code));const nm=partyCore(c.name||"");if(nm)names.add(nm)});
  const hasDirectCari=sc.length>0;
  let rw,ri;
- if(hasDirectCari){
+ if(strictName){
+  const ownNameMatches=x=>{const n=partyCore(x.cariAdi||x.tedarikciAdi||"");return n&&qTokens.every(t=>n.includes(t))};
+  rw=works.filter(ownNameMatches);
+  ri=invoices.filter(ownNameMatches);
+ }else if(hasDirectCari){
   const directIds=new Set(sc.map(x=>String(x.id||"")).filter(Boolean));
   const directCodes=new Set(sc.map(x=>String(x.code||"")).filter(Boolean));
   const directNames=new Set(sc.map(x=>partyCore(x.name||"")).filter(Boolean));
