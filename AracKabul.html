@@ -38,7 +38,7 @@ textarea{min-height:82px;resize:vertical}
 .conditionGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cond{border:1px solid #e2e8ef;border-radius:10px;padding:10px}.cond label{font-size:12px}.cond select{padding:9px}
 .inlineCheck{display:flex;align-items:flex-start;gap:8px;border:1px solid #e2e8ef;border-radius:9px;padding:10px;margin-bottom:8px}.inlineCheck input{width:auto;margin-top:2px}
 .photoBox{border:1px dashed #b7c8d8;border-radius:10px;padding:12px;background:#f9fbfd}.photoBox input{border:0;padding:5px 0}.photoCount{font-size:12px;color:#52606d;margin-top:7px}
-.sig{background:#fff8e9;border:1px solid #f0d69b;border-radius:10px;padding:12px}
+.sig{background:#fff8e9;border:1px solid #f0d69b;border-radius:10px;padding:12px}.reasonBox{background:#f7fbff;border:1px solid #cfe2f5;border-radius:11px;padding:12px;margin-top:8px}.insurancePreBox{display:none;margin-top:10px;padding:12px;border:1px solid #f0cf8b;border-radius:11px;background:#fff9ec}.insurancePreBox.open{display:block}.insurancePreHead{font-weight:900;color:#8a5900;margin-bottom:9px}.insuranceHint{font-size:11px;color:#765d2c;line-height:1.5;margin-top:7px}
 .saveRow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.save,.saveNext{border:0;color:#fff;border-radius:10px;padding:14px;font-weight:900}.save{background:#0a8a48}.saveNext{background:#0874d1}
 .sideCard{padding:14px;position:sticky;top:10px}.sideTitle{font-weight:900;margin-bottom:9px}.checkList{margin:0;padding-left:19px;color:#52606d;font-size:12px;line-height:1.8}.notice{margin-top:12px;padding:10px;border-radius:9px;background:#f7f9fc;color:#52606d;font-size:11px;line-height:1.5}
 .listCard{margin-top:12px}.listHead{padding:13px 15px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;font-weight:900}
@@ -127,7 +127,58 @@ textarea{min-height:82px;resize:vertical}
     </div>
 
     <div class="section">
-     <div class="sectionTitle">3. Müşteri Şikâyeti ve Talebi</div>
+     <div class="sectionTitle">3. Servise Geliş Nedeni / İşlem Türü</div>
+     <div class="reasonBox">
+      <div class="grid">
+       <div class="field">
+        <label class="required">Servise Geliş Nedeni</label>
+        <select id="gelisNedeni" onchange="toggleInsurancePre()">
+         <option value="">Seçiniz...</option>
+         <option>Periyodik Bakım</option>
+         <option>Mekanik Arıza</option>
+         <option>Elektrik Arızası</option>
+         <option>Kaporta / Boya</option>
+         <option>Trafik Kazası / Sigorta Hasarı</option>
+         <option>Lastik</option>
+         <option>Muayene Öncesi Kontrol</option>
+         <option>Diğer</option>
+        </select>
+       </div>
+       <div class="field">
+        <label>Ödeme / İşlem Türü</label>
+        <select id="odemeTuru" onchange="toggleInsurancePre()">
+         <option>Müşteri Ödemeli</option>
+         <option>Kasko</option>
+         <option>Trafik Sigortası</option>
+         <option>Karşı Taraf Trafik Sigortası</option>
+         <option>Karma</option>
+        </select>
+       </div>
+      </div>
+      <div class="helper">Bu seçim iş emrine aktarılır. Trafik kazası / sigorta seçildiğinde aşağıdaki Hasar Ön Kabul alanı açılır.</div>
+
+      <div id="insurancePreBox" class="insurancePreBox">
+       <div class="insurancePreHead">Hasar Ön Kabul</div>
+       <div class="grid3">
+        <div class="field"><label>Kaza / Olay Tarihi</label><input id="olayTarihi" type="date"></div>
+        <div class="field"><label>Kaza / Olay Saati</label><input id="olaySaati" type="time"></div>
+        <div class="field"><label>Sigorta Şirketi</label><select id="onKabulSigortaId"><option value="">Sigorta seçiniz...</option></select></div>
+        <div class="field full"><label>Olay Yeri</label><input id="olayYeri" placeholder="İlçe, cadde, yol veya kısa konum bilgisi"></div>
+        <div class="field"><label>Sigorta Hasar Dosya No</label><input id="onKabulSigortaDosyaNo" placeholder="Varsa yazın"></div>
+        <div class="field"><label>Dosya Durumu</label><label class="chip"><input id="dosyaNoBekleniyor" type="checkbox"> Dosya numarası bekleniyor</label></div>
+        <div class="field full"><label>Hasar / Kaza Ön Açıklaması</label><textarea id="hasarOnKabulAciklama" placeholder="Darbe bölgesi, olayın kısa özeti, müşterinin beyanı..."></textarea></div>
+       </div>
+       <div class="chips">
+        <label class="chip"><input id="kazaTutanagiVar" type="checkbox"> Kaza tespit tutanağı var</label>
+        <label class="chip"><input id="hasarFotografiVar" type="checkbox"> Hasar fotoğrafları hazır</label>
+       </div>
+       <div class="insuranceHint">Bu bilgiler yalnız ön kabul içindir. Eksper tutarları, onaylar, KDV, sovtaj, fotoğraf arşivi ve ödeme takibi Hasar & Sigorta bölümünde devam eder.</div>
+      </div>
+     </div>
+    </div>
+
+    <div class="section">
+     <div class="sectionTitle">4. Müşteri Şikâyeti ve Talebi</div>
      <div class="grid">
       <div class="field full"><label class="required">Müşterinin Şikâyeti / Talebi</label><textarea id="musteriSikayeti" placeholder="Müşterinin kendi ifadesiyle yazın. Örn: Soğukken ön taraftan ses geliyor, ısınınca azalıyor."></textarea></div>
       <div class="field"><label>Sorun Ne Zaman Oluyor?</label><input id="sorunKosulu" placeholder="Soğuk/sıcak, hız, fren, viraj, yük altında..."></div>
@@ -148,7 +199,7 @@ textarea{min-height:82px;resize:vertical}
     </div>
 
     <div class="section">
-     <div class="sectionTitle">4. Araç Giriş Kontrolü / Ön Hasar</div>
+     <div class="sectionTitle">5. Araç Giriş Kontrolü / Ön Hasar</div>
      <div class="conditionGrid">
       <div class="cond"><label>Ön Bölüm / Tampon</label><select id="durumOn"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
       <div class="cond"><label>Arka Bölüm / Tampon</label><select id="durumArka"><option>İyi</option><option>Çizik</option><option>Ezik</option><option>Kırık</option><option>Eksik Parça</option><option>Kontrol Gerekli</option></select></div>
@@ -167,7 +218,7 @@ textarea{min-height:82px;resize:vertical}
     </div>
 
     <div class="section">
-     <div class="sectionTitle">5. Araçta Bırakılan Eşya ve Aksesuarlar</div>
+     <div class="sectionTitle">6. Araçta Bırakılan Eşya ve Aksesuarlar</div>
      <div class="grid">
       <div class="field full"><label>Araç İçindeki Değerli Eşya / Malzeme</label><textarea id="esyalar" placeholder="Telefon tutucu, çocuk koltuğu, gözlük, belge, yük vb. Yoksa 'Yok' yazın."></textarea></div>
       <div class="field"><label>Stepne / Kriko</label><select id="stepne"><option>Kontrol Edilmedi</option><option>Var</option><option>Yok</option><option>Eksik / Hasarlı</option></select></div>
@@ -176,7 +227,7 @@ textarea{min-height:82px;resize:vertical}
     </div>
 
     <div class="section">
-     <div class="sectionTitle">6. Fotoğraf / Görsel Kayıt</div>
+     <div class="sectionTitle">7. Fotoğraf / Görsel Kayıt</div>
      <div class="photoBox">
       <label>Araç Kabul Fotoğrafları</label>
       <input id="photos" type="file" accept="image/*" capture="environment" multiple onchange="photoChanged()">
@@ -186,7 +237,7 @@ textarea{min-height:82px;resize:vertical}
     </div>
 
     <div class="section">
-     <div class="sectionTitle">7. İletişim, Ön Onay ve Teslim Alma</div>
+     <div class="sectionTitle">8. İletişim, Ön Onay ve Teslim Alma</div>
      <div class="grid">
       <div class="field"><label>Tercih Edilen İletişim</label><select id="iletisim"><option>Telefon</option><option>WhatsApp</option><option>SMS</option><option>E-posta</option></select></div>
       <div class="field"><label>Ön Onay / Diagnostik Limiti (TL)</label><input id="onayLimit" type="number" min="0" placeholder="0 = her işlem için ayrıca onay"></div>
@@ -236,6 +287,7 @@ const VEHICLE_KEY="mau_araclar";
 const CARI_KEY="mau_cariler";
 const ACCEPT_KEY="mau_arac_kabulleri";
 const WORK_KEY="mau_is_emirleri";
+const INS_KEY="mau_sigorta_sirketleri";
 
 function loadArray(key){
  try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}
@@ -260,6 +312,26 @@ function nextNo(){
 }
 function findVehicle(id){return vehicles.find(function(x){return String(x.id)===String(id);});}
 function findCari(id){return cariler.find(function(x){return String(x.id)===String(id);});}
+function populateInsurers(){
+ const list=loadArray(INS_KEY).filter(function(x){return x.active!==false;});
+ const sel=document.getElementById("onKabulSigortaId");if(!sel)return;
+ const cur=sel.value;
+ sel.innerHTML='<option value="">Sigorta seçiniz...</option>'+list.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.name||x.code||"Sigorta")+'</option>';}).join("");
+ if(list.some(function(x){return String(x.id)===String(cur);}))sel.value=cur;
+}
+function isInsuranceAcceptance(){
+ const reason=(document.getElementById("gelisNedeni")?.value||"");
+ const pay=(document.getElementById("odemeTuru")?.value||"");
+ return reason==="Trafik Kazası / Sigorta Hasarı"||["Kasko","Trafik Sigortası","Karşı Taraf Trafik Sigortası","Karma"].includes(pay);
+}
+function toggleInsurancePre(){
+ const box=document.getElementById("insurancePreBox");if(!box)return;
+ const on=isInsuranceAcceptance();box.classList.toggle("open",on);
+ if(on){
+  const reason=document.getElementById("gelisNedeni");
+  if(reason&&!reason.value)reason.value="Trafik Kazası / Sigorta Hasarı";
+ }
+}
 function populateVehicles(){
  vehicles=loadArray(VEHICLE_KEY);cariler=loadArray(CARI_KEY);
  const sel=document.getElementById("aracId"),cur=sel.value;
@@ -294,7 +366,7 @@ function photoChanged(){
 }
 function resetForm(focus){
  editId=null;selectedVehicle=null;photoNames=[];
- populateVehicles();
+ populateVehicles();populateInsurers();
  document.querySelectorAll("input,textarea,select").forEach(function(el){
   if(["search","aracId"].includes(el.id))return;
   if(el.type==="checkbox")el.checked=false;
@@ -306,6 +378,8 @@ function resetForm(focus){
  document.getElementById("kabulTarihi").value=today();
  document.getElementById("kabulSaati").value=nowTime();
  document.getElementById("gelisSekli").value="Müşteri Getirdi";
+ document.getElementById("gelisNedeni").value="";
+ document.getElementById("odemeTuru").value="Müşteri Ödemeli";
  document.getElementById("yururDurum").value="Evet";
  document.getElementById("anahtarAdedi").value="1";
  ["durumOn","durumArka","durumSol","durumSag","durumCam","durumLastik","durumIc","durumBagaj"].forEach(function(id){document.getElementById(id).value="İyi";});
@@ -317,6 +391,7 @@ function resetForm(focus){
  document.getElementById("vehicleInfo").innerHTML="Araç seçilmedi.";
  document.getElementById("photoCount").innerText="Henüz fotoğraf seçilmedi.";
  document.getElementById("formTitle").innerText="Yeni Araç Kabul Formu";
+ toggleInsurancePre();
  if(focus)document.getElementById("aracId").focus();
 }
 function val(id){return document.getElementById(id).value.trim();}
@@ -328,6 +403,7 @@ function saveAcceptance(prepareWork){
  if(!a){alert("Kayıtlı araç seçiniz.");return;}
  const complaint=val("musteriSikayeti");
  if(!complaint){alert("Müşteri şikâyeti / talebi alanını doldurun.");return;}
+ if(!val("gelisNedeni")){alert("Servise geliş nedenini seçiniz.");return;}
  if(!val("km")){alert("Giriş kilometresini yazın.");return;}
  if(!val("onaylayan")){alert("Onaylayan / teslim eden kişiyi yazın.");return;}
 
@@ -343,6 +419,12 @@ function saveAcceptance(prepareWork){
   gelisSekli:val("gelisSekli"),yururDurum:val("yururDurum"),teslimEden:val("teslimEden"),teslimEdenTel:val("teslimEdenTel"),
   anahtarEtiketNo:val("anahtarEtiketNo"),anahtarAdedi:val("anahtarAdedi"),ruhsatBirakildi:checked("ruhsatBirakildi"),yedekAnahtar:checked("yedekAnahtar"),cekiciBelgesi:checked("cekiciBelgesi"),
   tahminiTeslimTarihi:val("tahminiTeslimTarihi"),tahminiTeslimSaati:val("tahminiTeslimSaati"),
+  gelisNedeni:val("gelisNedeni"),odemeTuru:val("odemeTuru"),sigortaOnKabul:isInsuranceAcceptance(),
+  sigortaId:document.getElementById("onKabulSigortaId").value,
+  sigortaSirketi:(loadArray(INS_KEY).find(function(s){return String(s.id)===String(document.getElementById("onKabulSigortaId").value);})||{}).name||"",
+  sigortaDosyaNo:val("onKabulSigortaDosyaNo"),dosyaNoBekleniyor:checked("dosyaNoBekleniyor"),
+  olayTarihi:val("olayTarihi"),olaySaati:val("olaySaati"),olayYeri:val("olayYeri"),
+  hasarOnKabulAciklama:val("hasarOnKabulAciklama"),kazaTutanagiVar:checked("kazaTutanagiVar"),hasarFotografiVar:checked("hasarFotografiVar"),
   musteriSikayeti:complaint,sorunKosulu:val("sorunKosulu"),siklik:val("siklik"),uyariLambalari:val("uyariLambalari"),oncekiMudahale:val("oncekiMudahale"),talepEdilenIslemler:val("talepEdilenIslemler"),
   departmanlar:checks("#departmanlar input"),
   kondisyon:{on:val("durumOn"),arka:val("durumArka"),sol:val("durumSol"),sag:val("durumSag"),cam:val("durumCam"),lastik:val("durumLastik"),ic:val("durumIc"),bagaj:val("durumBagaj")},
@@ -375,11 +457,17 @@ function editAcceptance(id){
  editId=x.id;populateVehicles();
  document.getElementById("formTitle").innerText=x.kabulNo+" · Araç Kabul Düzenle";
  document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
- const map=["kabulNo","kabulTarihi","kabulSaati","km","yakitSeviye","gelisSekli","yururDurum","teslimEden","teslimEdenTel","anahtarEtiketNo","anahtarAdedi","tahminiTeslimTarihi","tahminiTeslimSaati","musteriSikayeti","sorunKosulu","siklik","uyariLambalari","oncekiMudahale","talepEdilenIslemler","siviKacagi","gostergeUyarisi","hasarNotu","esyalar","stepne","aksesuar","iletisim","onayLimit","onaylayan","onayZamani"];
+ const map=["kabulNo","kabulTarihi","kabulSaati","km","yakitSeviye","gelisSekli","yururDurum","teslimEden","teslimEdenTel","anahtarEtiketNo","anahtarAdedi","tahminiTeslimTarihi","tahminiTeslimSaati","gelisNedeni","odemeTuru","olayTarihi","olaySaati","olayYeri","hasarOnKabulAciklama","musteriSikayeti","sorunKosulu","siklik","uyariLambalari","oncekiMudahale","talepEdilenIslemler","siviKacagi","gostergeUyarisi","hasarNotu","esyalar","stepne","aksesuar","iletisim","onayLimit","onaylayan","onayZamani"];
  map.forEach(function(k){if(document.getElementById(k))document.getElementById(k).value=x[k]||"";});
  document.getElementById("ruhsatBirakildi").checked=!!x.ruhsatBirakildi;
  document.getElementById("yedekAnahtar").checked=!!x.yedekAnahtar;
  document.getElementById("cekiciBelgesi").checked=!!x.cekiciBelgesi;
+ populateInsurers();document.getElementById("onKabulSigortaId").value=String(x.sigortaId||"");
+ document.getElementById("onKabulSigortaDosyaNo").value=x.sigortaDosyaNo||"";
+ document.getElementById("dosyaNoBekleniyor").checked=!!x.dosyaNoBekleniyor;
+ document.getElementById("kazaTutanagiVar").checked=!!x.kazaTutanagiVar;
+ document.getElementById("hasarFotografiVar").checked=!!x.hasarFotografiVar;
+ toggleInsurancePre();
  document.getElementById("testSurusu").checked=!!x.testSurusu;
  document.getElementById("ekIslemOnayi").checked=!!x.ekIslemOnayi;
  document.getElementById("hasarOnayi").checked=!!x.hasarOnayi;
@@ -409,7 +497,7 @@ function renderList(){
  const q=(document.getElementById("search").value||"").toLocaleLowerCase("tr-TR").trim();
  const filter=(document.getElementById("statusFilter")&&document.getElementById("statusFilter").value)||"open";
  const list=accepts.filter(function(x){
-  const matches=!q||[x.kabulNo,x.plaka,x.cariAdi,x.marka,x.model,x.musteriSikayeti,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q);
+  const matches=!q||[x.kabulNo,x.plaka,x.cariAdi,x.marka,x.model,x.musteriSikayeti,x.gelisNedeni,x.odemeTuru,x.sigortaSirketi,x.sigortaDosyaNo,x.durum].join(" ").toLocaleLowerCase("tr-TR").includes(q);
   if(!matches)return false;
   if(q)return true;
   const closed=acceptanceClosed(x,workList);
@@ -430,16 +518,16 @@ function renderList(){
   const shownStatus=closed?"Kapalı · Teslim Edildi":(x.durum||"Kabul Edildi");
   return '<div class="row"><div><div class="rowTitle">'+esc(x.kabulNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(shownStatus)+'</span></div>'+
    '<div class="rowSub">'+esc(x.cariAdi||"-")+' · '+esc([x.marka,x.model].filter(Boolean).join(" ")||"-")+' · '+esc(x.kabulTarihi||"")+' '+esc(x.kabulSaati||"")+
-   '<br>'+esc(x.musteriSikayeti||"-")+(linked?'<br>İş Emri: '+esc(linked.isEmriNo||"-")+' · '+esc(linked.durum||"-"):'')+'</div></div>'+
+   '<br><b>Geliş:</b> '+esc(x.gelisNedeni||"-")+' · '+esc(x.odemeTuru||"Müşteri Ödemeli")+(x.sigortaSirketi?' · '+esc(x.sigortaSirketi):'')+(x.sigortaDosyaNo?' · Dosya '+esc(x.sigortaDosyaNo):'')+'<br>'+esc(x.musteriSikayeti||"-")+(linked?'<br>İş Emri: '+esc(linked.isEmriNo||"-")+' · '+esc(linked.durum||"-"):'')+'</div></div>'+
    '<div class="rowActions"><button class="edit" onclick="editAcceptance(&quot;'+String(x.id)+'&quot;)">'+(closed?'Görüntüle / Düzenle':'Düzenle')+'</button>'+
    (!closed?'<button class="del" onclick="deleteAcceptance(&quot;'+String(x.id)+'&quot;)">Sil</button>':'')+'</div></div>';
  }).join("");
 }
 
 window.addEventListener("storage",function(e){
- if([VEHICLE_KEY,CARI_KEY,ACCEPT_KEY].includes(e.key)){populateVehicles();renderList();}
+ if([VEHICLE_KEY,CARI_KEY,ACCEPT_KEY,INS_KEY].includes(e.key)){populateVehicles();populateInsurers();renderList();}
 });
-populateVehicles();resetForm(false);renderList();
+populateVehicles();populateInsurers();resetForm(false);renderList();
 </script>
 </body>
 </html>
