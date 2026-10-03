@@ -14,7 +14,10 @@ const CIPHER_PREFIX="AKS1.";
 const rawGet=Storage.prototype.getItem;
 const rawSet=Storage.prototype.setItem;
 const rawRemove=Storage.prototype.removeItem;
+const rawClear=Storage.prototype.clear;
 const rawKey=Storage.prototype.key;
+const plainCache=new Map();
+const MIGRATION_MARKER="mau_secure_migrated_v3";
 
 function isLocalStorage(obj){return obj===window.localStorage}
 function nativeVault(){
@@ -29,6 +32,7 @@ function sensitiveKey(k){return /^mau_/i.test(String(k||""))}
 function migrateAtRest(){
   if(!nativeVault())return;
   try{
+    if(sessionStorage.getItem(MIGRATION_MARKER)==="1")return;
     const keys=[];
     for(let i=0;i<localStorage.length;i++){
       const k=rawKey.call(localStorage,i);
@@ -43,39 +47,62 @@ function migrateAtRest(){
         }
       }
     });
+    sessionStorage.setItem(MIGRATION_MARKER,"1");
   }catch(e){console.warn("MAU secure-storage migration:",e)}
 }
 
 migrateAtRest();
 
 Storage.prototype.getItem=function(k){
+  if(isLocalStorage(this)&&sensitiveKey(k)&&plainCache.has(String(k))){
+    return plainCache.get(String(k));
+  }
   const v=rawGet.call(this,k);
   if(v==null)return null;
   if(isLocalStorage(this)&&sensitiveKey(k)&&String(v).startsWith(CIPHER_PREFIX)){
     if(!nativeVault())return null;
     try{
       const out=window.MAUSecurity.decrypt(String(v));
-      return typeof out==="string"?out:null;
+      if(typeof out==="string"){
+        plainCache.set(String(k),out);
+        return out;
+      }
+      return null;
     }catch(e){return null}
   }
   if(isLocalStorage(this)&&sensitiveKey(k)&&nativeVault()){
     try{
-      const enc=window.MAUSecurity.encrypt(String(v));
-      if(typeof enc==="string"&&enc.startsWith(CIPHER_PREFIX))rawSet.call(this,k,enc);
+      const plain=String(v);
+      const enc=window.MAUSecurity.encrypt(plain);
+      if(typeof enc==="string"&&enc.startsWith(CIPHER_PREFIX)){
+        rawSet.call(this,k,enc);
+        plainCache.set(String(k),plain);
+      }
     }catch(e){}
   }
   return v;
 };
 Storage.prototype.setItem=function(k,v){
+  const value=String(v);
   if(isLocalStorage(this)&&sensitiveKey(k)&&nativeVault()){
     try{
-      const enc=window.MAUSecurity.encrypt(String(v));
+      const enc=window.MAUSecurity.encrypt(value);
       if(typeof enc==="string"&&enc.startsWith(CIPHER_PREFIX)){
+        plainCache.set(String(k),value);
         return rawSet.call(this,k,enc);
       }
     }catch(e){}
   }
-  return rawSet.call(this,k,String(v));
+  if(isLocalStorage(this)&&sensitiveKey(k))plainCache.set(String(k),value);
+  return rawSet.call(this,k,value);
+};
+Storage.prototype.removeItem=function(k){
+  if(isLocalStorage(this)&&sensitiveKey(k))plainCache.delete(String(k));
+  return rawRemove.call(this,k);
+};
+Storage.prototype.clear=function(){
+  if(isLocalStorage(this))plainCache.clear();
+  return rawClear.call(this);
 };
 
 function loadJson(storage,key,def){
