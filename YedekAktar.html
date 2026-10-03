@@ -19,17 +19,17 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <script src="lisans.js"></script>
 </head>
 <body>
-<header><div class="head"><button class="back" onclick="location.href='Yedekleme.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Eski Yedek Test Aktarımı · Güvenli Tek Kayıt Modu</div></div></div></header>
+<header><div class="head"><button class="back" onclick="location.href='Yedekleme.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Eski Yedek Aktarımı · Güvenli Test / Tam Aktarım</div></div></div></header>
 <div class="wrap">
  <div class="card"><div class="cardHead">Test Kuralı</div><div class="body">
-  <div class="warn"><b>Tam eski veri aktarımı hâlâ kapalıdır.</b> Önce hazırlanmış güvenli test paketini ve tek-kayıt aktarımını kontrol edeceğiz. Testler doğruysa tüm eski veriyi aynı kurallarla dönüştüreceğiz.</div>
+  <div class="warn"><b>Tam eski veri aktarımı açıldı.</b> Test paketi başarıyla doğrulandı. Tam paket mevcut verileri silmeden eklenir; aynı kayıtlar tekrar yüklenirse atlanır.</div>
   <div class="info">Hazır test paketi yalnız seçilmiş örnek kayıtları <b>mevcut verileri silmeden</b> ekler ve aynı paket ikinci kez yüklenirse kopya oluşturmaz. Tek-kayıt bölümü .xlsx, .csv ve .json dosyalarını cihaz üzerinde okur; harici sunucuya göndermez.</div>
  </div></div>
 
- <div class="card"><div class="cardHead">1. Hazır Eski Yedek Test Paketi</div><div class="body">
+ <div class="card"><div class="cardHead">1. Hazır Eski Yedek Paketi · Test / Tam</div><div class="body">
   <div class="good"><b>Kontrollü paket:</b> 2 cari · 2 araç · 1 stok · 2 hasar/sigorta · 1 fatura · 1 tahsilat. Siparişler ve Teklifler yedeğindeki seçilmiş örnekler Hasar & Sigorta yapısına dönüştürülmüştür.</div>
-  <div class="field"><label>MAU Eski Yedek Test Paketi (.json)</label><input id="legacyTestPackageFile" type="file" accept=".json,application/json" onchange="inspectLegacyTestPackage()"></div>
-  <div class="actions"><button class="btn gray" onclick="inspectLegacyTestPackage()">Paketi Kontrol Et</button><button id="legacyPackageImportBtn" class="btn green" onclick="importLegacyTestPackage()" disabled>✓ Test Paketini Yükle</button></div>
+  <div class="field"><label>MAU Eski Yedek Paketi (.json)</label><input id="legacyTestPackageFile" type="file" accept=".json,application/json" onchange="inspectLegacyTestPackage()"></div>
+  <div class="actions"><button class="btn gray" onclick="inspectLegacyTestPackage()">Paketi Kontrol Et</button><button id="legacyPackageImportBtn" class="btn green" onclick="importLegacyTestPackage()" disabled>✓ Paketi Güvenli Yükle</button></div>
   <div id="legacyPackageLog" class="log">Test paketi seçilmedi.</div>
  </div></div>
 
@@ -74,7 +74,9 @@ const LEGACY_TEST_KEYS=[
  {key:"mau_stok_parcalar",title:"Stok"},
  {key:"mau_hasar_dosyalari",title:"Hasar / Sigorta"},
  {key:"mau_faturalar",title:"Faturalar"},
- {key:"mau_tahsilatlar",title:"Tahsilatlar"}
+ {key:"mau_tahsilatlar",title:"Tahsilatlar"},
+ {key:"mau_odemeler",title:"Ödemeler"},
+ {key:"mau_cari_hareketler",title:"Eski Cari Hareketleri"}
 ];
 let legacyTestPackage=null;
 
@@ -162,7 +164,7 @@ function validateLegacyTestPackage(pkg){
  return total
 }
 function packageSummary(pkg){
- const lines=["PAKET UYGUN · "+packageRecordCount(pkg)+" örnek kayıt"];
+ const lines=["PAKET UYGUN · "+packageRecordCount(pkg)+" kayıt"];
  LEGACY_TEST_KEYS.forEach(function(t){lines.push(t.title+": "+((pkg.data&&pkg.data[t.key]||[]).length))});
  if(pkg.sourceBackup)lines.push("Kaynak: "+pkg.sourceBackup);
  lines.push("Mod: mevcut verileri silmeden ekle · tekrar yüklemede kopya oluşturma");
@@ -186,7 +188,8 @@ function findPackageExisting(list,item,key){
  if(key==="mau_stok_parcalar"){const code=fold(item.code),name=fold(item.name);return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})}
  if(key==="mau_hasar_dosyalari"){const no=fold(item.dosyaNo||item.sigortaDosyaNo);return list.find(function(x){return no&&fold(x.dosyaNo||x.sigortaDosyaNo)===no})}
  if(key==="mau_faturalar"){const no=fold(item.faturaNo);return list.find(function(x){return no&&fold(x.faturaNo)===no})}
- if(key==="mau_tahsilatlar"){const no=fold(item.makbuzNo),src=String(item.legacySourceId||"");return list.find(function(x){return(no&&fold(x.makbuzNo)===no)||(src&&String(x.legacySourceId||"")===src)})}
+ if(key==="mau_tahsilatlar"||key==="mau_odemeler"){const no=fold(item.makbuzNo),src=String(item.legacySourceId||"");return list.find(function(x){return(no&&fold(x.makbuzNo)===no)||(src&&String(x.legacySourceId||"")===src)})}
+ if(key==="mau_cari_hareketler"){const src=String(item.legacySourceId||""),ev=String(item.eventKey||"");return list.find(function(x){return(src&&String(x.legacySourceId||"")===src)||(ev&&String(x.eventKey||"")===ev)||(String(x.id||"")===String(item.id||""))})}
  return null
 }
 function insertPackageItems(key,items,prepare){
@@ -222,15 +225,17 @@ function importLegacyTestPackageData(pkg){
  });
  out.mau_faturalar=insertPackageItems("mau_faturalar",d.mau_faturalar||[],function(item){return actualCariFields(item,car)});
  out.mau_tahsilatlar=insertPackageItems("mau_tahsilatlar",d.mau_tahsilatlar||[],function(item){return actualCariFields(item,car)});
+ out.mau_odemeler=insertPackageItems("mau_odemeler",d.mau_odemeler||[],function(item){return actualCariFields(item,car)});
+ out.mau_cari_hareketler=insertPackageItems("mau_cari_hareketler",d.mau_cari_hareketler||[],function(item){return actualCariFields(item,car)});
  return {results:out,warnings:warnings}
 }
 async function importLegacyTestPackage(){
  if(window.MAULicense&&typeof window.MAULicense.requireWrite==="function"&&!window.MAULicense.requireWrite())return;
  if(!legacyTestPackage){await inspectLegacyTestPackage();if(!legacyTestPackage)return}
  const total=packageRecordCount(legacyTestPackage);
- if(!confirm("Seçili test paketi "+total+" örnek kaydı mevcut verileri silmeden sisteme ekleyecek. Aynı kayıt varsa atlanacak. Devam edilsin mi?"))return;
+ if(!confirm("Seçili paket "+total+" kaydı mevcut verileri silmeden sisteme ekleyecek. Aynı kayıt varsa atlanacak. Devam edilsin mi?"))return;
  try{
-  const r=importLegacyTestPackageData(legacyTestPackage),lines=["TEST PAKETİ İŞLENDİ"];
+  const r=importLegacyTestPackageData(legacyTestPackage),lines=["ESKİ YEDEK PAKETİ İŞLENDİ"];
   let added=0,skipped=0;
   LEGACY_TEST_KEYS.forEach(function(t){const x=r.results[t.key]||{added:0,skipped:0};added+=x.added;skipped+=x.skipped;lines.push(t.title+": "+x.added+" eklendi · "+x.skipped+" zaten vardı")});
   lines.push("Toplam: "+added+" eklendi · "+skipped+" atlandı");
@@ -238,8 +243,8 @@ async function importLegacyTestPackage(){
   lines.push("Şimdi Cariler → Araçlar → Stok → Hasar/Sigorta → Faturalar → Cari/Kasa sırasıyla kontrol edin.");
   packageLog(lines.join("\n"));
   localStorage.setItem("mau_yedek_test_son",JSON.stringify({kind:"legacy-test-package",format:legacyTestPackage.format,source:legacyTestPackage.sourceBackup||"",added:added,skipped:skipped,at:new Date().toISOString()}));
-  alert("Eski yedek test paketi işlendi. "+added+" kayıt eklendi, "+skipped+" kayıt zaten vardı.")
- }catch(e){packageLog("TEST PAKETİ HATASI: "+(e.message||e));alert("Test paketi yüklenemedi: "+(e.message||e))}
+  alert("Eski yedek paketi işlendi. "+added+" kayıt eklendi, "+skipped+" kayıt zaten vardı.")
+ }catch(e){packageLog("PAKET HATASI: "+(e.message||e));alert("Paket yüklenemedi: "+(e.message||e))}
 }
 function parseCSV(text){
  const first=(text.split(/\r?\n/)[0]||"");const sep=(first.split(";").length>first.split(",").length)?";":(first.split("\t").length>first.split(",").length?"\t":",");
