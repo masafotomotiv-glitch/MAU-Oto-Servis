@@ -20,7 +20,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}.check{border:1px solid #e3e9ef;border-radius:8px;padding:9px;font-size:11px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.save,.pdf{border:0;border-radius:9px;padding:13px;font-weight:900}.save{background:#159957;color:#fff}.pdf{background:#1478c9;color:#fff}
 .list{padding:10px}.row{border:1px solid #e3e9ef;border-radius:10px;padding:11px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px}.rowTitle{font-weight:900}.meta{font-size:11px;color:#6f8094;line-height:1.5;margin-top:4px}.badge{display:inline-block;padding:4px 7px;border-radius:10px;background:#eaf3ff;color:#0b5fa8;font-size:10px;font-weight:800}
-.rowBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rowBtns button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.print{background:#edf7ef;color:#187443}.close{background:#fff0f0;color:#aa2430}
+.rowBtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rowBtns button{border:0;border-radius:8px;padding:8px 9px;font-weight:800}.edit{background:#eaf2ff;color:#0756a5}.print{background:#edf7ef;color:#187443}.delete{background:#fff0f0;color:#b4232f}.close{background:#fff0f0;color:#aa2430}
 .note{font-size:10px;color:#7b8794;line-height:1.5}.empty{text-align:center;color:#7b8794;padding:25px}
 .calcGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.calcBox{border:1px solid #dfe7ef;border-radius:9px;padding:10px;background:#f8fbfe}.calcBox span{display:block;font-size:10px;color:#718096}.calcBox b{font-size:15px}.heavyBox{display:none;margin-top:10px;padding:11px;border:1px solid #f1d59b;border-radius:10px;background:#fff8e9}
 @media(max-width:760px){.calcGrid{grid-template-columns:1fr 1fr}}
@@ -145,7 +145,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:16px
 <div id="report"><div class="reportTop"><button onclick="closeReport()">← Uygulamaya Dön</button><button onclick="printReportNative()">Yazdır / PDF</button></div><div id="reportBody" class="reportWrap"></div></div>
 
 <script>
-const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri",INS_KEY="mau_sigorta_sirketleri",EXP_KEY="mau_eksper_kayitlari";
+const CLAIM_KEY="mau_hasar_dosyalari",VEH_KEY="mau_araclar",CARI_KEY="mau_cariler",WORK_KEY="mau_is_emirleri",INS_KEY="mau_sigorta_sirketleri",EXP_KEY="mau_eksper_kayitlari",ARCHIVE_META_KEY="mau_eksper_arsiv_meta",SECURITY_KEY="mau_guvenlik_sifresi",FILE_DB_NAME="mau_oto_files",FILE_STORE="eksperFiles";
 function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
@@ -243,6 +243,67 @@ function editClaim(id){
  document.getElementById("isEmriId").value=String(x.isEmriId||"");const ev=x.evrak||{};document.getElementById("evRuhsat").checked=!!ev.ruhsat;document.getElementById("evKimlik").checked=!!ev.kimlik;document.getElementById("evKazaTutanagi").checked=!!ev.kazaTutanagi;document.getElementById("evIban").checked=!!ev.iban;document.getElementById("evOrtaklik").checked=!!ev.ortaklik;document.getElementById("evSasiKm").checked=!!ev.sasiKm;document.getElementById("evOlay").checked=!!ev.olay;document.getElementById("evTamir").checked=!!ev.tamir;document.getElementById("evDiger").checked=!!ev.diger;document.getElementById("agirHasarDegerlendirme").checked=!!x.agirHasarDegerlendirme;toggleHeavy();calcFinancials();
  fileNames=(x.dosyaAdlari||[]).slice();document.getElementById("fileInfo").textContent=fileNames.length?fileNames.length+" kayıtlı dosya adı: "+fileNames.join(", "):"Henüz dosya seçilmedi.";document.getElementById("formTitle").textContent=(x.dosyaNo||x.sigortaDosyaNo||"Hasar Dosyası")+" · Dosyayı Düzenle";window.scrollTo({top:0,behavior:"smooth"})
 }
+function verifyDeletePassword(){
+ let saved=localStorage.getItem(SECURITY_KEY)||"";
+ if(!saved){
+  const first=prompt("Hasar / sigorta dosyası silmek için yeni bir güvenlik şifresi belirleyin. En az 4 karakter:");
+  if(first===null)return false;
+  const p=String(first).trim();
+  if(p.length<4){alert("Güvenlik şifresi en az 4 karakter olmalı.");return false}
+  const again=prompt("Güvenlik şifresini tekrar yazın:");
+  if(again===null||String(again).trim()!==p){alert("Şifreler eşleşmedi.");return false}
+  localStorage.setItem(SECURITY_KEY,p);
+  alert("Güvenlik şifresi oluşturuldu.");
+  return true;
+ }
+ const entered=prompt("Silme işlemi için güvenlik şifresini yazın:");
+ if(entered===null)return false;
+ if(String(entered)!==saved){alert("Güvenlik şifresi yanlış.");return false}
+ return true;
+}
+function openArchiveDb(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open(FILE_DB_NAME,1);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(FILE_STORE))db.createObjectStore(FILE_STORE,{keyPath:"id"})};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error)
+ })
+}
+async function deleteClaimArchive(claimId){
+ const all=load(ARCHIVE_META_KEY),rows=all.filter(x=>String(x.claimId)===String(claimId));
+ if(!rows.length)return 0;
+ const db=await openArchiveDb();
+ await new Promise((resolve,reject)=>{
+  const tx=db.transaction(FILE_STORE,"readwrite"),store=tx.objectStore(FILE_STORE);
+  rows.forEach(x=>store.delete(x.id));
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error);
+  tx.onabort=()=>reject(tx.error||new Error("Arşiv silme işlemi iptal edildi."))
+ });
+ db.close();
+ put(ARCHIVE_META_KEY,all.filter(x=>String(x.claimId)!==String(claimId)));
+ return rows.length
+}
+async function deleteClaim(id){
+ if(window.MAULicense&&typeof window.MAULicense.requireWrite==="function"&&!window.MAULicense.requireWrite())return;
+ claims=load(CLAIM_KEY);
+ const x=claims.find(a=>String(a.id)===String(id));if(!x)return;
+ const archiveCount=load(ARCHIVE_META_KEY).filter(a=>String(a.claimId)===String(id)).length;
+ const name=(x.dosyaNo||x.sigortaDosyaNo||"Hasar dosyası")+" · "+(x.plaka||"-");
+ const msg=name+" kalıcı olarak silinsin mi?"+(archiveCount?"\n\nBağlı "+archiveCount+" fotoğraf / evrak da Eksper Arşivi'nden silinecek.":"")+"\n\nBu işlem geri alınamaz.";
+ if(!confirm(msg))return;
+ if(!verifyDeletePassword())return;
+ try{
+  const removedArchive=await deleteClaimArchive(id);
+  claims=load(CLAIM_KEY).filter(a=>String(a.id)!==String(id));
+  put(CLAIM_KEY,claims);
+  if(String(editId)===String(id))resetForm(false);
+  renderList();
+  alert(name+" silindi."+(removedArchive?"\nBağlı "+removedArchive+" fotoğraf / evrak da arşivden kaldırıldı.":""))
+ }catch(e){
+  alert("Dosya silinemedi. Kayıt korunuyor.\n"+(e&&e.message?e.message:e))
+ }
+}
 function openExpertise(id){location.href="EkspertizDetay.html?dosyaId="+encodeURIComponent(id)}
 function openInsuranceApproval(id){location.href="SigortaOnayi.html?dosyaId="+encodeURIComponent(id)}
 function openExpertArchive(id){location.href="EksperArsivi.html?dosyaId="+encodeURIComponent(id)+"&v="+Date.now()}
@@ -253,7 +314,7 @@ function renderList(){
  document.getElementById("sOpen").textContent=claims.filter(x=>!isClosed(x)).length;document.getElementById("sClosed").textContent=claims.filter(isClosed).length;
  document.getElementById("sExpert").textContent=claims.filter(x=>/bekle|onay/i.test(x.durum||"")).length;document.getElementById("sPay").textContent=money(claims.filter(x=>!isClosed(x)).reduce((s,x)=>s+Number(x.beklenenTutar||0),0));
  const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="empty">Bu görünümde hasar / sigorta dosyası yok.</div>';return}
- el.innerHTML=list.map(x=>'<div class="row"><div><div class="rowTitle">'+esc(x.dosyaNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"")+'</span></div><div class="meta">'+esc(x.cariAdi||"-")+' · '+esc(x.sigortaSirketi||x.sigorta||"-")+' · Eksper: '+esc(x.eksperFirma||x.eksper||"-")+'<br>Kalan Sigorta: '+money(x.kalanSigortaAlacagi??x.beklenenTutar??0)+' · '+esc(x.hasarAciklama||"-")+'</div></div><div class="rowBtns"><button class="edit" onclick="editClaim(&quot;'+x.id+'&quot;)">Düzenle</button><button class="print" onclick="openExpertise(&quot;'+x.id+'&quot;)">Ekspertiz Detayı</button><button class="print" onclick="openInsuranceApproval(&quot;'+x.id+'&quot;)">Sigorta Onayı</button><button class="print" onclick="openExpertArchive(&quot;'+x.id+'&quot;)">Eksper Arşivi</button><button class="print" onclick="printClaim(&quot;'+x.id+'&quot;)">PDF / Yazdır</button></div></div>').join("")
+ el.innerHTML=list.map(x=>'<div class="row"><div><div class="rowTitle">'+esc(x.dosyaNo)+' · '+esc(x.plaka)+' <span class="badge">'+esc(x.durum||"")+'</span></div><div class="meta">'+esc(x.cariAdi||"-")+' · '+esc(x.sigortaSirketi||x.sigorta||"-")+' · Eksper: '+esc(x.eksperFirma||x.eksper||"-")+'<br>Kalan Sigorta: '+money(x.kalanSigortaAlacagi??x.beklenenTutar??0)+' · '+esc(x.hasarAciklama||"-")+'</div></div><div class="rowBtns"><button class="edit" onclick="editClaim(&quot;'+x.id+'&quot;)">Düzenle</button><button class="print" onclick="openExpertise(&quot;'+x.id+'&quot;)">Ekspertiz Detayı</button><button class="print" onclick="openInsuranceApproval(&quot;'+x.id+'&quot;)">Sigorta Onayı</button><button class="print" onclick="openExpertArchive(&quot;'+x.id+'&quot;)">Eksper Arşivi</button><button class="print" onclick="printClaim(&quot;'+x.id+'&quot;)">PDF / Yazdır</button><button class="delete" onclick="deleteClaim(&quot;'+x.id+'&quot;)">Sil</button></div></div>').join("")
 }
 function reportHtml(x){
  const ev=x.evrak||{};const docs=[["Ruhsat",ev.ruhsat],["Kimlik",ev.kimlik],["Kaza Tespit Tutanağı",ev.kazaTutanagi],["IBAN",ev.iban],["Ortaklık/Yetki",ev.ortaklik],["Şasi/KM",ev.sasiKm],["Olay Yeri",ev.olay],["Tamir Aşama",ev.tamir]].map(d=>'<tr><td>'+d[0]+'</td><td>'+(d[1]?"Var":"Eksik")+'</td></tr>').join("");
