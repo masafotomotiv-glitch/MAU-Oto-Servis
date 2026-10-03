@@ -69,7 +69,7 @@ function workRow(w){
  if(!doc&&!zero&&d>=7)b+=badge(d+" gün","danger"); else if(!doc&&!zero&&d>0)b+=badge(d+" gün","warn");
  const action=doc
   ?'<a class="btn" href="FaturaArsiv.html?q='+encodeURIComponent(invNo(doc))+'">Belgeyi Aç</a>'
-  :'<a class="btn primary" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Belgelendir</a>';
+  :(zero?'':'<a class="btn primary" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Belgelendir</a>');
  return '<div class="row"><div class="main"><b>'+esc(w.plaka||"-")+' · '+esc(w.cariAdi||"-")+'</b><span>'+esc(w.isEmriNo||"-")+' · '+esc(w.durum||"-")+' · '+esc(workDate(w)||"-")+'</span><div style="margin-top:5px">'+b+'</div></div><div class="meta">İşçilik '+money(w.iscilikToplam||0)+'<br>Parça '+money(w.parcaToplam||0)+'</div><div><div class="amount">'+money(amount)+'</div><div class="actions" style="margin-top:7px">'+action+'<a class="btn gray" href="IsEmirleri.html">İş Emri</a></div></div></div>'
 }
 function invRow(x){
@@ -84,7 +84,25 @@ function compactInvRow(x){
 function cariSeeds(q){
  return cariler.filter(c=>norm([c.name,c.code,c.tel,c.mail,c.vn,c.tc,c.adres].join(" ")).includes(q));
 }
+function plateKey(v){return norm(v).replace(/[^a-z0-9çğıöşü]/g,"")}
 function searchGroups(q){
+ const pq=plateKey(q);
+ const plateCandidates=[...works.map(w=>w.plaka),...invoices.map(x=>x.plaka)].filter(Boolean);
+ const matchedPlateKeys=[...new Set(plateCandidates.map(plateKey).filter(p=>pq&&p.includes(pq)))];
+ const plateFirst=/\d/.test(pq)&&pq.length>=3&&matchedPlateKeys.length>0;
+ if(plateFirst){
+  const rw=works.filter(w=>matchedPlateKeys.includes(plateKey(w.plaka)));
+  const ri=invoices.filter(x=>matchedPlateKeys.includes(plateKey(x.plaka)));
+  const groups=new Map();
+  function keyOfPlate(x){return "p:"+plateKey(x.plaka)}
+  function groupPlate(x){
+   const k=keyOfPlate(x);
+   if(!groups.has(k))groups.set(k,{plate:x.plaka||"",cariId:x.cariId||x.tedarikciId||"",cariAdi:x.cariAdi||x.tedarikciAdi||"",works:[],invoices:[]});
+   return groups.get(k);
+  }
+  rw.forEach(w=>groupPlate(w).works.push(w));ri.forEach(x=>groupPlate(x).invoices.push(x));
+  return [...groups.values()].sort((a,b)=>String(a.plate).localeCompare(String(b.plate),"tr"));
+ }
  const sw=works.filter(w=>hayWork(w).includes(q)),si=invoices.filter(x=>hayInvoice(x).includes(q)),sc=cariSeeds(q);
  const plates=new Set(),ids=new Set(),codes=new Set(),names=new Set();
  function add(x){
