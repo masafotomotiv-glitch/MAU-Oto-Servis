@@ -70,7 +70,7 @@ document.getElementById("form").addEventListener("submit",async function(ev){
    await MAUAuth.login(u,p);
   }
   setMsg("Giriş başarılı.",true);
-  location.replace(MAUAuth.nextUrl());
+  location.replace("index.html?v="+Date.now());
  }catch(e){setMsg(e.message||String(e));document.getElementById("password").value="";document.getElementById("confirm").value=""}
  finally{btn.disabled=false}
 });
