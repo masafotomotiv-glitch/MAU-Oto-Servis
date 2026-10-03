@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · HKNSoft Veri Aktarımı</title>
+<style>
+*{box-sizing:border-box}:root{--b:#0b6db8;--g:#159957;--r:#b42335;--bg:#eef3f8;--line:#dfe6ee;--muted:#6f8094}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#18324d}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center}.back{border:0;background:#ffffff1c;color:#fff;border-radius:9px;width:38px;height:38px;font-size:24px}.title{font-size:21px;font-weight:900}.sub{font-size:11px;opacity:.9}
+.wrap{max-width:980px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}.cardHead{padding:14px 16px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:14px}
+.good,.warn,.info,.err{border-radius:9px;padding:10px;margin-bottom:10px;font-size:11px;line-height:1.55}.good{background:#eaf8ef;color:#167341;border:1px solid #ccebd6}.warn{background:#fff7e7;color:#8d5f08;border:1px solid #f2ddb1}.info{background:#eef7ff;color:#155c91;border:1px solid #cae4f8}.err{background:#fff0f0;color:#9d1d2d;border:1px solid #f1c7cc}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:10px;font-weight:800;color:#64748b;margin-bottom:5px}.field input{width:100%;padding:11px;border:1px solid #d8e0e8;border-radius:9px;background:#fff}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.btn{border:0;border-radius:9px;padding:12px 13px;font-weight:900;cursor:pointer}.primary{background:#1478c9;color:#fff}.green{background:var(--g);color:#fff}.gray{background:#eef2f6;color:#405168}.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{border:1px solid #e3e9ef;border-radius:9px;padding:10px;background:#f9fbfd}.stat span{display:block;font-size:10px;color:var(--muted)}.stat b{font-size:17px}.log{white-space:pre-wrap;margin-top:10px;padding:10px;border:1px solid #dfe5eb;border-radius:9px;background:#f8fafc;font-size:11px;line-height:1.5;min-height:90px;max-height:380px;overflow:auto}
+progress{width:100%;height:18px;margin-top:10px}.tiny{font-size:10px;color:var(--muted);line-height:1.5}
+@media(max-width:700px){.grid,.actions{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+<script src="lisans.js"></script>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='Yedekleme.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">HKNSoft / Stok Takip Veri Dışa Aktarımı</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="cardHead">Güvenli Veri Çıkarma</div><div class="body">
+  <div class="info"><b>Amaç:</b> Kendi HKNSoft / Stok Takip hesabınızdaki verileri yalnızca dışa aktarmak. Bu ekran veri silmez, değiştirmez veya HKNSoft'a kayıt yazmaz.</div>
+  <div class="warn"><b>Şifre saklanmaz.</b> E-posta ve şifre sadece giriş isteği sırasında bellekte kullanılır. Oluşturulan yedek dosyasına şifre ve oturum tokenları yazılmaz.</div>
+  <div id="bridgeState" class="err">Android veri köprüsü kontrol ediliyor…</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">1. HKNSoft Hesabına Bağlan</div><div class="body">
+  <div class="grid">
+   <div class="field"><label>E-posta</label><input id="email" type="email" autocomplete="username" placeholder="HKNSoft giriş e-postası"></div>
+   <div class="field"><label>Şifre</label><input id="password" type="password" autocomplete="current-password" placeholder="HKNSoft şifresi"></div>
+  </div>
+  <div class="actions"><button id="startBtn" class="btn primary" onclick="startExport()">Bağlan ve Tüm Veriyi Tara</button><button class="btn gray" onclick="clearSensitive()">Alanları Temizle</button></div>
+  <progress id="progress" max="100" value="0"></progress>
+  <div id="log" class="log">Hazır.</div>
+ </div></div>
+
+ <div class="card"><div class="cardHead">2. Bulunan Veriler</div><div class="body">
+  <div class="stats">
+   <div class="stat"><span>Cariler</span><b id="sContacts">0</b></div>
+   <div class="stat"><span>Faturalar</span><b id="sInvoices">0</b></div>
+   <div class="stat"><span>Fatura Kalemleri</span><b id="sLines">0</b></div>
+   <div class="stat"><span>Stoklar</span><b id="sProducts">0</b></div>
+   <div class="stat"><span>Cari Hareketler</span><b id="sLedgers">0</b></div>
+   <div class="stat"><span>Kasa/Banka Hareketleri</span><b id="sFinance">0</b></div>
+   <div class="stat"><span>Hesaplar</span><b id="sAccounts">0</b></div>
+   <div class="stat"><span>Depolar</span><b id="sWarehouses">0</b></div>
+  </div>
+  <div class="tiny" style="margin-top:10px">Ham yedek önce kontrol içindir. MAU kayıtlarına otomatik yazılmaz; böylece eşleştirme hatasında mevcut program verileri etkilenmez.</div>
+  <div class="actions"><button id="saveBtn" class="btn green" onclick="saveExport()" disabled>✓ Ham Yedeği JSON Kaydet</button><button id="previewBtn" class="btn gray" onclick="showSummary()" disabled>Özeti Göster</button></div>
+ </div></div>
+</div>
+<script>
+const BASE="https://apigw.hknsoft.com/stok-takip/";
+const APP_VERSION="10125";
+let pending=new Map(), reqSeq=0, accessToken="", cdnToken="", exportData=null, busy=false;
+const logEl=()=>document.getElementById("log");
+function log(s){const el=logEl();el.textContent+=(el.textContent?"\n":"")+s;el.scrollTop=el.scrollHeight}
+function setLog(s){logEl().textContent=s}
+function bridgeOk(){return !!(window.MAUAndroid&&typeof MAUAndroid.hknPost==="function")}
+function initBridge(){const el=document.getElementById("bridgeState");if(bridgeOk()){el.className="good";el.innerHTML="<b>Android veri köprüsü hazır.</b> HKNSoft API çağrıları doğrudan bu cihazdan yapılacak."}else{el.className="err";el.innerHTML="<b>Bu APK henüz HKNSoft veri köprüsünü içermiyor.</b> Güncel MAU Oto Servis APK'sı yüklendikten sonra bu ekran çalışır."}}
+function clearSensitive(){document.getElementById("password").value="";accessToken="";cdnToken=""}
+function request(path,body,auth=true){return new Promise((resolve,reject)=>{if(!bridgeOk())return reject(new Error("Android veri köprüsü bulunamadı."));const id="hkn-"+(++reqSeq)+"-"+Date.now();pending.set(id,{resolve,reject});try{MAUAndroid.hknPost(id,BASE+path,JSON.stringify(body||{}),auth?accessToken:"none",auth?cdnToken:"none",APP_VERSION)}catch(e){pending.delete(id);reject(e)}})}
+window.onHknApiResult=function(id,status,body){const p=pending.get(id);if(!p)return;pending.delete(id);let obj=null;try{obj=JSON.parse(body)}catch(e){}if(status>=200&&status<300){p.resolve(obj==null?body:obj)}else{let m="HTTP "+status;try{m+=(obj?.message||obj?.error?.message||obj?.meta?.message)?" · "+(obj.message||obj.error?.message||obj.meta?.message):""}catch(e){}p.reject(new Error(m))}};
+window.onHknApiError=function(id,message){const p=pending.get(id);if(!p)return;pending.delete(id);p.reject(new Error(message||"Bağlantı hatası"))};
+function dataOf(x){return x&&typeof x==="object"?(x.data??x.Data??x.result??x):x}
+function metaOf(x){return x&&typeof x==="object"?(x.meta??x.Meta??{}):{}}
+function val(o,...ks){for(const k of ks){if(o&&o[k]!=null)return o[k]}return null}
+function asArray(v){return Array.isArray(v)?v:[]}
+function idOf(x,names){for(const n of names){const v=val(x,n);if(v!=null&&String(v)!="")return String(v)}return ""}
+function allBody(page,extra){return Object.assign({page:String(page),filters:[],sorts:[{field:"updated_at",direction:"desc"}]},extra||{})}
+async function fetchAll(path,extra,label){let page=1,max=1,out=[];do{log(label+" · sayfa "+page+"/"+max);const r=await request(path,allBody(page,extra),true);out.push(...asArray(dataOf(r)));const m=metaOf(r),mx=Number(val(m,"max_page","maxPage")||1),cp=Number(val(m,"current_page","currentPage")||page);max=Number.isFinite(mx)&&mx>0?mx:1;page=(Number.isFinite(cp)?cp:page)+1;if(page>max)break;if(page>10000)throw new Error(label+" sayfalama sınırı aşıldı.")}while(true);return out}
+function countLines(details){let n=0;for(const d of details){const root=dataOf(d);const arr=val(root,"invoice_include_list","invoiceIncludeList");n+=asArray(arr).length}return n}
+function updateStats(){const d=exportData||{};document.getElementById("sContacts").textContent=asArray(d.contacts).length;document.getElementById("sInvoices").textContent=asArray(d.invoices).length;document.getElementById("sLines").textContent=countLines(asArray(d.invoiceDetails));document.getElementById("sProducts").textContent=asArray(d.products).length;document.getElementById("sLedgers").textContent=asArray(d.contactLedgers).reduce((s,x)=>s+asArray(x.items).length,0);document.getElementById("sFinance").textContent=asArray(d.financeTransactions).reduce((s,x)=>s+asArray(x.items).length,0);document.getElementById("sAccounts").textContent=asArray(d.accounts).length;document.getElementById("sWarehouses").textContent=asArray(d.warehouses).length}
+function setProgress(v){document.getElementById("progress").value=Math.max(0,Math.min(100,v))}
+async function startExport(){if(busy)return;const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;if(!email||!password){alert("E-posta ve şifre giriniz.");return}if(!bridgeOk()){initBridge();return}busy=true;document.getElementById("startBtn").disabled=true;document.getElementById("saveBtn").disabled=true;document.getElementById("previewBtn").disabled=true;setLog("HKNSoft hesabına bağlanılıyor…");setProgress(2);try{
+ const login=await request("auth/login",{email,password},false);const ld=dataOf(login)||{};accessToken=String(val(ld,"access_token_hash","accessTokenHash")||"");cdnToken=String(val(ld,"cdn_token_hash","cdnTokenHash")||"");if(!accessToken)throw new Error("Giriş başarılı görünse de erişim tokenı alınamadı.");document.getElementById("password").value="";log("✓ Giriş başarılı. Şifre alanı temizlendi.");setProgress(7);
+ exportData={format:"MAU-HKNSOFT-RAW-EXPORT-1",createdAt:new Date().toISOString(),source:{app:"HKNSoft Stok Takip",package:"com.hknsoft.stoktakip",sourceVersionCode:10125,sourceVersionName:"1.1.25"},profile:null,company:null,contacts:[],contactLedgers:[],products:[],productInventoryTransactions:[],productWarehouseStocks:[],invoices:[],invoiceDetails:[],accounts:[],financeTransactions:[],warehouses:[],categories:[],errors:[]};
+ try{exportData.profile=await request("profile/me",{},true)}catch(e){exportData.errors.push({scope:"profile/me",error:e.message})}
+ try{exportData.company=await request("profile/company",{},true)}catch(e){exportData.errors.push({scope:"profile/company",error:e.message})}
+ exportData.contacts=await fetchAll("contacts/all",{},"Cariler");setProgress(18);updateStats();
+ exportData.products=await fetchAll("products/all",{},"Stoklar");setProgress(28);updateStats();
+ exportData.invoices=await fetchAll("invoices/all",{date_filter:"ALL"},"Faturalar");setProgress(40);updateStats();
+ try{exportData.accounts=await fetchAll("accounts/all",{},"Kasa/Banka Hesapları")}catch(e){exportData.errors.push({scope:"accounts/all",error:e.message});log("! Hesaplar: "+e.message)}setProgress(47);updateStats();
+ try{exportData.warehouses=await fetchAll("warehouses/all",{},"Depolar")}catch(e){exportData.errors.push({scope:"warehouses/all",error:e.message});log("! Depolar: "+e.message)}
+ try{exportData.categories=await fetchAll("categories/all",{},"Kategoriler")}catch(e){exportData.errors.push({scope:"categories/all",error:e.message});log("! Kategoriler: "+e.message)}setProgress(52);
+ log("Fatura kalemleri okunuyor…");for(let i=0;i<exportData.invoices.length;i++){const item=exportData.invoices[i]||{},base=val(item,"invoice")||item,id=idOf(base,["invoice_id","invoiceId"]);if(!id)continue;try{const r=await request("invoices/one",{invoice_id:id},true);exportData.invoiceDetails.push(r)}catch(e){exportData.errors.push({scope:"invoices/one",id,error:e.message})}if(i%10===0){setProgress(52+Math.round(14*(i+1)/Math.max(1,exportData.invoices.length)));updateStats()}}updateStats();
+ log("Cari hesap hareketleri okunuyor…");for(let i=0;i<exportData.contacts.length;i++){const item=exportData.contacts[i]||{},base=val(item,"contact")||item,id=idOf(base,["contact_id","contactId"]);if(!id)continue;try{const items=await fetchAll("contacts/one/ledger",{contact_id:id},"Cari hareket "+(i+1)+"/"+exportData.contacts.length);exportData.contactLedgers.push({contactId:id,items})}catch(e){exportData.errors.push({scope:"contacts/one/ledger",id,error:e.message})}if(i%10===0){setProgress(66+Math.round(10*(i+1)/Math.max(1,exportData.contacts.length)));updateStats()}}updateStats();
+ log("Kasa/banka hareketleri okunuyor…");for(let i=0;i<exportData.accounts.length;i++){const item=exportData.accounts[i]||{},base=val(item,"account")||item,id=idOf(base,["account_id","accountId"]);if(!id)continue;try{const items=await fetchAll("finance-transactions/all",{account_id:id},"Finans hareket "+(i+1)+"/"+exportData.accounts.length);exportData.financeTransactions.push({accountId:id,items})}catch(e){exportData.errors.push({scope:"finance-transactions/all",id,error:e.message})}setProgress(76+Math.round(8*(i+1)/Math.max(1,exportData.accounts.length)));updateStats()}
+ log("Stok hareketleri ve depo stokları okunuyor…");for(let i=0;i<exportData.products.length;i++){const item=exportData.products[i]||{},base=val(item,"product")||item,id=idOf(base,["product_id","productId"]);if(!id)continue;try{const items=await fetchAll("products/one/inventory-transactions/all",{product_id:id},"Stok hareket "+(i+1)+"/"+exportData.products.length);exportData.productInventoryTransactions.push({productId:id,items})}catch(e){exportData.errors.push({scope:"products/one/inventory-transactions/all",id,error:e.message})}try{const r=await request("products/one/warehouse-stocks",{product_id:id},true);exportData.productWarehouseStocks.push({productId:id,response:r})}catch(e){exportData.errors.push({scope:"products/one/warehouse-stocks",id,error:e.message})}if(i%10===0){setProgress(84+Math.round(14*(i+1)/Math.max(1,exportData.products.length)));updateStats()}}updateStats();setProgress(100);
+ accessToken="";cdnToken="";log("✓ Tarama tamamlandı. Oturum tokenları bellekten temizlendi.");log("Bulunan hata/atlanmış uç: "+exportData.errors.length);document.getElementById("saveBtn").disabled=false;document.getElementById("previewBtn").disabled=false;
+ }catch(e){accessToken="";cdnToken="";log("HATA: "+(e.message||e));alert("Veri taraması tamamlanamadı: "+(e.message||e))}finally{busy=false;document.getElementById("startBtn").disabled=false}}
+function showSummary(){if(!exportData)return;updateStats();alert("Cariler: "+exportData.contacts.length+"\nFaturalar: "+exportData.invoices.length+"\nFatura kalemleri: "+countLines(exportData.invoiceDetails)+"\nStoklar: "+exportData.products.length+"\nCari hareketler: "+exportData.contactLedgers.reduce((s,x)=>s+x.items.length,0)+"\nKasa/Banka hareketleri: "+exportData.financeTransactions.reduce((s,x)=>s+x.items.length,0)+"\nHatalar/atlanmış: "+exportData.errors.length)}
+function saveExport(){if(!exportData)return;const json=JSON.stringify(exportData,null,2),name="MAU-HKNSoft-Ham-Yedek-"+new Date().toISOString().slice(0,10)+".json";if(window.MAUAndroid&&typeof MAUAndroid.beginBinarySave==="function"){try{const enc=new TextEncoder().encode(json);MAUAndroid.beginBinarySave(name,"application/json");const chunk=32768;for(let i=0;i<enc.length;i+=chunk){let bin="";for(const c of enc.slice(i,i+chunk))bin+=String.fromCharCode(c);MAUAndroid.appendBinaryChunk(btoa(bin))}MAUAndroid.finishBinarySave();return}catch(e){log("Android kayıt köprüsü hatası: "+e.message)}}const blob=new Blob([json],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+initBridge();updateStats();
+</script>
+</body></html>
