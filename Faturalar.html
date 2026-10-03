@@ -4,157 +4,108 @@
 <script src="auth.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MAU Oto Servis · Faturalar</title>
+<title>MAU Oto Servis · Belge Merkezi</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}button,input,select{font:inherit}
-header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:1150px;margin:auto;display:flex;align-items:center;gap:11px}.back{border:0;background:#ffffff20;color:#fff;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.88;margin-top:3px}
-.wrap{max-width:1150px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;margin-bottom:12px;overflow:hidden}.body{padding:13px}
-.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px}.toolbar input,.toolbar select{height:44px;border:1px solid #d9e1e9;border-radius:9px;padding:0 10px;background:#fff}.btn{border:0;border-radius:9px;padding:0 14px;font-weight:800}.blue{background:#1976d2;color:#fff}.green{background:#149958;color:#fff}.gray{background:#eaf0f6;color:#28435e}
-.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.tab{border:1px solid #d8e1ea;background:#f6f9fc;color:#40546a;border-radius:18px;padding:8px 14px;font-weight:800}.tab.on{background:#1976d2;color:#fff;border-color:#1976d2}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#fff;border:1px solid #e1e7ee;border-radius:11px;padding:13px}.stat span{display:block;font-size:11px;color:#708196}.stat b{display:block;font-size:21px;margin-top:5px}
-.tableWrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:1080px}.table th,.table td{border-bottom:1px solid #edf1f5;padding:9px 8px;font-size:11px;text-align:left;vertical-align:top}.table th{background:#f5f8fb;color:#52657a;position:sticky;top:0}.num{text-align:right!important;white-space:nowrap}.kind{display:inline-block;border-radius:12px;padding:4px 8px;font-weight:800;font-size:10px}.sale{background:#e8f6ee;color:#087640}.buy{background:#fff1df;color:#9a5a00}.status{font-size:10px;color:#66788a}.actions{display:flex;gap:5px;flex-wrap:wrap}.small{border:0;border-radius:7px;padding:7px 9px;font-size:10px;font-weight:800;background:#eaf2ff;color:#0b5fab}.empty{padding:28px;text-align:center;color:#7d8b99}.foot{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 2px;font-size:11px;color:#607287}
-#printArea{display:none}
-@media(max-width:800px){.toolbar{grid-template-columns:1fr 1fr}.toolbar input:first-child{grid-column:1/-1}.stats{grid-template-columns:1fr 1fr}.table{min-width:0;display:block}.table thead{display:none}.table tbody{display:block}.table tr{display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #e5eaf0;border-radius:10px;padding:9px;margin-bottom:8px}.table td{display:block;border:0;padding:3px}.num{text-align:left!important}.actions{grid-column:1/-1}}
-@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;padding:8mm;color:#111;background:#fff}#printArea table{width:100%;border-collapse:collapse}#printArea th,#printArea td{border:1px solid #bbb;padding:6px;font-size:10px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}button,input{font:inherit}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:1100px;margin:auto;display:flex;gap:11px;align-items:center}.back{border:0;background:#ffffff20;color:#fff;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9;margin-top:3px}
+.wrap{max-width:1100px;margin:14px auto;padding:0 12px}.searchBox{background:#fff;border:1px solid #dfe6ee;border-radius:13px;padding:13px}.search{width:100%;height:50px;border:1px solid #cfdae5;border-radius:10px;padding:0 14px;font-size:15px}
+.quick{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:12px 0}.q{border:0;border-radius:12px;padding:13px 10px;text-align:left;min-height:86px;color:#fff;font-weight:800}.q small{display:block;font-size:10px;font-weight:600;opacity:.9;margin-top:5px}.q b{display:block;font-size:21px;margin-top:5px}.blue{background:#1976d2}.green{background:#15975b}.orange{background:#e98b23}.purple{background:#7350b7}.slate{background:#40556e}
+.note{background:#fff8df;border:1px solid #f1d58b;color:#6c5413;border-radius:11px;padding:11px 13px;font-size:11px;line-height:1.45;margin-bottom:12px}
+.card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;margin-bottom:10px;overflow:hidden}.cardHead{padding:12px 14px;border-bottom:1px solid #edf1f5;font-weight:900;display:flex;justify-content:space-between;gap:8px;align-items:center}.body{padding:12px}
+.row{border:1px solid #e7edf3;border-radius:10px;padding:11px;margin-bottom:8px;display:grid;grid-template-columns:1.3fr 1fr auto;gap:10px;align-items:center}.row:last-child{margin-bottom:0}.main b{display:block;font-size:13px}.main span,.meta{font-size:10px;color:#6a7c90;line-height:1.45}.amount{font-weight:900;white-space:nowrap}.badge{display:inline-block;border-radius:13px;padding:4px 8px;font-size:9px;font-weight:900;background:#eef3f8;color:#51667b;margin-right:4px}.warn{background:#fff0dc;color:#965700}.ok{background:#e8f6ee;color:#087640}.danger{background:#ffe9eb;color:#a12536}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:8px;padding:8px 10px;font-size:10px;font-weight:900;text-decoration:none;background:#eaf2ff;color:#0b5fab}.btn.primary{background:#1976d2;color:#fff}.btn.green{background:#15975b;color:#fff}.btn.gray{background:#eef2f6;color:#445b71}
+.empty{text-align:center;color:#78899a;padding:28px 12px}.sectionTitle{font-size:12px;color:#5d7187;font-weight:900;text-transform:uppercase;letter-spacing:.4px;margin:3px 0 9px}
+@media(max-width:850px){.quick{grid-template-columns:1fr 1fr}.q:last-child{grid-column:1/-1}.row{grid-template-columns:1fr 1fr}.actions{grid-column:1/-1}}
+@media(max-width:560px){.quick{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}.amount{justify-self:start}}
 </style>
 <script src="lisans.js"></script>
 <script src="firma.js"></script>
 </head>
 <body>
-<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Faturalar · Kesilen · Gelen · Arama · PDF / Yazdır</div></div></div></header>
+<header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Belge Merkezi · Araç / Cari · Satış Belgesi · Gelen Fatura · Arşiv</div></div></div></header>
 <div class="wrap">
- <div class="card"><div class="body">
-  <div class="toolbar">
-   <input id="search" placeholder="Fatura no, cari, plaka, açıklama ara..." oninput="render()">
-   <input id="fromDate" type="date" onchange="render()">
-   <input id="toDate" type="date" onchange="render()">
-   <select id="statusFilter" onchange="render()"><option value="">Tüm Durumlar</option><option>Aktif</option><option>Ödendi</option><option>Kapalı</option><option>İptal</option><option>Taslak</option></select>
-   <button class="btn gray" onclick="clearFilters()">Temizle</button>
-  </div>
-  <div class="tabs">
-   <button class="tab on" data-kind="all" onclick="setKind('all')">Tümü</button>
-   <button class="tab" data-kind="sale" onclick="setKind('sale')">Kesilen</button>
-   <button class="tab" data-kind="buy" onclick="setKind('buy')">Gelen</button>
-  </div>
- </div></div>
-
- <div class="stats">
-  <div class="stat"><span>Toplam Fatura</span><b id="sAll">0</b></div>
-  <div class="stat"><span>Kesilen</span><b id="sSale">0</b></div>
-  <div class="stat"><span>Gelen</span><b id="sBuy">0</b></div>
-  <div class="stat"><span>Gösterilen Tutar</span><b id="sAmount">0,00 ₺</b></div>
-  <div class="stat"><span>Tahsil Edilen</span><b id="sPaid">0,00 ₺</b></div>
-  <div class="stat"><span>Kalan</span><b id="sRemain">0,00 ₺</b></div>
+ <div class="searchBox">
+  <input id="search" class="search" placeholder="Plaka, cari, telefon, iş emri veya belge no ara..." oninput="setMode('search')">
  </div>
 
- <div class="card" style="margin-top:12px"><div class="body" style="padding:0">
-  <div class="tableWrap">
-   <table class="table"><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari / Firma</th><th>Plaka / Referans</th><th>Durum</th><th class="num">Tutar</th><th class="num">Tahsil</th><th class="num">Kalan</th><th>İşlem</th></tr></thead><tbody id="rows"></tbody></table>
-  </div>
-  <div id="empty" class="empty" style="display:none">Kayıt bulunamadı.</div>
- </div></div>
- <div class="foot"><span id="listInfo">0 kayıt</span><button class="btn blue" style="height:40px" onclick="printList()">Liste PDF / Yazdır</button></div>
+ <div class="quick">
+  <button class="q blue" onclick="setMode('pending')">📋 Belge Bekleyen İşler<b id="qPending">0</b><small>Tamamlanmış ama mali belgesi henüz kaydedilmemiş işler</small></button>
+  <button class="q green" onclick="setMode('sale')">🧾 Kesilen Belgeler<b id="qSale">0</b><small>Fatura / satış belgesi</small></button>
+  <button class="q orange" onclick="location.href='GelenFatura.html'">📷 Gelen Fatura Tara<b>OCR</b><small>Tedarikçi faturası fotoğraf / galeri ile</small></button>
+  <button class="q purple" onclick="setMode('buy')">📥 Gelen Belgeler<b id="qBuy">0</b><small>Tedarikçi faturaları ve alış belgeleri</small></button>
+  <button class="q slate" onclick="location.href='FaturaArsiv.html'">🗂 Tüm Arşiv<b id="qAll">0</b><small>Eski ve yeni tüm belgeler</small></button>
+ </div>
+
+ <div class="note"><b>İş emri ile mali belge ayrı tutulur.</b> Araç üzerindeki iş teknik olarak tamamlanabilir; ücretli işin fatura/uygun satış belgesi henüz yoksa kayıt <b>Belge Bekliyor</b> olarak görünür. Böylece servis geçmişi kaybolmaz, ancak belge bekleyen işlemler de gözden kaçmaz.</div>
+
+ <div id="content"></div>
 </div>
-<div id="printArea"></div>
 <script>
-const KEY="mau_faturalar",COL_KEY="mau_tahsilatlar",CARI_KEY="mau_cariler";let activeKind="all",invoiceCache=[],collectionCache=[],paidCache=new Map();
-function loadKey(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
-function load(){return invoiceCache.length?invoiceCache:loadKey(KEY)}
-function invToken(inv){return String(inv&&inv.id!=null?inv.id:invoiceNo(inv))}
-function refreshCaches(){
- invoiceCache=loadKey(KEY);
- collectionCache=loadKey(COL_KEY).filter(financialActive);
- paidCache=new Map();
- const byId=new Map(),byNo=new Map(),byWorkId=new Map(),byWorkNo=new Map();
- invoiceCache.forEach(inv=>{
-  if(inv.id!=null)byId.set(String(inv.id),inv);
-  const no=invoiceNo(inv);if(no&&no!=="-")byNo.set(String(no),inv);
-  if(inv.isEmriId!=null&&inv.isEmriId!=="")byWorkId.set(String(inv.isEmriId),inv);
-  if(inv.isEmriNo)byWorkNo.set(String(inv.isEmriNo),inv);
- });
- collectionCache.forEach(col=>{
-  let inv=null;
-  if(col.faturaId!=null&&col.faturaId!=="")inv=byId.get(String(col.faturaId))||null;
-  if(!inv&&col.faturaNo)inv=byNo.get(String(col.faturaNo))||null;
-  if(!inv&&col.isEmriId!=null&&col.isEmriId!=="")inv=byWorkId.get(String(col.isEmriId))||null;
-  if(!inv&&col.isEmriNo)inv=byWorkNo.get(String(col.isEmriNo))||null;
-  if(!inv)return;
-  const key=invToken(inv);
-  paidCache.set(key,(paidCache.get(key)||0)+n(pick(col,["tutar","amount"],0)));
- });
-}
+const INV_KEY="mau_faturalar",WORK_KEY="mau_is_emirleri",CARI_KEY="mau_cariler",MOVE_KEY="mau_stok_hareketleri";
+let mode="search",invoices=[],works=[],cariler=[],moves=[];
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function n(v){if(typeof v==="number")return Number.isFinite(v)?v:0;if(v==null||v==="")return 0;let s=String(v).trim().replace(/\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");const x=Number(s.replace(/[^0-9.-]/g,""));return Number.isFinite(x)?x:0}
-function money(v){return n(v).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
-function pick(o,keys,d=""){for(const k of keys){if(o&&o[k]!=null&&o[k]!=="")return o[k]}return d}
-function amount(o){return n(pick(o,["genelToplam","toplam","tutar","amount","faturaTutari","netTutar"],0))}
-function dateOf(o){const v=pick(o,["faturaTarihi","tarih","islemTarihi","createdAt","created"],"");if(!v)return"";const s=String(v);if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const d=new Date(v);if(Number.isNaN(d.getTime()))return"";return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function isBuy(o){const t=String(pick(o,["tip","faturaTipi","tur","type"],"")).toLocaleLowerCase("tr-TR");return /alış|alis|gelen|purchase|tedarik/.test(t)}
-function kindLabel(o){return isBuy(o)?"Gelen":"Kesilen"}
-function invoiceNo(o){return pick(o,["faturaNo","no","belgeNo","invoiceNo"],"-")}
-function cari(o){return pick(o,["cariAdi","musteriAdi","firmaAdi","tedarikciAdi","unvan","cari"],"-")}
-function ref(o){return [pick(o,["plaka"],""),pick(o,["isEmriNo","referansNo"],"")].filter(Boolean).join(" · ")||"-"}
-function status(o){return pick(o,["durum","status"],"Aktif")}
-function financialActive(o){const s=String(status(o)||"Aktif").toLocaleLowerCase("tr-TR");return !["iptal","pasif"].some(v=>s.includes(v))}
-function collectionsForInvoice(inv){
- return collectionCache.filter(x=>{
-  if(x.faturaId&&String(x.faturaId)===String(inv.id))return true;
-  if(x.faturaNo&&String(x.faturaNo)===String(invoiceNo(inv)))return true;
-  if(x.isEmriId&&inv.isEmriId&&String(x.isEmriId)===String(inv.isEmriId))return true;
-  return x.isEmriNo&&inv.isEmriNo&&String(x.isEmriNo)===String(inv.isEmriNo);
- });
+function money(v){return Number(v||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function norm(v){return String(v||"").toLocaleLowerCase("tr-TR").replace(/\s+/g," ").trim()}
+function invNo(x){return x.faturaNo||x.belgeNo||x.no||"-"}
+function invAmount(x){return Number(x.genelToplam??x.toplam??x.tutar??0)}
+function invDate(x){return String(x.faturaTarihi||x.tarih||x.createdAt||"").slice(0,10)}
+function isBuy(x){const t=norm(x.belgeTuru||x.tip||x.faturaTipi||x.tur);return /alış|alis|gelen|purchase|tedarik/.test(t)}
+function activeDoc(x){const s=norm(x.durum||"aktif");return !s.includes("iptal")&&!s.includes("pasif")&&!s.includes("taslak")}
+function linkedDoc(w){return invoices.find(x=>activeDoc(x)&&(String(x.isEmriId||"")===String(w.id)||String(x.isEmriNo||"")===String(w.isEmriNo||"")))}
+function workAmount(w){return Number(w.genelToplam??w.toplam??w.tutar??0)}
+function completedWork(w){return ["Tamamlandı","Kalite Kontrol Bekliyor","Teslime Hazır","Kapalı","Teslim Edildi"].includes(String(w.durum||""))}
+function workDate(w){return String(w.teslimTarihi||w.kapanisTarihi||w.updatedAt||w.tarih||"").slice(0,10)}
+function daysWaiting(w){const s=workDate(w);if(!s)return 0;const d=new Date(s+"T00:00:00"),now=new Date();if(Number.isNaN(d.getTime()))return 0;return Math.max(0,Math.floor((now-d)/86400000))}
+function cariByWork(w){return cariler.find(c=>String(c.id)===String(w.cariId||""))||cariler.find(c=>String(c.code||"")===String(w.cariCode||""))||{}}
+function hayInvoice(x){return norm([invNo(x),x.cariAdi,x.musteriAdi,x.tedarikciAdi,x.plaka,x.isEmriNo,x.telefon,x.aciklama].join(" "))}
+function hayWork(w){const c=cariByWork(w);return norm([w.isEmriNo,w.plaka,w.cariAdi,w.cariCode,w.musteriSikayeti,w.durum,c.tel,c.mail].join(" "))}
+function refresh(){invoices=load(INV_KEY);works=load(WORK_KEY);cariler=load(CARI_KEY);moves=load(MOVE_KEY)}
+function setMode(m){mode=m;render()}
+function badge(text,cls=""){return '<span class="badge '+cls+'">'+esc(text)+'</span>'}
+function workRow(w){
+ const d=daysWaiting(w),amount=workAmount(w),doc=linkedDoc(w),zero=amount<=0;
+ let b=doc?badge("Belgeli","ok"):zero?badge("0 TL servis kaydı","ok"):badge("Belge Bekliyor","warn");
+ if(!doc&&!zero&&d>=7)b+=badge(d+" gün","danger"); else if(!doc&&!zero&&d>0)b+=badge(d+" gün","warn");
+ const action=doc
+  ?'<a class="btn" href="FaturaArsiv.html?q='+encodeURIComponent(invNo(doc))+'">Belgeyi Aç</a>'
+  :'<a class="btn primary" href="TeslimFatura.html?isEmriId='+encodeURIComponent(w.id)+'">Belgelendir</a>';
+ return '<div class="row"><div class="main"><b>'+esc(w.plaka||"-")+' · '+esc(w.cariAdi||"-")+'</b><span>'+esc(w.isEmriNo||"-")+' · '+esc(w.durum||"-")+' · '+esc(workDate(w)||"-")+'</span><div style="margin-top:5px">'+b+'</div></div><div class="meta">İşçilik '+money(w.iscilikToplam||0)+'<br>Parça '+money(w.parcaToplam||0)+'</div><div><div class="amount">'+money(amount)+'</div><div class="actions" style="margin-top:7px">'+action+'<a class="btn gray" href="IsEmirleri.html">İş Emri</a></div></div></div>'
 }
-function paidAmount(inv){return n(paidCache.get(invToken(inv))||0)}
-function remainAmount(inv){return Math.max(0,amount(inv)-paidAmount(inv))}
-function currentCari(inv){
- const list=loadKey(CARI_KEY);
- return list.find(x=>String(x.id)===String(inv.cariId||""))||
-        list.find(x=>String(x.code||"")===String(inv.cariCode||""))||
-        list.find(x=>String(x.name||"").trim().toLocaleLowerCase("tr-TR")===String(cari(inv)).trim().toLocaleLowerCase("tr-TR"))||{};
+function invRow(x){
+ const kind=isBuy(x)?"Gelen":"Kesilen",kindBadge=isBuy(x)?badge(kind,"warn"):badge(kind,"ok");
+ const docType=x.belgeTuru||x.faturaTipi||"Fatura";
+ return '<div class="row"><div class="main"><b>'+esc(x.plaka||x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invNo(x))+'</b><span>'+esc(x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invDate(x)||"-")+' · '+esc(x.isEmriNo||"")+'</span><div style="margin-top:5px">'+kindBadge+badge(docType)+'</div></div><div class="meta">'+esc(x.durum||"Aktif")+(x.aciklama?'<br>'+esc(x.aciklama):'')+'</div><div><div class="amount">'+money(invAmount(x))+'</div><div class="actions" style="margin-top:7px"><a class="btn" href="FaturaArsiv.html?q='+encodeURIComponent(invNo(x))+'">Detay / PDF</a></div></div></div>'
 }
-function filtered(source){
- const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim(),fd=document.getElementById("fromDate").value,td=document.getElementById("toDate").value,sf=document.getElementById("statusFilter").value;
- return (source||invoiceCache).filter(x=>{
-  if(activeKind==="sale"&&isBuy(x))return false;if(activeKind==="buy"&&!isBuy(x))return false;
-  const d=dateOf(x);if(fd&&(!d||d<fd))return false;if(td&&(!d||d>td))return false;
-  if(sf&&String(status(x))!==sf)return false;
-  if(q){const hay=[invoiceNo(x),cari(x),ref(x),status(x),pick(x,["aciklama","not"],"")].join(" ").toLocaleLowerCase("tr-TR");if(!hay.includes(q))return false}
-  return true
- }).sort((a,b)=>dateOf(b).localeCompare(dateOf(a))||String(invoiceNo(b)).localeCompare(String(invoiceNo(a)),"tr"))
+function stockWaitingRows(){
+ const waiting=moves.filter(x=>String(x.type)==="Giriş"&&x.belgeDurumu==="Belge Bekliyor");
+ if(!waiting.length)return "";
+ return '<div class="card"><div class="cardHead"><span>Tedarikçi Belgesi Bekleyen Stok Girişleri</span><span>'+waiting.length+' kayıt</span></div><div class="body">'+waiting.slice(0,20).map(x=>'<div class="row"><div class="main"><b>'+esc(x.partName||"-")+'</b><span>'+esc(x.supplierName||"Tedarikçi belirtilmedi")+' · '+esc(String(x.date||"").slice(0,10))+'</span>'+badge("Belge Bekliyor","warn")+'</div><div class="meta">Miktar: '+esc(x.qty||0)+'</div><div class="actions"><a class="btn primary" href="GelenFatura.html">Gelen Fatura Gir</a><a class="btn gray" href="ParcaStok.html">Stok</a></div></div>').join("")+'</div></div>'
 }
-function setKind(k){activeKind=k;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.kind===k));render()}
-function clearFilters(){document.getElementById("search").value="";document.getElementById("fromDate").value="";document.getElementById("toDate").value="";document.getElementById("statusFilter").value="";render()}
 function render(){
- refreshCaches();
- const all=invoiceCache,sales=all.filter(x=>!isBuy(x)),buys=all.filter(isBuy),rows=filtered(all),shownTotal=rows.reduce((s,x)=>s+amount(x),0),shownPaid=rows.reduce((s,x)=>s+paidAmount(x),0);
- document.getElementById("sAll").textContent=all.length;document.getElementById("sSale").textContent=sales.length;document.getElementById("sBuy").textContent=buys.length;document.getElementById("sAmount").textContent=money(shownTotal);document.getElementById("sPaid").textContent=money(shownPaid);document.getElementById("sRemain").textContent=money(Math.max(0,shownTotal-shownPaid));document.getElementById("listInfo").textContent=rows.length+" kayıt gösteriliyor";
- document.getElementById("empty").style.display=rows.length?"none":"block";
- document.getElementById("rows").innerHTML=rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td><span class="kind '+(isBuy(x)?"buy":"sale")+'">'+kindLabel(x)+'</span></td><td><b>'+esc(invoiceNo(x))+'</b></td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td><span class="status">'+esc(status(x))+'</span></td><td class="num"><b>'+money(amount(x))+'</b></td><td class="num">'+money(paidAmount(x))+'</td><td class="num"><b>'+money(remainAmount(x))+'</b></td><td><div class="actions"><button class="small" onclick="printInvoice('+JSON.stringify(String(x.id??invoiceNo(x)))+')">PDF / Yazdır</button></div></td></tr>').join("")
+ refresh();
+ const pending=works.filter(w=>completedWork(w)&&workAmount(w)>0&&!linkedDoc(w));
+ const sales=invoices.filter(x=>!isBuy(x)),buys=invoices.filter(isBuy);
+ document.getElementById("qPending").textContent=pending.length;document.getElementById("qSale").textContent=sales.length;document.getElementById("qBuy").textContent=buys.length;document.getElementById("qAll").textContent=invoices.length;
+ const q=norm(document.getElementById("search").value),out=document.getElementById("content");
+ if(mode==="pending"){
+  out.innerHTML='<div class="card"><div class="cardHead"><span>Belge Bekleyen Tamamlanmış İşler</span><a class="btn gray" href="FaturaArsiv.html">Arşiv</a></div><div class="body">'+(pending.length?pending.sort((a,b)=>daysWaiting(b)-daysWaiting(a)).map(workRow).join(""):'<div class="empty">Belge bekleyen ücretli tamamlanmış iş yok.</div>')+'</div></div>'+stockWaitingRows();return;
+ }
+ if(mode==="sale"||mode==="buy"){
+  const list=(mode==="sale"?sales:buys).sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a)))).slice(0,40);
+  out.innerHTML='<div class="card"><div class="cardHead"><span>'+(mode==="sale"?"Kesilen Belgeler":"Gelen Belgeler")+'</span><a class="btn gray" href="FaturaArsiv.html">Tüm Arşiv</a></div><div class="body">'+(list.length?list.map(invRow).join(""):'<div class="empty">Kayıt bulunamadı.</div>')+'</div></div>';return;
+ }
+ if(q.length>=2){
+  const iw=invoices.filter(x=>hayInvoice(x).includes(q)).slice(0,40),ww=works.filter(w=>hayWork(w).includes(q)).slice(0,40);
+  out.innerHTML='<div class="card"><div class="cardHead"><span>Arama Sonucu</span><span>'+ (iw.length+ww.length) +' kayıt</span></div><div class="body">'+(ww.map(workRow).join("")+iw.map(invRow).join("")||'<div class="empty">Plaka, cari, telefon, iş emri veya belge numarasıyla eşleşme bulunamadı.</div>')+'</div></div>';return;
+ }
+ const recent=invoices.slice().sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a)))).slice(0,8);
+ const urgent=pending.slice().sort((a,b)=>daysWaiting(b)-daysWaiting(a)).slice(0,8);
+ out.innerHTML='<div class="card"><div class="cardHead"><span>Önce Plaka / Cari ile Ara</span><span>Günlük çalışma</span></div><div class="body"><div class="empty" style="padding:16px">Yukarıdaki arama alanına plaka, müşteri adı, telefon, iş emri veya belge numarası yazın.</div></div></div>'+
+ (urgent.length?'<div class="card"><div class="cardHead"><span>Öncelikli Belge Bekleyenler</span><button class="btn gray" onclick="setMode(\'pending\')">Tümünü Gör</button></div><div class="body">'+urgent.map(workRow).join("")+'</div></div>':'')+
+ '<div class="card"><div class="cardHead"><span>Son Belgeler</span><a class="btn gray" href="FaturaArsiv.html">Tüm Arşiv</a></div><div class="body">'+(recent.length?recent.map(invRow).join(""):'<div class="empty">Henüz belge kaydı yok.</div>')+'</div></div>';
 }
-function findInvoice(id){return invoiceCache.find(x=>String(x.id??invoiceNo(x))===String(id))}
-function linesOf(x){
- const rows=[],rateDefault=n(x.kdv||0);
- (x.iscilikler||[]).forEach(a=>{const qty=n(a.saat??a.miktar??0),price=n(a.birimFiyat||0),net=n(a.netTutar??a.tutar??(qty*price)),rate=n(a.kdvOrani??rateDefault),vat=n(a.kdvTutar??(net*rate/100)),gross=n(a.genelTutar??(net+vat));rows.push(["İşçilik",a.islem||a.ad||"-",qty,a.birim||"Saat",price,net,rate,vat,gross])});
- (x.parcalar||x.kalemler||[]).forEach(a=>{const qty=n(a.adet??a.miktar??1),price=n(a.birimFiyat??a.fiyat??0),net=n(a.netTutar??a.tutar??(qty*price)),rate=n(a.kdvOrani??rateDefault),vat=n(a.kdvTutar??(net*rate/100)),gross=n(a.genelTutar??(net+vat));rows.push(["Parça",a.ad||a.aciklama||a.urun||"-",qty,a.birim||"Adet",price,net,rate,vat,gross])});return rows
-}
-function companyHeader(title,sub){if(window.MAUFirma&&typeof MAUFirma.header==="function")return MAUFirma.header(title,sub);return '<h2>MAU OTO SERVİS</h2><h3>'+esc(title)+'</h3><div>'+esc(sub||"")+'</div><hr>'}
-function printInvoice(id){
- refreshCaches();const x=findInvoice(id);if(!x)return;const ls=linesOf(x),cc=currentCari(x),paid=paidAmount(x),remain=remainAmount(x);
- const taxNo=pick(x,["vergiNo","vn"],"")||pick(cc,["vn"],""),tc=pick(x,["tc"],"")||pick(cc,["tc"],""),taxOffice=pick(x,["vergiDairesi","vd"],"")||pick(cc,["vd"],""),phone=pick(x,["telefon","tel"],"")||pick(cc,["tel"],""),mail=pick(x,["eposta","mail"],"")||pick(cc,["mail"],""),address=pick(x,["adres"],"")||pick(cc,["adres"],"");
- let h=companyHeader((isBuy(x)?"GELEN":"KESİLEN")+" FATURA","No: "+invoiceNo(x)+" · Tarih: "+(dateOf(x)||"-"));
- h+='<table><tbody><tr><th>Cari / Firma</th><td>'+esc(cari(x))+'</td><th>Durum</th><td>'+esc(status(x))+'</td></tr><tr><th>Plaka / Referans</th><td>'+esc(ref(x))+'</td><th>Fatura Toplamı</th><td><b>'+money(amount(x))+'</b></td></tr>'+
- (taxNo?'<tr><th>Vergi No</th><td>'+esc(taxNo)+'</td><th>Vergi Dairesi</th><td>'+esc(taxOffice||"-")+'</td></tr>':(tc?'<tr><th>T.C. Kimlik No</th><td>'+esc(tc)+'</td><th></th><td></td></tr>':''))+
- ((phone||mail)?'<tr><th>Telefon</th><td>'+esc(phone||"-")+'</td><th>E-posta</th><td>'+esc(mail||"-")+'</td></tr>':'')+
- (address?'<tr><th>Adres</th><td colspan="3">'+esc(address)+'</td></tr>':'')+'</tbody></table>';
- if(ls.length){h+='<h3>Fatura Kalemleri</h3><table><thead><tr><th>Tür</th><th>Açıklama</th><th>Miktar</th><th>Birim</th><th>Birim Fiyat</th><th>Net</th><th>KDV %</th><th>KDV</th><th>Toplam</th></tr></thead><tbody>'+ls.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td>'+money(r[4])+'</td><td>'+money(r[5])+'</td><td>%'+esc(r[6])+'</td><td>'+money(r[7])+'</td><td>'+money(r[8])+'</td></tr>').join("")+'</tbody></table>'}
- h+='<div style="margin-top:10px;text-align:right;line-height:1.7;font-size:10px">İşçilik: <b>'+money(pick(x,["iscilikToplam"],0))+'</b><br>Parça: <b>'+money(pick(x,["parcaToplam"],0))+'</b><br>İndirim: <b>'+money(pick(x,["indirim"],0))+'</b><br>Ara Toplam: <b>'+money(pick(x,["araToplam"],0))+'</b><br>KDV: <b>'+money(pick(x,["kdvTutar"],0))+'</b><br><span style="font-size:15px">Genel Toplam: <b>'+money(amount(x))+'</b></span><br>Tahsil Edilen: <b>'+money(paid)+'</b><br>Kalan: <b>'+money(remain)+'</b></div>';
- const note=pick(x,["aciklama","not"],"");if(note)h+='<p><b>Açıklama:</b> '+esc(note)+'</p>';
- if(window.MAUFirma&&typeof MAUFirma.footer==="function")h+=MAUFirma.footer();
- document.getElementById("printArea").innerHTML=h;
- if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}
- window.print()
-}
-function printList(){refreshCaches();const rows=filtered(invoiceCache),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
 render();
 </script>
-</body></html>
+</body>
+</html>
