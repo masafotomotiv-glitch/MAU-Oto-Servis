@@ -163,7 +163,7 @@ function populateMasters(){
 }
 function applyInsurance(){const x=load(INS_KEY).find(v=>String(v.id)===String(document.getElementById("sigortaId").value));document.getElementById("sigortaTel").value=x?x.phone||"":""}
 function applyExpert(){const x=load(EXP_KEY).find(v=>String(v.id)===String(document.getElementById("eksperId").value));document.getElementById("eksperFirma").value=x?x.company||"":"";document.getElementById("eksper").value=x?x.name||"":"";document.getElementById("eksperTel").value=x?x.phone||"":""}
-function isClosed(x){return ["Tamamlandı","Kapalı"].includes(x.durum)}
+function isClosed(x){return !!(x&&x.legacyHistorical)||["Tamamlandı","Kapalı","Geçmiş Kayıt","İptal"].includes(String(x&&x.durum||""))}
 function populateVehicles(){
  const vehicles=load(VEH_KEY);
  document.getElementById("aracId").innerHTML='<option value="">Araç seçiniz...</option>'+vehicles.filter(v=>v.durum!=="Pasif").map(v=>'<option value="'+esc(v.id)+'">'+esc(v.plaka||"-")+' · '+esc([v.marka,v.model].filter(Boolean).join(" "))+'</option>').join("");
