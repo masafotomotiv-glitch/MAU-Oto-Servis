@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
+// security-hardening-rc9
+
 android {
     // Web arayuzunu APK icine de paketle. Boylece internet yokken ayni HTML/JS/SVG dosyalari yerelden acilir.
     def offlineAssetsDir = layout.buildDirectory.dir("generated/offlineAssets")
