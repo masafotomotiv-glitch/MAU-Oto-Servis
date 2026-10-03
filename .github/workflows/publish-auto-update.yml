@@ -127,4 +127,6 @@ jobs:
           git add update.json
           git diff --cached --quiet && exit 0
           git commit -m "Yayın manifestini güncelle [auto-update]"
+          # Ana dal bu is akisi calisirken ilerlediyse manifest commitini en guncel main ustune tasi.
+          git pull --rebase origin main
           git push origin HEAD:main
