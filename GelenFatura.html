@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<script src="auth.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Gelen Fatura</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}button,input,select,textarea{font:inherit}
+header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:900px;margin:auto;display:flex;gap:11px;align-items:center}.back{border:0;background:#ffffff20;color:#fff;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.9;margin-top:3px}
+.wrap{max-width:900px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;margin-bottom:12px;overflow:hidden}.head2{padding:12px 14px;border-bottom:1px solid #edf1f5;font-weight:900}.body{padding:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.field label{display:block;font-size:11px;font-weight:800;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d5dee7;border-radius:9px;padding:10px;background:#fff}.field input,.field select{height:44px}.field textarea{min-height:80px;resize:vertical}
+.scan{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f7fbff;border:1px solid #d8e9f8;border-radius:10px;padding:11px}.scan button,.save{border:0;border-radius:9px;padding:11px 14px;font-weight:900}.scan button{background:#1976d2;color:#fff}.save{background:#15975b;color:#fff;width:100%;margin-top:11px}.status{font-size:11px;color:#5f7489;line-height:1.4}.note{background:#fff8df;border:1px solid #f1d58b;color:#6c5413;border-radius:10px;padding:10px;font-size:11px;line-height:1.45}
+#rawWrap{display:none;margin-top:10px}.raw{width:100%;min-height:160px;border:1px solid #d5dee7;border-radius:8px;padding:8px;font-size:10px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.scan{grid-template-columns:1fr}.scan button{width:100%}}
+</style>
+<script src="lisans.js"></script>
+<script src="firma.js"></script>
+</head>
+<body>
+<header><div class="head"><button class="back" onclick="location.href='Faturalar.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Gelen Fatura · Tedarikçi · OCR · Kontrol · Kaydet</div></div></div></header>
+<div class="wrap">
+ <div class="card"><div class="head2">1. Faturayı Oku</div><div class="body">
+  <div class="scan"><div><b>Fotoğraf / Galeri OCR</b><div id="scanStatus" class="status">Fatura görüntüsünü seçin. Okunan bilgiler sadece öneri olarak forma yazılır; kaydetmeden önce kontrol edin.</div></div><button onclick="scanInvoice()">📷 Fatura Tara</button></div>
+  <div id="rawWrap"><button style="margin:8px 0;border:0;background:#eef3f8;border-radius:7px;padding:7px 9px" onclick="toggleRaw()">OCR Metnini Göster / Gizle</button><textarea id="rawText" class="raw" readonly></textarea></div>
+ </div></div>
+
+ <div class="card"><div class="head2">2. Gelen Fatura Bilgileri</div><div class="body">
+  <div class="grid">
+   <div class="field full"><label>Tedarikçi Cari *</label><select id="supplierId"><option value="">Tedarikçi seçiniz...</option></select></div>
+   <div class="field"><label>Fatura / Belge No *</label><input id="invoiceNo"></div>
+   <div class="field"><label>Fatura Tarihi *</label><input id="invoiceDate" type="date"></div>
+   <div class="field"><label>Ara Toplam (TL)</label><input id="subtotal" type="number" step="0.01" min="0"></div>
+   <div class="field"><label>KDV Tutarı (TL)</label><input id="vatAmount" type="number" step="0.01" min="0"></div>
+   <div class="field"><label>Genel Toplam (TL) *</label><input id="grandTotal" type="number" step="0.01" min="0"></div>
+   <div class="field"><label>Vergi No / VKN</label><input id="taxNo"></div>
+   <div class="field full"><label>Açıklama / Not</label><textarea id="note" placeholder="Parça alımı, hizmet, sevk bilgisi..."></textarea></div>
+   <div class="field full"><label><input id="matchStock" type="checkbox" checked style="width:auto;height:auto"> Aynı tedarikçinin “Belge Bekliyor” stok girişlerini bu faturayla eşleştir</label></div>
+  </div>
+  <div class="note">OCR sonucu otomatik muhasebeleştirilmez. Tedarikçi, belge no, tarih, KDV ve toplamı kontrol edip siz kaydedersiniz.</div>
+  <button class="save" onclick="saveIncoming()">✓ Gelen Faturayı Kaydet</button>
+ </div></div>
+</div>
+<script>
+const INV_KEY="mau_faturalar",CARI_KEY="mau_cariler",MOVE_KEY="mau_stok_hareketleri";
+function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(v){return String(v==null?"":v)}
+function setStatus(t,ok){const e=document.getElementById("scanStatus");e.textContent=t;e.style.color=ok===false?"#a12536":ok===true?"#087640":"#5f7489"}
+function fillSuppliers(){const list=load(CARI_KEY).filter(c=>(c.roles||[]).includes("Tedarikçi")&&c.active!==false);document.getElementById("supplierId").innerHTML='<option value="">Tedarikçi seçiniz...</option>'+list.map(c=>'<option value="'+String(c.id).replace(/"/g,"&quot;")+'">'+String(c.name||c.code||"").replace(/</g,"&lt;")+'</option>').join("")}
+function scanInvoice(){
+ setStatus("Fatura görüntüsü seçiliyor ve cihazda okunuyor...",null);
+ if(window.MAUAndroid&&typeof window.MAUAndroid.scanRuhsat==="function"){window.MAUAndroid.scanRuhsat();return}
+ setStatus("OCR yalnız MAU Android uygulamasında kullanılabilir.",false);
+}
+function toggleRaw(){const e=document.getElementById("rawText");e.style.display=e.style.display==="none"?"block":"none"}
+function upper(v){return String(v||"").toLocaleUpperCase("tr-TR")}
+function cleanAmount(v){
+ let s=String(v||"").replace(/[^0-9,.-]/g,"");
+ if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");
+ const n=Number(s);return Number.isFinite(n)?n:0;
+}
+function parseDate(v){
+ const m=String(v||"").match(/\b(0?[1-9]|[12]\d|3[01])[.\/-](0?[1-9]|1[0-2])[.\/-]((?:19|20)\d{2})\b/);
+ return m?m[3]+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[1]).padStart(2,"0"):"";
+}
+function nextLineValue(lines,i){
+ for(let j=i;j<Math.min(lines.length,i+3);j++){const s=lines[j].trim();if(s)return s}return "";
+}
+function parseInvoiceText(raw){
+ const lines=String(raw||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean),up=lines.map(upper),out={};
+ for(let i=0;i<lines.length;i++){
+  const u=up[i];
+  if(!out.date&&/(FATURA TARİHİ|FATURA TARIHI|DÜZENLEME TARİHİ|DUZENLEME TARIHI|TARİH|TARIH)/.test(u)){out.date=parseDate(lines[i])||parseDate(lines[i+1]||"")}
+  if(!out.invoiceNo&&/(FATURA NO|FATURA NUMARASI|BELGE NO|BELGE NUMARASI)/.test(u)){
+   const same=lines[i].replace(/.*(?:FATURA|BELGE)\s*(?:NO|NUMARASI)\s*[:\-]?/i,"").trim();
+   const cand=same||nextLineValue(lines,i+1);if(cand&&cand.length<60)out.invoiceNo=cand;
+  }
+  if(!out.taxNo&&/(VKN|VERGİ NO|VERGI NO|VERGİ NUMARASI|VERGI NUMARASI)/.test(u)){const m=(lines[i]+" "+(lines[i+1]||"")).match(/\b\d{10}\b/);if(m)out.taxNo=m[0]}
+  if(/(GENEL TOPLAM|ÖDENECEK TUTAR|ODENECEK TUTAR|FATURA TOPLAMI)/.test(u)){const m=(lines[i]+" "+(lines[i+1]||"")).match(/[0-9][0-9.\s]*[,\.]\d{2}/g);if(m)out.total=cleanAmount(m[m.length-1])}
+  if(!out.vat&&/(TOPLAM KDV|KDV TOPLAMI)/.test(u)){const m=(lines[i]+" "+(lines[i+1]||"")).match(/[0-9][0-9.\s]*[,\.]\d{2}/g);if(m)out.vat=cleanAmount(m[m.length-1])}
+  if(!out.subtotal&&/(MAL HİZMET TOPLAM TUTARI|MAL HIZMET TOPLAM TUTARI|ARA TOPLAM)/.test(u)){const m=(lines[i]+" "+(lines[i+1]||"")).match(/[0-9][0-9.\s]*[,\.]\d{2}/g);if(m)out.subtotal=cleanAmount(m[m.length-1])}
+ }
+ if(!out.date){for(const line of lines){const d=parseDate(line);if(d){out.date=d;break}}}
+ if(!out.total){const nums=[];lines.forEach(line=>(line.match(/[0-9][0-9.\s]*[,\.]\d{2}/g)||[]).forEach(x=>nums.push(cleanAmount(x))));if(nums.length)out.total=Math.max(...nums)}
+ return out;
+}
+window.onRuhsatScanResult=function(raw){
+ document.getElementById("rawText").value=String(raw||"");document.getElementById("rawWrap").style.display="block";document.getElementById("rawText").style.display="none";
+ const d=parseInvoiceText(raw);let n=0;
+ [["invoiceNo",d.invoiceNo],["invoiceDate",d.date],["subtotal",d.subtotal],["vatAmount",d.vat],["grandTotal",d.total],["taxNo",d.taxNo]].forEach(([id,v])=>{if(v!=null&&v!==""){document.getElementById(id).value=v;n++}});
+ setStatus(n?("OCR tamamlandı; "+n+" alan öneri olarak dolduruldu. Lütfen kontrol edin."):"Metin okundu ancak güvenilir alan bulunamadı; bilgileri elle girin.",n>0);
+};
+window.onRuhsatScanError=function(m){setStatus("OCR başarısız: "+String(m||"Bilinmeyen hata"),false)};
+function saveIncoming(){
+ const sid=document.getElementById("supplierId").value,no=document.getElementById("invoiceNo").value.trim(),date=document.getElementById("invoiceDate").value,total=Number(document.getElementById("grandTotal").value||0);
+ const suppliers=load(CARI_KEY),s=suppliers.find(x=>String(x.id)===String(sid));
+ if(!s){alert("Tedarikçi seçiniz.");return}if(!no){alert("Fatura / belge no giriniz.");return}if(!date){alert("Fatura tarihi giriniz.");return}if(!(total>=0)){alert("Genel toplamı kontrol edin.");return}
+ const invs=load(INV_KEY);
+ if(invs.some(x=>String(x.faturaNo||x.belgeNo||"").trim()===no&&String(x.tedarikciId||x.cariId||"")===String(sid))&&!confirm("Bu tedarikçide aynı belge numarası var. Yine de kaydedilsin mi?"))return;
+ const data={id:Date.now(),faturaNo:no,belgeNo:no,faturaTarihi:date,tarih:date,tip:"Alış",faturaTipi:"Alış",belgeTuru:"Gelen Fatura",durum:"Aktif",tedarikciId:s.id,tedarikciAdi:s.name,cariId:s.id,cariCode:s.code||"",cariAdi:s.name,vergiNo:document.getElementById("taxNo").value.trim()||s.vn||"",vergiDairesi:s.vd||"",adres:s.adres||"",telefon:s.tel||"",eposta:s.mail||"",araToplam:Number(document.getElementById("subtotal").value||0),kdvTutar:Number(document.getElementById("vatAmount").value||0),genelToplam:total,toplam:total,tutar:total,aciklama:document.getElementById("note").value.trim(),ocrKaynak:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+ invs.unshift(data);put(INV_KEY,invs);
+ let matched=0;
+ if(document.getElementById("matchStock").checked){
+  const moves=load(MOVE_KEY);moves.forEach(m=>{if(m.type==="Giriş"&&m.belgeDurumu==="Belge Bekliyor"&&String(m.supplierId||"")===String(s.id)){m.belgeDurumu="Faturalı";m.belgeNo=no;m.faturaId=data.id;m.updatedAt=new Date().toISOString();matched++}});if(matched)put(MOVE_KEY,moves);
+ }
+ alert("Gelen fatura kaydedildi."+ (matched?(" "+matched+" stok girişi faturayla eşleştirildi."):""));location.href="Faturalar.html";
+}
+fillSuppliers();
+</script>
+</body>
+</html>
