@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -44,10 +46,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class MainActivity extends Activity {
+    private static final String SECURITY_KEY_ALIAS = "mau_oto_servis_local_v1";
+    private static final String SECURITY_PREFIX = "AKS1.";
     private static final int PICK_RUHSAT_IMAGE = 4021;
     private static final int CREATE_CSV_FILE = 4022;
     private static final int CREATE_XLSX_FILE = 4023;
@@ -77,6 +86,7 @@ public class MainActivity extends Activity {
         textRecognizer =
                 TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(243, 246, 251));
         setContentView(webView);
@@ -114,9 +124,26 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
+        s.setAllowFileAccessFromFileURLs(false);
+        s.setAllowUniversalAccessFromFileURLs(false);
+        s.setSaveFormData(false);
+        s.setSafeBrowsingEnabled(true);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (request == null || !request.isForMainFrame()) return false;
+                Uri uri = request.getUrl();
+                if (isAllowedAppUri(uri)) return false;
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Bağlantı açılamadı.", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
@@ -183,6 +210,9 @@ public class MainActivity extends Activity {
             }
         });
 
+        // Android Keystore tabanlı yerel veri şifreleme köprüsü.
+        webView.addJavascriptInterface(new SecurityBridge(), "MAUSecurity");
+
         // Sadece MAU sayfasının çağırdığı küçük Android köprüsü:
         // ruhsat fotoğrafı seçer ve OCR sonucunu sayfaya geri verir.
         webView.addJavascriptInterface(new AndroidBridge(), "MAUAndroid");
@@ -227,6 +257,15 @@ public class MainActivity extends Activity {
         return "application/octet-stream";
     }
 
+    private boolean isAllowedAppUri(Uri uri) {
+        if (uri == null) return false;
+        if ("about".equalsIgnoreCase(uri.getScheme())) return true;
+        return "https".equalsIgnoreCase(uri.getScheme())
+                && "masafotomotiv-glitch.github.io".equalsIgnoreCase(uri.getHost())
+                && uri.getPath() != null
+                && uri.getPath().startsWith("/MAU-Oto-Servis/");
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -244,6 +283,81 @@ public class MainActivity extends Activity {
         super.onResume();
         if (updateManager != null) {
             updateManager.resumePendingInstallIfAllowed();
+        }
+    }
+
+    private SecretKey getOrCreateSecurityKey() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        if (!keyStore.containsAlias(SECURITY_KEY_ALIAS)) {
+            KeyGenerator generator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES,
+                    "AndroidKeyStore"
+            );
+            generator.init(new KeyGenParameterSpec.Builder(
+                    SECURITY_KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT
+            )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setRandomizedEncryptionRequired(true)
+                    .build());
+            generator.generateKey();
+        }
+        KeyStore.SecretKeyEntry entry =
+                (KeyStore.SecretKeyEntry) keyStore.getEntry(SECURITY_KEY_ALIAS, null);
+        if (entry == null) {
+            throw new IllegalStateException("Cihaz güvenlik anahtarı alınamadı.");
+        }
+        return entry.getSecretKey();
+    }
+
+    private class SecurityBridge {
+        @JavascriptInterface
+        public String encrypt(String plainText) {
+            try {
+                Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecurityKey());
+                byte[] iv = cipher.getIV();
+                byte[] encrypted = cipher.doFinal(
+                        (plainText == null ? "" : plainText).getBytes(StandardCharsets.UTF_8)
+                );
+                return SECURITY_PREFIX
+                        + Base64.encodeToString(iv, Base64.NO_WRAP)
+                        + "."
+                        + Base64.encodeToString(encrypted, Base64.NO_WRAP);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @JavascriptInterface
+        public String decrypt(String blob) {
+            try {
+                if (blob == null || !blob.startsWith(SECURITY_PREFIX)) return null;
+                String[] parts = blob.split("\\.", 3);
+                if (parts.length != 3 || !"AKS1".equals(parts[0])) return null;
+                byte[] iv = Base64.decode(parts[1], Base64.NO_WRAP);
+                byte[] encrypted = Base64.decode(parts[2], Base64.NO_WRAP);
+                Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                cipher.init(
+                        Cipher.DECRYPT_MODE,
+                        getOrCreateSecurityKey(),
+                        new GCMParameterSpec(128, iv)
+                );
+                return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @JavascriptInterface
+        public boolean isAvailable() {
+            try {
+                return getOrCreateSecurityKey() != null;
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 
@@ -855,6 +969,7 @@ public class MainActivity extends Activity {
         }
         if (webView != null) {
             webView.removeJavascriptInterface("MAUAndroid");
+            webView.removeJavascriptInterface("MAUSecurity");
             webView.destroy();
         }
         super.onDestroy();
