@@ -34,6 +34,10 @@ input,textarea,select{width:100%;border:1px solid var(--line);border-radius:9px;
 input[readonly]{background:#f5f7fa;color:#52606d}
 textarea{min-height:82px;resize:vertical}
 .required:after{content:" *";color:var(--red)}
+.vehicleSearchRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+.vehicleSearchRow input{background:#fff}
+.vehicleSearchClear{border:0;border-radius:9px;padding:0 14px;background:#eef3f8;color:#40556e;font-weight:800}
+.vehicleSearchMeta{font-size:10px;color:var(--muted);margin-top:5px}
 .vehicleBox{background:#f7fbff;border:1px solid #d7e8f7;border-radius:10px;padding:11px;margin-top:8px;line-height:1.55;font-size:12px}
 .chips{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid #dce5ee;border-radius:9px;padding:9px 10px;background:#fff}.chip input{width:auto;margin-right:5px}
 .conditionGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cond{border:1px solid #e2e8ef;border-radius:10px;padding:10px}.cond label{font-size:12px}.cond select{padding:9px}
@@ -86,8 +90,13 @@ textarea{min-height:82px;resize:vertical}
      <div class="grid">
       <div class="field full">
        <label class="required">Kayıtlı Araç</label>
+       <div class="vehicleSearchRow">
+        <input id="vehicleSearch" inputmode="text" autocomplete="off" placeholder="Plaka yazın… Örn. 06 ABC 123" oninput="filterVehicles()" onkeydown="vehicleSearchKey(event)">
+        <button type="button" class="vehicleSearchClear" onclick="clearVehicleSearch()">Temizle</button>
+       </div>
        <select id="aracId" onchange="selectVehicle()"><option value="">Araç seçiniz...</option></select>
-       <div class="helper">Önce Araç Kayıt bölümünde oluşturduğunuz araç seçilir. Cari, plaka ve teknik bilgiler otomatik gelir.</div>
+       <div id="vehicleSearchMeta" class="vehicleSearchMeta">Plaka, müşteri, marka veya model yazarak arayabilirsiniz.</div>
+       <div class="helper">Aracı seçince cari, plaka ve teknik bilgiler otomatik gelir.</div>
       </div>
       <div class="field"><label>Kabul No</label><input id="kabulNo" readonly></div>
       <div class="field"><label>Araç Sahibi / Cari</label><input id="cariAdi" readonly></div>
@@ -333,12 +342,45 @@ function toggleInsurancePre(){
   if(reason&&!reason.value)reason.value="Trafik Kazası / Sigorta Hasarı";
  }
 }
-function populateVehicles(){
+function vehicleSearchText(v){
+ return String(v||"").toLocaleLowerCase("tr-TR").replace(/[^a-z0-9çğıöşü]+/g,"").trim();
+}
+function vehicleLabel(a){
+ return [a.plaka,a.marka,a.model,a.versiyon,a.cariAdi].filter(Boolean).join(" · ");
+}
+function populateVehicles(filterText){
  vehicles=loadArray(VEHICLE_KEY);cariler=loadArray(CARI_KEY);
  const sel=document.getElementById("aracId"),cur=sel.value;
+ const searchEl=document.getElementById("vehicleSearch");
+ const q=vehicleSearchText(filterText!=null?filterText:(searchEl?searchEl.value:""));
  const active=vehicles.filter(function(a){return a.active!==false&&a.durum!=="Pasif";});
- sel.innerHTML='<option value="">Araç seçiniz...</option>'+active.map(function(a){return '<option value="'+esc(a.id)+'">'+esc(a.plaka||"-")+' · '+esc([a.marka,a.model].filter(Boolean).join(" "))+' · '+esc(a.cariAdi||"")+'</option>';}).join("");
- if(active.some(function(a){return String(a.id)===String(cur);}))sel.value=cur;
+ const filtered=!q?active:active.filter(function(a){
+  return vehicleSearchText([a.plaka,a.marka,a.model,a.versiyon,a.cariAdi,a.aracCode].join(" ")).includes(q);
+ });
+ sel.innerHTML='<option value="">Araç seçiniz...</option>'+filtered.map(function(a){return '<option value="'+esc(a.id)+'">'+esc(a.plaka||"-")+' · '+esc([a.marka,a.model].filter(Boolean).join(" "))+' · '+esc(a.cariAdi||"")+'</option>';}).join("");
+ if(filtered.some(function(a){return String(a.id)===String(cur);}))sel.value=cur;
+ const meta=document.getElementById("vehicleSearchMeta");
+ if(meta)meta.textContent=q?(filtered.length+" araç bulundu."):"Plaka, müşteri, marka veya model yazarak arayabilirsiniz.";
+ if(q&&filtered.length===1&&String(sel.value)!==String(filtered[0].id)){
+  sel.value=String(filtered[0].id);
+  selectVehicle();
+ }
+ return filtered;
+}
+function filterVehicles(){populateVehicles(document.getElementById("vehicleSearch").value);}
+function clearVehicleSearch(){
+ const input=document.getElementById("vehicleSearch");if(input)input.value="";
+ populateVehicles("");
+ if(input)input.focus();
+}
+function vehicleSearchKey(ev){
+ if(ev.key!=="Enter")return;
+ ev.preventDefault();
+ const list=populateVehicles(document.getElementById("vehicleSearch").value);
+ if(list.length){
+  document.getElementById("aracId").value=String(list[0].id);
+  selectVehicle();
+ }
 }
 function selectVehicle(){
  selectedVehicle=findVehicle(document.getElementById("aracId").value);
@@ -369,12 +411,14 @@ function resetForm(focus){
  editId=null;selectedVehicle=null;photoNames=[];
  populateVehicles();populateInsurers();
  document.querySelectorAll("input,textarea,select").forEach(function(el){
-  if(["search","aracId"].includes(el.id))return;
+  if(["search","aracId","vehicleSearch"].includes(el.id))return;
   if(el.type==="checkbox")el.checked=false;
   else if(el.type==="file")el.value="";
   else el.value="";
  });
  document.getElementById("aracId").value="";
+ document.getElementById("vehicleSearch").value="";
+ populateVehicles("");
  document.getElementById("kabulNo").value=nextNo();
  document.getElementById("kabulTarihi").value=today();
  document.getElementById("kabulSaati").value=nowTime();
@@ -455,7 +499,10 @@ function saveAcceptance(prepareWork){
 }
 function editAcceptance(id){
  const x=accepts.find(function(a){return String(a.id)===String(id);});if(!x)return;
- editId=x.id;populateVehicles();
+ editId=x.id;
+ const existingVehicle=findVehicle(x.aracId||x.vehicleId);
+ document.getElementById("vehicleSearch").value=existingVehicle&&existingVehicle.plaka?existingVehicle.plaka:"";
+ populateVehicles(document.getElementById("vehicleSearch").value);
  document.getElementById("formTitle").innerText=x.kabulNo+" · Araç Kabul Düzenle";
  document.getElementById("aracId").value=String(x.aracId||x.vehicleId||"");selectVehicle();
  const map=["kabulNo","kabulTarihi","kabulSaati","km","yakitSeviye","gelisSekli","yururDurum","teslimEden","teslimEdenTel","anahtarEtiketNo","anahtarAdedi","tahminiTeslimTarihi","tahminiTeslimSaati","gelisNedeni","odemeTuru","olayTarihi","olaySaati","olayYeri","hasarOnKabulAciklama","musteriSikayeti","sorunKosulu","siklik","uyariLambalari","oncekiMudahale","talepEdilenIslemler","siviKacagi","gostergeUyarisi","hasarNotu","esyalar","stepne","aksesuar","iletisim","onayLimit","onaylayan","onayZamani"];
