@@ -399,15 +399,15 @@ function supplierEvidence(c){
   return (sid&&cid&&sid===cid)||(sn&&cn&&sn===cn);
  });
  const payHits=allPayments().filter(x=>belongsToCari(x,c));
- const purchaseHits=allInvoices().filter(x=>invoiceIsPurchase(x)&&belongsToCari(x,c));
- const customerInvoices=allInvoices().filter(x=>!invoiceIsPurchase(x)&&belongsToCari(x,c));
+ const linkedInvoices=allInvoices().filter(x=>belongsToCari(x,c));
+ const purchaseHits=linkedInvoices.filter(invoiceIsPurchase);
+ const saleHits=linkedInvoices.filter(x=>!invoiceIsPurchase(x));
  const customerHits={
   vehicles:allVehicles().filter(x=>belongsToCari(x,c)).length,
   works:allWorkOrders().filter(x=>belongsToCari(x,c)).length,
-  collections:allCollections().filter(x=>belongsToCari(x,c)).length,
-  sales:customerInvoices.length
+  collections:allCollections().filter(x=>belongsToCari(x,c)).length
  };
- return {stock:stockHits.length,payments:payHits.length,purchases:purchaseHits.length,customer:customerHits};
+ return {stock:stockHits.length,payments:payHits.length,purchases:purchaseHits.length,sales:saleHits.length,customer:customerHits};
 }
 function separateSuppliers(){
  const pure=[],dual=[];
@@ -415,17 +415,23 @@ function separateSuppliers(){
   if((c.roles||[]).includes("Sigorta Şirketi")||(c.roles||[]).includes("Eksper Firması"))return;
   const ev=supplierEvidence(c),sup=ev.stock+ev.payments+ev.purchases;
   if(!sup)return;
-  const cust=ev.customer.vehicles+ev.customer.works+ev.customer.collections+ev.customer.sales;
-  const item={c,ev,sup,cust};
-  if(cust===0)pure.push(item);else if(!(c.roles||[]).includes("Tedarikçi"))dual.push(item);
+  const serviceCustomer=ev.customer.vehicles+ev.customer.works+ev.customer.collections;
+  const item={c,ev,sup,serviceCustomer};
+  if(serviceCustomer===0)pure.push(item);
+  else if(!(c.roles||[]).includes("Tedarikçi"))dual.push(item);
  });
- const newPure=pure.filter(x=>!(x.c.roles||[]).includes("Tedarikçi")||(x.c.roles||[]).includes("Müşteri"));
+ const newPure=pure.filter(x=>!(x.c.roles||[]).includes("Tedarikçi")||(x.c.roles||[]).includes("Müşteri")||x.ev.sales>0);
  if(!newPure.length&&!dual.length){alert("Tedarikçi olarak ayrılacak yeni cari bulunamadı.");return}
+ const invoiceCount=newPure.reduce((n,x)=>n+x.ev.sales,0);
  const lines=[];
  if(newPure.length){
   lines.push("Sadece tedarikçi olarak ayrılacak ("+newPure.length+"):");
-  newPure.slice(0,12).forEach(x=>lines.push("• "+x.c.name+"  [stok "+x.ev.stock+", ödeme "+x.ev.payments+", alış "+x.ev.purchases+"]"));
+  newPure.slice(0,12).forEach(x=>lines.push("• "+x.c.name+"  [stok "+x.ev.stock+", ödeme "+x.ev.payments+", eski fatura "+x.ev.sales+"]"));
   if(newPure.length>12)lines.push("• ... ve "+(newPure.length-12)+" cari daha");
+ }
+ if(invoiceCount){
+  lines.push("");
+  lines.push(invoiceCount+" eski fatura bu tedarikçilere bağlı olduğu için Satış/Kesilen yerine Alış/Gelen olarak düzeltilecek.");
  }
  if(dual.length){
   lines.push("");
@@ -434,20 +440,32 @@ function separateSuppliers(){
   if(dual.length>8)lines.push("• ... ve "+(dual.length-8)+" cari daha");
  }
  lines.push("");
- lines.push("Sadece tedarikçi olanlarda Müşteri rolü kaldırılacak. Çift ilişkisi olanlarda iki rol birlikte korunacak. Devam edilsin mi?");
+ lines.push("Sadece tedarikçi olanlarda Müşteri rolü kaldırılacak. Araç/iş emri/tahsilat geçmişi olanlarda iki rol birlikte korunacak. Devam edilsin mi?");
  if(!confirm(lines.join("\n")))return;
- let changed=0;
+
+ const invoices=allInvoices();
+ let changed=0,reclassified=0;
  newPure.forEach(x=>{
   const roles=(x.c.roles||[]).filter(r=>r!=="Müşteri"&&r!=="Tedarikçi");
   roles.push("Tedarikçi");x.c.roles=roles;x.c.supplierSeparatedAt=new Date().toISOString();changed++;
+  invoices.forEach(inv=>{
+   if(!belongsToCari(inv,x.c)||invoiceIsPurchase(inv))return;
+   inv.tip="Alış";inv.faturaTipi="Alış";inv.tur="Gelen";
+   inv.supplierReclassifiedAt=new Date().toISOString();
+   inv.supplierReclassifiedReason="Tedarikçi cari ayrımı";
+   reclassified++;
+  });
  });
  dual.forEach(x=>{
   const roles=Array.from(new Set([...(x.c.roles||[]),"Tedarikçi"]));
   x.c.roles=roles;x.c.supplierSeparatedAt=new Date().toISOString();changed++;
  });
- saveCariler();render();
- alert(changed+" cari tedarikçi ilişkisine göre ayrıldı. Müşteri/Tedarikçi sayaçları güncellendi.");
+ saveCariler();
+ localStorage.setItem(KEYS.faturalar[0],JSON.stringify(invoices));
+ render();
+ alert(changed+" cari tedarikçi ilişkisine göre ayrıldı. "+reclassified+" eski fatura Alış/Gelen olarak düzeltildi.");
 }
+
 function render(){
  const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();
  const filtered=cariler.filter(function(c){
