@@ -198,8 +198,6 @@ function findPackageExisting(list,item,key){
   if(code){const byCode=list.find(function(x){return fold(x.code)===code});if(byCode)return byCode}
   const vn=fold(item.vn||item.tc);
   if(vn&&!packagePlaceholder(vn)){const byVn=list.find(function(x){return fold(x.vn||x.tc)===vn});if(byVn)return byVn}
-  const tel=fold(item.tel);
-  if(tel&&!packagePlaceholder(tel)&&tel.length>=7){const byTel=list.find(function(x){return fold(x.tel)===tel});if(byTel)return byTel}
   const name=fold(item.name);
   if(name){return list.find(function(x){return fold(x.name)===name})||null}
   return null
