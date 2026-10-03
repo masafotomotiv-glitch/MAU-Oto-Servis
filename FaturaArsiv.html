@@ -4,7 +4,7 @@
 <script src="auth.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>MAU Oto Servis · Fatura Arşivi</title>
+<title>MAU Oto Servis · Belge Arşivi</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#18324d}button,input,select{font:inherit}
 header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px}.head{max-width:1150px;margin:auto;display:flex;align-items:center;gap:11px}.back{border:0;background:#ffffff20;color:#fff;width:40px;height:40px;border-radius:9px;font-size:24px}.title{font-size:22px;font-weight:900}.sub{font-size:11px;opacity:.88;margin-top:3px}
@@ -21,11 +21,11 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 <script src="firma.js"></script>
 </head>
 <body>
-<header><div class="head"><button class="back" onclick="location.href='Faturalar.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Fatura Arşivi · Kesilen · Gelen · Arama · PDF / Yazdır</div></div></div></header>
+<header><div class="head"><button class="back" onclick="location.href='Faturalar.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Belge Arşivi · Kesilen · Gelen · Arama · PDF / Yazdır</div></div></div></header>
 <div class="wrap">
  <div class="card"><div class="body">
   <div class="toolbar">
-   <input id="search" placeholder="Fatura no, cari, plaka, açıklama ara..." oninput="render()">
+   <input id="search" placeholder="Belge no, cari, plaka, açıklama ara..." oninput="render()">
    <input id="fromDate" type="date" onchange="render()">
    <input id="toDate" type="date" onchange="render()">
    <select id="statusFilter" onchange="render()"><option value="">Tüm Durumlar</option><option>Aktif</option><option>Ödendi</option><option>Kapalı</option><option>İptal</option><option>Taslak</option></select>
@@ -49,7 +49,7 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 
  <div class="card" style="margin-top:12px"><div class="body" style="padding:0">
   <div class="tableWrap">
-   <table class="table"><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari / Firma</th><th>Plaka / Referans</th><th>Durum</th><th class="num">Tutar</th><th class="num">Tahsil</th><th class="num">Kalan</th><th>İşlem</th></tr></thead><tbody id="rows"></tbody></table>
+   <table class="table"><thead><tr><th>Tarih</th><th>Tür</th><th>Belge No</th><th>Cari / Firma</th><th>Plaka / Referans</th><th>Durum</th><th class="num">Tutar</th><th class="num">Tahsil</th><th class="num">Kalan</th><th>İşlem</th></tr></thead><tbody id="rows"></tbody></table>
   </div>
   <div id="empty" class="empty" style="display:none">Kayıt bulunamadı.</div>
  </div></div>
@@ -141,7 +141,7 @@ function companyHeader(title,sub){if(window.MAUFirma&&typeof MAUFirma.header==="
 function printInvoice(id){
  refreshCaches();const x=findInvoice(id);if(!x)return;const ls=linesOf(x),cc=currentCari(x),paid=paidAmount(x),remain=remainAmount(x);
  const taxNo=pick(x,["vergiNo","vn"],"")||pick(cc,["vn"],""),tc=pick(x,["tc"],"")||pick(cc,["tc"],""),taxOffice=pick(x,["vergiDairesi","vd"],"")||pick(cc,["vd"],""),phone=pick(x,["telefon","tel"],"")||pick(cc,["tel"],""),mail=pick(x,["eposta","mail"],"")||pick(cc,["mail"],""),address=pick(x,["adres"],"")||pick(cc,["adres"],"");
- let h=companyHeader((isBuy(x)?"GELEN":"KESİLEN")+" FATURA","No: "+invoiceNo(x)+" · Tarih: "+(dateOf(x)||"-"));
+ let h=companyHeader(String(x.belgeTuru||((isBuy(x)?"GELEN":"KESİLEN")+" FATURA")).toLocaleUpperCase("tr-TR"),"No: "+invoiceNo(x)+" · Tarih: "+(dateOf(x)||"-"));
  h+='<table><tbody><tr><th>Cari / Firma</th><td>'+esc(cari(x))+'</td><th>Durum</th><td>'+esc(status(x))+'</td></tr><tr><th>Plaka / Referans</th><td>'+esc(ref(x))+'</td><th>Fatura Toplamı</th><td><b>'+money(amount(x))+'</b></td></tr>'+
  (taxNo?'<tr><th>Vergi No</th><td>'+esc(taxNo)+'</td><th>Vergi Dairesi</th><td>'+esc(taxOffice||"-")+'</td></tr>':(tc?'<tr><th>T.C. Kimlik No</th><td>'+esc(tc)+'</td><th></th><td></td></tr>':''))+
  ((phone||mail)?'<tr><th>Telefon</th><td>'+esc(phone||"-")+'</td><th>E-posta</th><td>'+esc(mail||"-")+'</td></tr>':'')+
@@ -154,7 +154,7 @@ function printInvoice(id){
  if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}
  window.print()
 }
-function printList(){refreshCaches();const rows=filtered(invoiceCache),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
+function printList(){refreshCaches();const rows=filtered(invoiceCache),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Belge No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
 const _q=new URLSearchParams(location.search).get("q");
 if(_q){document.getElementById("search").value=_q}
 render();
