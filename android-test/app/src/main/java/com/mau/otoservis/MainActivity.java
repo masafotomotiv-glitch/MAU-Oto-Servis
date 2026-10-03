@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
         textRecognizer =
                 TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
-        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+        WebView.setWebContentsDebuggingEnabled(false);
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(243, 246, 251));
         setContentView(webView);
