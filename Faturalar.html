@@ -57,9 +57,32 @@ header{background:linear-gradient(90deg,#0d3e70,#0b61a8);color:#fff;padding:15px
 </div>
 <div id="printArea"></div>
 <script>
-const KEY="mau_faturalar",COL_KEY="mau_tahsilatlar",CARI_KEY="mau_cariler";let activeKind="all";
+const KEY="mau_faturalar",COL_KEY="mau_tahsilatlar",CARI_KEY="mau_cariler";let activeKind="all",invoiceCache=[],collectionCache=[],paidCache=new Map();
 function loadKey(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
-function load(){return loadKey(KEY)}
+function load(){return invoiceCache.length?invoiceCache:loadKey(KEY)}
+function invToken(inv){return String(inv&&inv.id!=null?inv.id:invoiceNo(inv))}
+function refreshCaches(){
+ invoiceCache=loadKey(KEY);
+ collectionCache=loadKey(COL_KEY).filter(financialActive);
+ paidCache=new Map();
+ const byId=new Map(),byNo=new Map(),byWorkId=new Map(),byWorkNo=new Map();
+ invoiceCache.forEach(inv=>{
+  if(inv.id!=null)byId.set(String(inv.id),inv);
+  const no=invoiceNo(inv);if(no&&no!=="-")byNo.set(String(no),inv);
+  if(inv.isEmriId!=null&&inv.isEmriId!=="")byWorkId.set(String(inv.isEmriId),inv);
+  if(inv.isEmriNo)byWorkNo.set(String(inv.isEmriNo),inv);
+ });
+ collectionCache.forEach(col=>{
+  let inv=null;
+  if(col.faturaId!=null&&col.faturaId!=="")inv=byId.get(String(col.faturaId))||null;
+  if(!inv&&col.faturaNo)inv=byNo.get(String(col.faturaNo))||null;
+  if(!inv&&col.isEmriId!=null&&col.isEmriId!=="")inv=byWorkId.get(String(col.isEmriId))||null;
+  if(!inv&&col.isEmriNo)inv=byWorkNo.get(String(col.isEmriNo))||null;
+  if(!inv)return;
+  const key=invToken(inv);
+  paidCache.set(key,(paidCache.get(key)||0)+n(pick(col,["tutar","amount"],0)));
+ });
+}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function n(v){if(typeof v==="number")return Number.isFinite(v)?v:0;if(v==null||v==="")return 0;let s=String(v).trim().replace(/\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");const x=Number(s.replace(/[^0-9.-]/g,""));return Number.isFinite(x)?x:0}
 function money(v){return n(v).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
@@ -74,15 +97,14 @@ function ref(o){return [pick(o,["plaka"],""),pick(o,["isEmriNo","referansNo"],""
 function status(o){return pick(o,["durum","status"],"Aktif")}
 function financialActive(o){const s=String(status(o)||"Aktif").toLocaleLowerCase("tr-TR");return !["iptal","pasif"].some(v=>s.includes(v))}
 function collectionsForInvoice(inv){
- return loadKey(COL_KEY).filter(x=>{
-  if(!financialActive(x))return false;
+ return collectionCache.filter(x=>{
   if(x.faturaId&&String(x.faturaId)===String(inv.id))return true;
   if(x.faturaNo&&String(x.faturaNo)===String(invoiceNo(inv)))return true;
   if(x.isEmriId&&inv.isEmriId&&String(x.isEmriId)===String(inv.isEmriId))return true;
   return x.isEmriNo&&inv.isEmriNo&&String(x.isEmriNo)===String(inv.isEmriNo);
  });
 }
-function paidAmount(inv){return collectionsForInvoice(inv).reduce((s,x)=>s+n(pick(x,["tutar","amount"],0)),0)}
+function paidAmount(inv){return n(paidCache.get(invToken(inv))||0)}
 function remainAmount(inv){return Math.max(0,amount(inv)-paidAmount(inv))}
 function currentCari(inv){
  const list=loadKey(CARI_KEY);
@@ -90,9 +112,9 @@ function currentCari(inv){
         list.find(x=>String(x.code||"")===String(inv.cariCode||""))||
         list.find(x=>String(x.name||"").trim().toLocaleLowerCase("tr-TR")===String(cari(inv)).trim().toLocaleLowerCase("tr-TR"))||{};
 }
-function filtered(){
+function filtered(source){
  const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim(),fd=document.getElementById("fromDate").value,td=document.getElementById("toDate").value,sf=document.getElementById("statusFilter").value;
- return load().filter(x=>{
+ return (source||invoiceCache).filter(x=>{
   if(activeKind==="sale"&&isBuy(x))return false;if(activeKind==="buy"&&!isBuy(x))return false;
   const d=dateOf(x);if(fd&&(!d||d<fd))return false;if(td&&(!d||d>td))return false;
   if(sf&&String(status(x))!==sf)return false;
@@ -103,12 +125,13 @@ function filtered(){
 function setKind(k){activeKind=k;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.kind===k));render()}
 function clearFilters(){document.getElementById("search").value="";document.getElementById("fromDate").value="";document.getElementById("toDate").value="";document.getElementById("statusFilter").value="";render()}
 function render(){
- const all=load(),sales=all.filter(x=>!isBuy(x)),buys=all.filter(isBuy),rows=filtered(),shownTotal=rows.reduce((s,x)=>s+amount(x),0),shownPaid=rows.reduce((s,x)=>s+paidAmount(x),0);
+ refreshCaches();
+ const all=invoiceCache,sales=all.filter(x=>!isBuy(x)),buys=all.filter(isBuy),rows=filtered(all),shownTotal=rows.reduce((s,x)=>s+amount(x),0),shownPaid=rows.reduce((s,x)=>s+paidAmount(x),0);
  document.getElementById("sAll").textContent=all.length;document.getElementById("sSale").textContent=sales.length;document.getElementById("sBuy").textContent=buys.length;document.getElementById("sAmount").textContent=money(shownTotal);document.getElementById("sPaid").textContent=money(shownPaid);document.getElementById("sRemain").textContent=money(Math.max(0,shownTotal-shownPaid));document.getElementById("listInfo").textContent=rows.length+" kayıt gösteriliyor";
  document.getElementById("empty").style.display=rows.length?"none":"block";
  document.getElementById("rows").innerHTML=rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td><span class="kind '+(isBuy(x)?"buy":"sale")+'">'+kindLabel(x)+'</span></td><td><b>'+esc(invoiceNo(x))+'</b></td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td><span class="status">'+esc(status(x))+'</span></td><td class="num"><b>'+money(amount(x))+'</b></td><td class="num">'+money(paidAmount(x))+'</td><td class="num"><b>'+money(remainAmount(x))+'</b></td><td><div class="actions"><button class="small" onclick="printInvoice('+JSON.stringify(String(x.id??invoiceNo(x)))+')">PDF / Yazdır</button></div></td></tr>').join("")
 }
-function findInvoice(id){return load().find(x=>String(x.id??invoiceNo(x))===String(id))}
+function findInvoice(id){return invoiceCache.find(x=>String(x.id??invoiceNo(x))===String(id))}
 function linesOf(x){
  const rows=[],rateDefault=n(x.kdv||0);
  (x.iscilikler||[]).forEach(a=>{const qty=n(a.saat??a.miktar??0),price=n(a.birimFiyat||0),net=n(a.netTutar??a.tutar??(qty*price)),rate=n(a.kdvOrani??rateDefault),vat=n(a.kdvTutar??(net*rate/100)),gross=n(a.genelTutar??(net+vat));rows.push(["İşçilik",a.islem||a.ad||"-",qty,a.birim||"Saat",price,net,rate,vat,gross])});
@@ -116,7 +139,7 @@ function linesOf(x){
 }
 function companyHeader(title,sub){if(window.MAUFirma&&typeof MAUFirma.header==="function")return MAUFirma.header(title,sub);return '<h2>MAU OTO SERVİS</h2><h3>'+esc(title)+'</h3><div>'+esc(sub||"")+'</div><hr>'}
 function printInvoice(id){
- const x=findInvoice(id);if(!x)return;const ls=linesOf(x),cc=currentCari(x),paid=paidAmount(x),remain=remainAmount(x);
+ refreshCaches();const x=findInvoice(id);if(!x)return;const ls=linesOf(x),cc=currentCari(x),paid=paidAmount(x),remain=remainAmount(x);
  const taxNo=pick(x,["vergiNo","vn"],"")||pick(cc,["vn"],""),tc=pick(x,["tc"],"")||pick(cc,["tc"],""),taxOffice=pick(x,["vergiDairesi","vd"],"")||pick(cc,["vd"],""),phone=pick(x,["telefon","tel"],"")||pick(cc,["tel"],""),mail=pick(x,["eposta","mail"],"")||pick(cc,["mail"],""),address=pick(x,["adres"],"")||pick(cc,["adres"],"");
  let h=companyHeader((isBuy(x)?"GELEN":"KESİLEN")+" FATURA","No: "+invoiceNo(x)+" · Tarih: "+(dateOf(x)||"-"));
  h+='<table><tbody><tr><th>Cari / Firma</th><td>'+esc(cari(x))+'</td><th>Durum</th><td>'+esc(status(x))+'</td></tr><tr><th>Plaka / Referans</th><td>'+esc(ref(x))+'</td><th>Fatura Toplamı</th><td><b>'+money(amount(x))+'</b></td></tr>'+
@@ -131,7 +154,7 @@ function printInvoice(id){
  if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}
  window.print()
 }
-function printList(){const rows=filtered(),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
+function printList(){refreshCaches();const rows=filtered(invoiceCache),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
 render();
 </script>
 </body></html>
