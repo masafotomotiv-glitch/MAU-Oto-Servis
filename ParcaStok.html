@@ -14,7 +14,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='index.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">Parça & Stok · OEM · Tedarikçi · Kritik Stok · Alış/Satış Fiyatı</div></div></div></header>
 <div class="wrap">
- <div class="toolbar"><input id="search" class="search" placeholder="Parça adı, kodu, OEM, marka, barkod ara..." oninput="render()"><button class="btn new" onclick="openForm()">+ Yeni Parça</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="Parça adı, kodu, OEM, marka, barkod ara..." oninput="render()"><button class="btn" style="background:#eaf2ff;color:#0756a5" onclick="laborCleanup()">İşçilikleri Stoktan Ayır</button><button class="btn new" onclick="openForm()">+ Yeni Parça</button></div>
  <div class="stats"><div class="stat"><b id="total">0</b><span>Toplam Kalem</span></div><div class="stat"><b id="qty">0</b><span>Toplam Miktar</span></div><div class="stat"><b id="critical">0</b><span>Kritik Stok</span></div><div class="stat"><b id="value">0 ₺</b><span>Stok Alış Değeri</span></div></div>
  <div id="list"></div>
 </div>
@@ -41,6 +41,19 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 const KEY="mau_stok_parcalar",CARI_KEY="mau_cariler",MOVE_KEY="mau_stok_hareketleri";
 function load(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+const LABOR_ARCHIVE_KEY="mau_stok_iscilik_arsiv";
+const LABOR_NAMES=["ERA FULL BAKIM","ŞARJ DİNAMOSU BAKIM","WEBOSTA DEMONTE","BASAMAK YAPIMI","BASKI BALATA DEĞİŞİM İŞÇİLİK","BOBİNAJ İŞLEMLERİ","BOYA İŞÇİLİĞİ","CAM SÖK TAK İŞÇİLİK","DÖŞEME İŞÇİLİK","ELEKTRİK İŞÇİLİĞİ","FREN BALATA DEĞİŞİMİ İŞÇİLİK","İŞÇİLİK","KAPI İŞÇİLİK","KAPORTA İŞÇİLİĞİ","KARASÖR TAMİRİ","KİLİT İŞÇİLİK","KOLTUK DÜZENLEME","MAKAS DEĞİSİM İŞÇİLİĞİ","MAKAS İŞÇİLİĞİ","MEKANİK İŞÇİLİĞİ","MOTOR İŞÇİLİK SPRİNTER","MOTOR REKTEFİYE","ŞANZIMAN İŞÇİLİK","ŞASE DÜZELTME İŞÇİLİK","YAĞ BAKIM İŞÇİLİK"];
+function lf(v){return String(v||"").toLocaleUpperCase("tr-TR").replace(/\s+/g," ").trim()}
+function laborCleanup(){
+ const stock=load(KEY),services=load("mau_iscilik_tanimlari"),serviceNames=new Set(services.map(x=>lf(x.name))),wanted=new Set(LABOR_NAMES.map(lf));
+ const rows=stock.filter(x=>wanted.has(lf(x.name))&&serviceNames.has(lf(x.name)));
+ if(!rows.length){alert("Stokta ayrılacak işçilik kalmadı.");return}
+ if(!confirm(rows.length+" işçilik/hizmet kartı stok listesinden ayrılacak. İşçilikler bölümündeki kayıtlar korunacak. Devam edilsin mi?"))return;
+ const ids=new Set(rows.map(x=>String(x.id))),archive=load(LABOR_ARCHIVE_KEY),have=new Set(archive.map(x=>String(x.id)));
+ rows.forEach(x=>{if(!have.has(String(x.id)))archive.unshift(x)});
+ put(LABOR_ARCHIVE_KEY,archive);put(KEY,stock.filter(x=>!ids.has(String(x.id))));
+ items=load(KEY);render();alert(rows.length+" işçilik stoktan ayrıldı.");
+}
 let items=load(KEY),editId=null;
 function nextCode(){let m=0;items.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "PRC-"+String(m+1).padStart(5,"0")}
 function fillSuppliers(){const cs=load(CARI_KEY).filter(c=>(c.roles||[]).includes("Tedarikçi")&&c.active!==false);document.getElementById("supplierId").innerHTML='<option value="">Seçiniz</option>'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.code||"")+' - '+esc(c.name||"")+'</option>').join("")}
