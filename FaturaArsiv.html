@@ -155,6 +155,8 @@ function printInvoice(id){
  window.print()
 }
 function printList(){refreshCaches();const rows=filtered(invoiceCache),total=rows.reduce((s,x)=>s+amount(x),0),paid=rows.reduce((s,x)=>s+paidAmount(x),0);let h=companyHeader("FATURA LİSTESİ",rows.length+" kayıt");h+='<table><thead><tr><th>Tarih</th><th>Tür</th><th>Fatura No</th><th>Cari</th><th>Referans</th><th>Durum</th><th>Tutar</th><th>Tahsil</th><th>Kalan</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(dateOf(x)||"-")+'</td><td>'+kindLabel(x)+'</td><td>'+esc(invoiceNo(x))+'</td><td>'+esc(cari(x))+'</td><td>'+esc(ref(x))+'</td><td>'+esc(status(x))+'</td><td>'+money(amount(x))+'</td><td>'+money(paidAmount(x))+'</td><td>'+money(remainAmount(x))+'</td></tr>').join("")+'</tbody></table><p><b>Toplam:</b> '+money(total)+' · <b>Tahsil:</b> '+money(paid)+' · <b>Kalan:</b> '+money(Math.max(0,total-paid))+'</p>';document.getElementById("printArea").innerHTML=h;if(window.MAUAndroid&&typeof window.MAUAndroid.printPage==="function"){window.MAUAndroid.printPage();return}window.print()}
+const _q=new URLSearchParams(location.search).get("q");
+if(_q){document.getElementById("search").value=_q}
 render();
 </script>
 </body></html>
