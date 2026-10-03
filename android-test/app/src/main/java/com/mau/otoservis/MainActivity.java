@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -39,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -283,6 +287,151 @@ public class MainActivity extends Activity {
         public void finishBinarySave() {
             finishBinarySaveInternal();
         }
+
+        @JavascriptInterface
+        public void hknPost(
+                String requestId,
+                String url,
+                String jsonBody,
+                String accessToken,
+                String cdnToken,
+                String appVersionCode
+        ) {
+            new Thread(() -> hknPostInternal(
+                    requestId,
+                    url,
+                    jsonBody,
+                    accessToken,
+                    cdnToken,
+                    appVersionCode
+            ), "MAU-HKNSoft-Export").start();
+        }
+    }
+
+    private boolean isAllowedHknPath(String path) {
+        if (path == null) return false;
+        return path.equals("/stok-takip/auth/login")
+                || path.equals("/stok-takip/profile/me")
+                || path.equals("/stok-takip/profile/company")
+                || path.equals("/stok-takip/contacts/all")
+                || path.equals("/stok-takip/contacts/one/ledger")
+                || path.equals("/stok-takip/products/all")
+                || path.equals("/stok-takip/products/one/inventory-transactions/all")
+                || path.equals("/stok-takip/products/one/warehouse-stocks")
+                || path.equals("/stok-takip/invoices/all")
+                || path.equals("/stok-takip/invoices/one")
+                || path.equals("/stok-takip/accounts/all")
+                || path.equals("/stok-takip/finance-transactions/all")
+                || path.equals("/stok-takip/warehouses/all")
+                || path.equals("/stok-takip/categories/all");
+    }
+
+    private void hknPostInternal(
+            String requestId,
+            String urlText,
+            String jsonBody,
+            String accessToken,
+            String cdnToken,
+            String appVersionCode
+    ) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(urlText == null ? "" : urlText);
+            if (!"https".equalsIgnoreCase(url.getProtocol())
+                    || !"apigw.hknsoft.com".equalsIgnoreCase(url.getHost())
+                    || !isAllowedHknPath(url.getPath())) {
+                throw new SecurityException("İzin verilmeyen HKNSoft API adresi.");
+            }
+
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(20000);
+            connection.setReadTimeout(45000);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setUseCaches(false);
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty(
+                    "Z-Access-Token",
+                    accessToken == null || accessToken.trim().isEmpty() ? "none" : accessToken.trim()
+            );
+            connection.setRequestProperty(
+                    "Z-CDN-Token",
+                    cdnToken == null || cdnToken.trim().isEmpty() ? "none" : cdnToken.trim()
+            );
+            connection.setRequestProperty("Z-Device-Type", "101");
+            connection.setRequestProperty(
+                    "Z-App-Version-Code",
+                    appVersionCode == null || appVersionCode.trim().isEmpty()
+                            ? "10125"
+                            : appVersionCode.trim()
+            );
+
+            byte[] requestBytes = (jsonBody == null || jsonBody.trim().isEmpty() ? "{}" : jsonBody)
+                    .getBytes(StandardCharsets.UTF_8);
+            connection.setFixedLengthStreamingMode(requestBytes.length);
+            try (OutputStream out = connection.getOutputStream()) {
+                out.write(requestBytes);
+                out.flush();
+            }
+
+            int status = connection.getResponseCode();
+            InputStream in = status >= 200 && status < 400
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
+            String body = readUtf8Fully(in);
+            sendHknResult(requestId, status, body);
+        } catch (Exception e) {
+            sendHknError(
+                    requestId,
+                    e.getMessage() == null ? "HKNSoft bağlantı hatası" : e.getMessage()
+            );
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private String readUtf8Fully(InputStream inputStream) throws IOException {
+        if (inputStream == null) return "";
+        try (InputStream in = inputStream;
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[16384];
+            int read;
+            while ((read = in.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+            return out.toString(StandardCharsets.UTF_8.name());
+        }
+    }
+
+    private void sendHknResult(String requestId, int status, String body) {
+        String requestQuoted = JSONObject.quote(requestId == null ? "" : requestId);
+        String bodyQuoted = JSONObject.quote(body == null ? "" : body);
+        runOnUiThread(() -> {
+            if (webView != null) {
+                webView.evaluateJavascript(
+                        "window.onHknApiResult && window.onHknApiResult("
+                                + requestQuoted + "," + status + "," + bodyQuoted + ");",
+                        null
+                );
+            }
+        });
+    }
+
+    private void sendHknError(String requestId, String message) {
+        String requestQuoted = JSONObject.quote(requestId == null ? "" : requestId);
+        String messageQuoted = JSONObject.quote(message == null ? "HKNSoft bağlantı hatası" : message);
+        runOnUiThread(() -> {
+            if (webView != null) {
+                webView.evaluateJavascript(
+                        "window.onHknApiError && window.onHknApiError("
+                                + requestQuoted + "," + messageQuoted + ");",
+                        null
+                );
+            }
+        });
     }
 
     private void shareCurrentText(String text) {
