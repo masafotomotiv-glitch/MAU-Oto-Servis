@@ -1,9 +1,9 @@
 {
   "enabled": true,
-  "versionCode": 14,
-  "versionName": "1.0-rc.5",
+  "versionCode": 16,
+  "versionName": "1.0-rc.7",
   "apkUrl": "https://github.com/masafotomotiv-glitch/MAU-Oto-Servis/releases/download/mau-latest/MAU-Oto-Servis-latest.apk",
-  "sha256": "c52353caf05dd9a0e5d92a6f2a98a5e02527c7924240ca149cb6fe8ad4ee2347",
+  "sha256": "2260e89be6a6f57d86295175d9aed992beaee05bf4e293792ed65fe616494ff8",
   "mandatory": true,
   "notes": "MAU Oto Servis otomatik güncelleme altyapısı başlangıç sürümü."
 }
