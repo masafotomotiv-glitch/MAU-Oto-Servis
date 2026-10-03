@@ -23,6 +23,7 @@ body{
 /* MAU AÇILIŞ ANİMASYONU */
 .mau-splash{
   position:fixed;
+  pointer-events:none;
   inset:0;
   z-index:99999;
   display:flex;
@@ -155,6 +156,9 @@ body{
 
 .top-item{
   text-align:center;
+  color:inherit;
+  text-decoration:none;
+  display:block;
   font-size:12px;
   font-weight:bold;
 }
@@ -173,6 +177,7 @@ body{
 
 .accept{
   min-height:52px;
+  text-decoration:none;
   border-radius:10px;
   display:flex;
   align-items:center;
@@ -198,6 +203,8 @@ body{
 
 .menu-card{
   height:136px;
+  display:block;
+  text-decoration:none;
   border-radius:14px;
   padding:16px;
   color:white;
@@ -460,80 +467,80 @@ body{
     </div>
 
     <div class="top-menu">
-      <div class="top-item" onclick="window.location.href='Hesabim.html'" style="cursor:pointer">
+      <a class="top-item" href="Hesabim.html">
         <div class="top-icon">👤</div>
         Hesabım
-      </div>
-      <div class="top-item" onclick="window.location.href='Ayarlar.html'" style="cursor:pointer">
+      </a>
+      <a class="top-item" href="Ayarlar.html">
         <div class="top-icon">⚙</div>
         Ayarlar
-      </div>
-      <div class="top-item" onclick="try{MAUAuth.logout()}catch(e){};window.location.replace('Giris.html?v='+Date.now())" style="cursor:pointer">
+      </a>
+      <a class="top-item" href="Cikis.html">
         <div class="top-icon">↪</div>
         Çıkış
-      </div>
+      </a>
     </div>
   </header>
 
   <section class="toolbar">
-    <div class="accept" onclick="window.location.href='Araclar.html'">＋ Araç Kayıt</div>
+    <a class="accept" href="Araclar.html">＋ Araç Kayıt</a>
   </section>
 
   <section class="menu-grid">
-    <div class="menu-card blue" onclick="window.location.href=&quot;AracKabul.html&quot;">
+    <a class="menu-card blue" href="AracKabul.html">
       <div class="menu-icon">🚘</div>
       <div class="menu-title">Araç Kabul</div>
       <div class="menu-sub">Yeni araç · İş emri</div>
-    </div>
+    </a>
 
-    <div class="menu-card green" onclick="window.location.href=&quot;IsEmirleri.html&quot;">
+    <a class="menu-card green" href="IsEmirleri.html">
       <div class="menu-icon">🔧</div>
       <div class="menu-title">İş Emirleri</div>
       <div class="menu-sub">Devam eden işler</div>
-    </div>
+    </a>
 
-    <div class="menu-card red" onclick="window.location.href='HasarSigorta.html?v='+Date.now()">
+    <a class="menu-card red" href="HasarSigorta.html">
       <div class="menu-icon">🛡</div>
       <div class="menu-title">Hasar &amp; Sigorta</div>
       <div class="menu-sub">Eksper · Dosya takibi</div>
-    </div>
+    </a>
 
-    <div class="menu-card orange" onclick="window.location.href=&quot;ParcaStok.html&quot;">
+    <a class="menu-card orange" href="ParcaStok.html">
       <div class="menu-icon">⚙</div>
       <div class="menu-title">Parça &amp; Stok</div>
       <div class="menu-sub">Yedek parça yönetimi</div>
-    </div>
+    </a>
 
-    <div class="menu-card purple" onclick="window.location.href='Cariler.html?v='+Date.now()">
+    <a class="menu-card purple" href="Cariler.html">
   <div class="menu-icon">👥</div>
   <div class="menu-title">Cariler</div>
   <div class="menu-sub">Cari · Araçlar · Geçmiş</div>
-</div>
+</a>
       
 
-    <div class="menu-card teal" onclick="window.location.href='CariKasa.html'">
+    <a class="menu-card teal" href="CariKasa.html">
       <div class="menu-icon">₺</div>
       <div class="menu-title">Cari &amp; Kasa</div>
       <div class="menu-sub">Tahsilat · Ödeme</div>
-    </div>
+    </a>
 
-    <div class="menu-card sky" onclick="window.location.href='Raporlar.html'">
+    <a class="menu-card sky" href="Raporlar.html">
       <div class="menu-icon">▥</div>
       <div class="menu-title">Raporlar</div>
       <div class="menu-sub">Ciro · Karlılık · Analiz</div>
-    </div>
+    </a>
 
-    <div class="menu-card slate" onclick="window.location.href='Personel.html?v='+Date.now()">
+    <a class="menu-card slate" href="Personel.html">
       <div class="menu-icon">👤</div>
       <div class="menu-title">Personel / Ustalar</div>
       <div class="menu-sub">Ekle · Düzenle · Bölüm</div>
-    </div>
+    </a>
 
-    <div class="menu-card violet" onclick="window.location.href='Faturalar.html?v='+Date.now()">
+    <a class="menu-card violet" href="Faturalar.html">
       <div class="menu-icon">🧾</div>
       <div class="menu-title">Faturalar</div>
       <div class="menu-sub">Kesilen · Gelen · PDF</div>
-    </div>
+    </a>
   </section>
 
   <section class="status-grid">
@@ -758,7 +765,6 @@ window.addEventListener("pageshow",()=>{renderDashboard();renderCompanyName()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){renderDashboard();renderCompanyName()}});
 renderDashboard();
 renderCompanyName();
-const _topItems=document.querySelectorAll(".top-item");if(_topItems[2]){_topItems[2].style.cursor="pointer";_topItems[2].addEventListener("click",function(){location.href="Kapali.html"})}
 const _brandLogo=document.getElementById("mauSplashLogo");if(_brandLogo)_brandLogo.addEventListener("error",function(){this.style.display="none";const m=document.getElementById("mauSplashMark");if(m)m.style.display="block"});
 
 (function(){
