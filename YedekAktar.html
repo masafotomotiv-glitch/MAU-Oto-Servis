@@ -203,7 +203,11 @@ function findPackageExisting(list,item,key){
   return null
  }
  if(key==="mau_araclar"){const p=normPlate(item.plaka);return list.find(function(x){return p&&normPlate(x.plaka)===p})||null}
- if(key==="mau_stok_parcalar"){const code=fold(item.code),name=fold(item.name);return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})||null}
+ if(key==="mau_stok_parcalar"){
+  if(item.forceDistinctLegacy&&item.legacySourceId)return null;
+  const code=fold(item.code),name=fold(item.name);
+  return list.find(function(x){return(code&&fold(x.code)===code)||(name&&fold(x.name)===name)})||null
+ }
  if(key==="mau_hasar_dosyalari"){const no=fold(item.dosyaNo||item.sigortaDosyaNo);return list.find(function(x){return no&&fold(x.dosyaNo||x.sigortaDosyaNo)===no})||null}
  if(key==="mau_faturalar"){const no=fold(item.faturaNo);return list.find(function(x){return no&&fold(x.faturaNo)===no})||null}
  if(key==="mau_tahsilatlar"||key==="mau_odemeler"){const no=fold(item.makbuzNo);return list.find(function(x){return no&&fold(x.makbuzNo)===no})||null}
