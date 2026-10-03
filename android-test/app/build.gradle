@@ -15,6 +15,7 @@ plugins {
 // cari-search-rc19
 // unified-logo-rc20
 // strict-cari-search-rc21
+// exact-name-search-rc22
 
 android {
     // Web arayuzunu APK icine de paketle. Boylece internet yokken ayni HTML/JS/SVG dosyalari yerelden acilir.
@@ -32,8 +33,8 @@ android {
         applicationId "com.mau.otoservis.app"
         minSdk 26
         targetSdk 36
-        versionCode 30
-        versionName "1.0-rc.21"
+        versionCode 31
+        versionName "1.0-rc.22"
     }
 
     signingConfigs {
