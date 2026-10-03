@@ -14,7 +14,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='Personel.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">İşçilik / Hizmet Tanımları · Bölüm · Süre · Fiyat · KDV</div></div></div></header>
 <div class="wrap">
- <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn secondary" onclick="migrateLegacyLaborFromStock(true);render()">Stoktaki İşçilikleri Aktar</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
  <div class="stats"><div class="stat"><b id="total">0</b><span>Toplam</span></div><div class="stat"><b id="active">0</b><span>Aktif</span></div><div class="stat"><b id="mechanic">0</b><span>Mekanik / Bakım</span></div><div class="stat"><b id="body">0</b><span>Kaporta / Boya</span></div></div>
  <div id="list"></div>
 </div>
@@ -35,6 +35,69 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 const KEY="mau_iscilik_tanimlari";function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}function put(){localStorage.setItem(KEY,JSON.stringify(items))}
 function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(n){return Number(n||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"}
+function serviceFold(v){return String(v==null?"":v).toLocaleUpperCase("tr-TR").replace(/\s+/g," ").trim()}
+const LEGACY_LABOR_MAP={
+ "ERA FULL BAKIM":"Periyodik Bakım",
+ "ŞARJ DİNAMOSU BAKIM":"Elektrik",
+ "WEBOSTA DEMONTE":"Mekanik",
+ "BASAMAK YAPIMI":"Kaporta",
+ "BASKI BALATA DEĞİŞİM İŞÇİLİK":"Mekanik",
+ "BOBİNAJ İŞLEMLERİ":"Elektrik",
+ "BOYA İŞÇİLİĞİ":"Boya",
+ "CAM SÖK TAK İŞÇİLİK":"Kaporta",
+ "DÖŞEME İŞÇİLİK":"Kaporta",
+ "ELEKTRİK İŞÇİLİĞİ":"Elektrik",
+ "FREN BALATA DEĞİŞİMİ İŞÇİLİK":"Mekanik",
+ "İŞÇİLİK":"Diğer",
+ "KAPI İŞÇİLİK":"Kaporta",
+ "KAPORTA İŞÇİLİĞİ":"Kaporta",
+ "KARASÖR TAMİRİ":"Kaporta",
+ "KİLİT İŞÇİLİK":"Kaporta",
+ "KOLTUK DÜZENLEME":"Kaporta",
+ "MAKAS DEĞİSİM İŞÇİLİĞİ":"Mekanik",
+ "MAKAS İŞÇİLİĞİ":"Mekanik",
+ "MEKANİK İŞÇİLİĞİ":"Mekanik",
+ "MOTOR İŞÇİLİK SPRİNTER":"Mekanik",
+ "MOTOR REKTEFİYE":"Mekanik",
+ "ŞANZIMAN İŞÇİLİK":"Mekanik",
+ "ŞASE DÜZELTME İŞÇİLİK":"Kaporta",
+ "YAĞ BAKIM İŞÇİLİK":"Periyodik Bakım"
+};
+function migrateLegacyLaborFromStock(showAlert){
+ let stock=[];try{const v=JSON.parse(localStorage.getItem("mau_stok_parcalar")||"[]");stock=Array.isArray(v)?v:[]}catch(e){stock=[]}
+ const current=load();
+ let maxCode=0;current.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>maxCode)maxCode=n});
+ let added=0;
+ stock.forEach(function(s){
+  const key=serviceFold(s.name),department=LEGACY_LABOR_MAP[key];if(!department)return;
+  const sourceId=String(s.legacySourceId||s.id||"");
+  const exists=current.some(x=>serviceFold(x.name)===key||(sourceId&&String(x.sourceStockLegacyId||"")===sourceId));
+  if(exists)return;
+  maxCode++;const now=new Date().toISOString();
+  current.unshift({
+   id:"LEGACY-LABOR-"+(sourceId||String(Date.now()+added)),
+   code:"ISC-"+String(maxCode).padStart(5,"0"),
+   department:department,
+   name:String(s.name||"").trim(),
+   hours:0,
+   price:Number(s.salePrice||0),
+   vat:Number(s.vat==null?20:s.vat),
+   status:"Aktif",
+   active:true,
+   note:"Eski stok kartından işçilik/hizmet tanımına aktarıldı. Kaynak stok kodu: "+String(s.code||"-")+". Stok kartı silinmedi.",
+   sourceStockId:s.id,
+   sourceStockCode:s.code||"",
+   sourceStockLegacyId:sourceId,
+   legacyImportedFromStock:true,
+   createdAt:now,
+   updatedAt:now
+  });added++
+ });
+ if(added)localStorage.setItem(KEY,JSON.stringify(current));
+ items=current;
+ if(showAlert)alert(added?added+" işçilik/hizmet stoktan İşçilikler bölümüne eklendi. Stok kartları korunmuştur.":"Aktarılacak yeni işçilik bulunamadı; mevcut tanımlar korunuyor.");
+ return added
+}
 let items=load(),editId=null;function nextCode(){let m=0;items.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "ISC-"+String(m+1).padStart(5,"0")}
 function openForm(id){editId=id==null?null:id;const x=editId==null?null:items.find(a=>String(a.id)===String(editId));document.getElementById("formTitle").innerText=x?"İşçilik Düzenle":"Yeni İşçilik";document.getElementById("code").value=x?(x.code||""):nextCode();document.getElementById("department").value=x?(x.department||"Mekanik"):"Mekanik";document.getElementById("name").value=x?(x.name||""):"";document.getElementById("hours").value=x?(x.hours||""):"";document.getElementById("price").value=x?(x.price||""):"";document.getElementById("vat").value=x?(x.vat??20):20;document.getElementById("status").value=x?(x.status||"Aktif"):"Aktif";document.getElementById("note").value=x?(x.note||""):"";document.getElementById("modal").style.display="block"}
 function closeForm(){document.getElementById("modal").style.display="none"}
@@ -42,5 +105,5 @@ function save(){const name=document.getElementById("name").value.trim();if(!name
 function toggle(id){const x=items.find(a=>String(a.id)===String(id));if(!x)return;x.active=!x.active;x.status=x.active?"Aktif":"Pasif";x.updatedAt=new Date().toISOString();put();render()}
 function del(id){const x=items.find(a=>String(a.id)===String(id));if(!x)return;if(confirm(x.name+" silinsin mi?")){items=items.filter(a=>String(a.id)!==String(id));put();render()}}
 function render(){items=load();const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR").trim();const list=items.filter(x=>!q||[x.code,x.name,x.department].join(" ").toLocaleLowerCase("tr-TR").includes(q));document.getElementById("total").innerText=items.length;document.getElementById("active").innerText=items.filter(x=>x.active!==false).length;document.getElementById("mechanic").innerText=items.filter(x=>["Mekanik","Periyodik Bakım","Diagnostik"].includes(x.department)).length;document.getElementById("body").innerText=items.filter(x=>["Kaporta","Boya"].includes(x.department)).length;const el=document.getElementById("list");if(!list.length){el.innerHTML='<div class="card empty">İşçilik tanımı yok.</div>';return}el.innerHTML=list.map(x=>'<div class="card" style="'+(x.active===false?'opacity:.55':'')+'"><div class="name">'+esc(x.name)+' <span class="badge">'+esc(x.code)+'</span></div><div class="meta">'+esc(x.department)+' · '+(x.hours||0)+' saat · '+money(x.price)+' · KDV %'+Number(x.vat||0)+'</div><div class="actions"><button class="edit" onclick="openForm(&quot;'+x.id+'&quot;)">Düzenle</button><button class="pass" onclick="toggle(&quot;'+x.id+'&quot;)">'+(x.active===false?'Aktif Et':'Pasife Al')+'</button><button class="del" onclick="del(&quot;'+x.id+'&quot;)">Sil</button></div></div>').join("")}
-window.addEventListener("click",e=>{if(e.target===document.getElementById("modal"))closeForm()});render();
+window.addEventListener("click",e=>{if(e.target===document.getElementById("modal"))closeForm()});migrateLegacyLaborFromStock(false);render();
 </script></body></html>
