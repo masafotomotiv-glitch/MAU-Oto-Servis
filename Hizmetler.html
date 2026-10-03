@@ -14,7 +14,7 @@ header{background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:
 </head><body>
 <header><div class="head"><button class="back" onclick="location.href='Personel.html'">‹</button><div><div class="title">M•• MAU OTO SERVİS</div><div class="sub">İşçilik / Hizmet Tanımları · Bölüm · Süre · Fiyat · KDV</div></div></div></header>
 <div class="wrap">
- <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn secondary" onclick="migrateLegacyLaborFromStock(true);render()">Stoktaki İşçilikleri Aktar</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
+ <div class="toolbar"><input id="search" class="search" placeholder="İşçilik adı, kodu veya bölüm ara..." oninput="render()"><button class="btn secondary" onclick="location.href='Personel.html'">Personel / Ustalar</button><button class="btn secondary" onclick="migrateLegacyLaborFromStock(true);render()">Stoktaki İşçilikleri Aktar</button><button class="btn secondary" onclick="separateLaborFromStock()">İşçilikleri Stoktan Ayır</button><button class="btn new" onclick="openForm()">+ Yeni İşçilik</button></div>
  <div class="stats"><div class="stat"><b id="total">0</b><span>Toplam</span></div><div class="stat"><b id="active">0</b><span>Aktif</span></div><div class="stat"><b id="mechanic">0</b><span>Mekanik / Bakım</span></div><div class="stat"><b id="body">0</b><span>Kaporta / Boya</span></div></div>
  <div id="list"></div>
 </div>
@@ -98,6 +98,22 @@ function migrateLegacyLaborFromStock(showAlert){
  if(showAlert)alert(added?added+" işçilik/hizmet stoktan İşçilikler bölümüne eklendi. Stok kartları korunmuştur.":"Aktarılacak yeni işçilik bulunamadı; mevcut tanımlar korunuyor.");
  return added
 }
+function separateLaborFromStock(){
+ let stock=[];try{const v=JSON.parse(localStorage.getItem("mau_stok_parcalar")||"[]");stock=Array.isArray(v)?v:[]}catch(e){stock=[]}
+ const services=load(),serviceNames=new Set(services.map(x=>serviceFold(x.name)));
+ const laborNames=new Set(Object.keys(LEGACY_LABOR_MAP).map(serviceFold));
+ const rows=stock.filter(x=>laborNames.has(serviceFold(x.name))&&serviceNames.has(serviceFold(x.name)));
+ if(!rows.length){alert("Stokta ayrılacak işçilik kalmadı.");return}
+ if(!confirm(rows.length+" işçilik/hizmet stoktan ayrılacak. İşçilikler bölümündeki kayıtlar korunacak. Devam edilsin mi?"))return;
+ let archive=[];try{const v=JSON.parse(localStorage.getItem("mau_stok_iscilik_arsiv")||"[]");archive=Array.isArray(v)?v:[]}catch(e){archive=[]}
+ const have=new Set(archive.map(x=>String(x.id)));
+ rows.forEach(x=>{if(!have.has(String(x.id)))archive.unshift({...x,archivedAt:new Date().toISOString(),archiveReason:"İşçilik stoktan ayrıldı"})});
+ const ids=new Set(rows.map(x=>String(x.id)));
+ localStorage.setItem("mau_stok_iscilik_arsiv",JSON.stringify(archive));
+ localStorage.setItem("mau_stok_parcalar",JSON.stringify(stock.filter(x=>!ids.has(String(x.id)))));
+ alert(rows.length+" işçilik stoktan ayrıldı. İşçilikler bölümündeki tanımlar korunuyor.");
+}
+
 let items=load(),editId=null;function nextCode(){let m=0;items.forEach(x=>{const n=parseInt(String(x.code||"").replace(/\D/g,""),10);if(Number.isFinite(n)&&n>m)m=n});return "ISC-"+String(m+1).padStart(5,"0")}
 function openForm(id){editId=id==null?null:id;const x=editId==null?null:items.find(a=>String(a.id)===String(editId));document.getElementById("formTitle").innerText=x?"İşçilik Düzenle":"Yeni İşçilik";document.getElementById("code").value=x?(x.code||""):nextCode();document.getElementById("department").value=x?(x.department||"Mekanik"):"Mekanik";document.getElementById("name").value=x?(x.name||""):"";document.getElementById("hours").value=x?(x.hours||""):"";document.getElementById("price").value=x?(x.price||""):"";document.getElementById("vat").value=x?(x.vat??20):20;document.getElementById("status").value=x?(x.status||"Aktif"):"Aktif";document.getElementById("note").value=x?(x.note||""):"";document.getElementById("modal").style.display="block"}
 function closeForm(){document.getElementById("modal").style.display="none"}
