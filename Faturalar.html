@@ -133,14 +133,14 @@ function render(){
   out.innerHTML='<div class="card"><div class="cardHead"><span>'+(mode==="sale"?"Kesilen Belgeler":"Gelen Belgeler")+'</span><a class="btn gray" href="FaturaArsiv.html">Tüm Arşiv</a></div><div class="body">'+(list.length?list.map(invRow).join(""):'<div class="empty">Kayıt bulunamadı.</div>')+'</div></div>';return;
  }
  if(q.length>=2){
-  const iw=invoices.filter(x=>hayInvoice(x).includes(q)).slice(0,40),ww=works.filter(w=>hayWork(w).includes(q)).slice(0,40);
-  out.innerHTML='<div class="card"><div class="cardHead"><span>Arama Sonucu</span><span>'+ (iw.length+ww.length) +' kayıt</span></div><div class="body">'+(ww.map(workRow).join("")+iw.map(invRow).join("")||'<div class="empty">Plaka, cari, telefon, iş emri veya belge numarasıyla eşleşme bulunamadı.</div>')+'</div></div>';return;
+  const groups=searchGroups(q);
+  out.innerHTML='<div class="card"><div class="cardHead"><span>Araç / Cari Sonuçları</span><span>'+groups.length+' grup</span></div><div class="body">'+(groups.length?groups.map(groupHtml).join(""):'<div class="empty">Plaka, cari, telefon, iş emri veya belge numarasıyla eşleşme bulunamadı.</div>')+'</div></div>';return;
  }
- const recent=invoices.slice().sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a)))).slice(0,8);
- const urgent=pending.slice().sort((a,b)=>daysWaiting(b)-daysWaiting(a)).slice(0,8);
+ const recent=invoices.slice().sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a)))).slice(0,5);
+ const urgent=pending.slice().sort((a,b)=>daysWaiting(b)-daysWaiting(a)).slice(0,5);
  out.innerHTML='<div class="card"><div class="cardHead"><span>Önce Plaka / Cari ile Ara</span><span>Günlük çalışma</span></div><div class="body"><div class="empty" style="padding:16px">Yukarıdaki arama alanına plaka, müşteri adı, telefon, iş emri veya belge numarası yazın.</div></div></div>'+
  (urgent.length?'<div class="card"><div class="cardHead"><span>Öncelikli Belge Bekleyenler</span><button class="btn gray" onclick="setMode(\'pending\')">Tümünü Gör</button></div><div class="body">'+urgent.map(workRow).join("")+'</div></div>':'')+
- '<div class="card"><div class="cardHead"><span>Son Belgeler</span><a class="btn gray" href="FaturaArsiv.html">Tüm Arşiv</a></div><div class="body">'+(recent.length?recent.map(invRow).join(""):'<div class="empty">Henüz belge kaydı yok.</div>')+'</div></div>';
+ '<div class="card"><div class="cardHead"><span>Son 5 Belge</span><a class="btn gray" href="FaturaArsiv.html">Tüm Arşiv</a></div><div class="body">'+(recent.length?recent.map(compactInvRow).join(""):'<div class="empty">Henüz belge kaydı yok.</div>')+'</div></div>';
 }
 render();
 </script>
