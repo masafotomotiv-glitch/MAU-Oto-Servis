@@ -217,7 +217,11 @@ function findPackageExisting(list,item,key){
 function reconcilePackageExisting(key,existing,item){
  if(!sameLegacySource(existing,item))return false;
  let fields=[];
- if(key==="mau_araclar")fields=["cariId","cariCode","cariAdi"];
+ if(key==="mau_cariler"){
+  if(item.forceNameCleanup===true)fields=["name"];
+  else return false;
+ }
+ else if(key==="mau_araclar")fields=["cariId","cariCode","cariAdi"];
  else if(key==="mau_hasar_dosyalari")fields=["cariId","cariCode","cariAdi","aracId","vehicleId","plaka"];
  else if(key==="mau_faturalar"||key==="mau_tahsilatlar"||key==="mau_odemeler"||key==="mau_cari_hareketler")fields=["cariId","cariCode","cariAdi","plaka"];
  else return false;
