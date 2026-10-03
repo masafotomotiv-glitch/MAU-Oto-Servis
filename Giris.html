@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:linear-gradient(145deg,#061f3b,#073a70 55%,#0a8a87);display:flex;align-items:center;justify-content:center;padding:18px;color:#18324d}
 .card{width:min(440px,100%);background:#fff;border-radius:18px;box-shadow:0 22px 70px #00152855;overflow:hidden}
-.top{padding:28px 24px 20px;background:#f8fbfe;border-bottom:1px solid #e5ebf1;text-align:center}.mark{font-size:42px;font-weight:900;color:#0b6db8}.title{font-size:23px;font-weight:900;margin-top:8px}.sub{font-size:11px;color:#718096;margin-top:5px}
+.top{padding:24px 24px 18px;background:linear-gradient(90deg,#073a70,#005298);border-bottom:1px solid #0b477a;text-align:center;color:#fff}.brand-logo{width:min(290px,82%);height:auto;max-height:92px;object-fit:contain;display:block;margin:0 auto}.brand-fallback{display:none;font-size:23px;font-weight:900;letter-spacing:.5px}.sub{font-size:11px;color:#dbeafe;margin-top:7px}
 .body{padding:22px}.mode{background:#edf7ff;border:1px solid #cfe8fb;color:#0b5f9d;border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.5;margin-bottom:14px}
 .field{margin-bottom:10px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:5px}.field input{width:100%;border:1px solid #d7e0e9;border-radius:10px;padding:12px;font-size:14px;outline:none}.field input:focus{border-color:#0b76c5;box-shadow:0 0 0 3px #0b76c516}
 .btn{width:100%;border:0;border-radius:10px;padding:13px;background:#0b76c5;color:#fff;font-weight:900;font-size:14px;cursor:pointer}.btn:disabled{opacity:.6}
@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="card">
- <div class="top"><div class="mark">M••</div><div class="title">MAU OTO SERVİS</div><div class="sub">Güvenli Yerel Giriş</div></div>
+ <div class="top"><img class="brand-logo" src="mau-logo-oto-servis.svg" alt="MAU Oto Servis" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="brand-fallback">MAU OTO SERVİS</div><div class="sub">Güvenli Yerel Giriş</div></div>
  <div class="body">
   <div id="modeBox" class="mode">Güvenlik hazırlanıyor…</div>
   <form id="form">
