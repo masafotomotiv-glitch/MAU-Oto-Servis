@@ -82,8 +82,10 @@ function compactInvRow(x){
  return '<div class="compactRow"><div class="compactMain"><b>'+esc(x.plaka||x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invNo(x))+'</b><span>'+esc(x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invDate(x)||"-")+'</span></div><div class="compactMeta">'+esc(kind)+' · '+esc(docType)+'</div><div><div class="compactAmount">'+money(invAmount(x))+'</div><div class="actions" style="justify-content:flex-end;margin-top:5px"><a class="btn" href="FaturaArsiv.html?q='+encodeURIComponent(invNo(x))+'">Detay</a></div></div></div>'
 }
 function cariSeeds(q){
- const tokens=norm(q).split(" ").filter(Boolean);
+ const nq=norm(q),tokens=nq.split(" ").filter(Boolean),nameSearch=/[a-zçğıöşü]/i.test(nq);
  return cariler.filter(c=>{
+  const name=partyCore(c.name||"");
+  if(nameSearch&&tokens.length)return tokens.every(t=>name.includes(t));
   const hay=norm([c.name,c.code,c.tel,c.mail,c.vn,c.tc,c.adres].join(" "));
   return tokens.length?tokens.every(t=>hay.includes(t)):false;
  });
@@ -97,7 +99,10 @@ function sameCariRecord(x,ids,codes,names){
  const id=String(x.cariId||x.tedarikciId||"");
  const code=String(x.cariCode||"");
  const name=partyCore(x.cariAdi||x.tedarikciAdi||"");
- return (id&&ids.has(id))||(code&&codes.has(code))||(name&&names.has(name));
+ // Eski aktarım kayıtlarında cari id/kodu çakışmış olabilir.
+ // Kayıtta isim varsa isim birincil kaynaktır; farklı kişiyi ortak id yüzünden aramaya sokma.
+ if(name)return names.has(name);
+ return (id&&ids.has(id))||(code&&codes.has(code));
 }
 function plateKey(v){return norm(v).replace(/[^a-z0-9çğıöşü]/g,"")}
 function searchGroups(q){
@@ -150,7 +155,7 @@ function groupHtml(g){
  const docs=g.invoices.slice().sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a))));
  const ws=g.works.slice().sort((a,b)=>String(workDate(b)).localeCompare(String(workDate(a))));
  const sales=docs.filter(x=>!isBuy(x)).length,buys=docs.filter(isBuy).length,total=docs.reduce((s,x)=>s+invAmount(x),0);
- const party=cariler.find(c=>String(c.id)===String(g.cariId||""))||cariler.find(c=>norm(c.name)===norm(g.cariAdi))||{};
+ const party=cariler.find(c=>partyCore(c.name||"")===partyCore(g.cariAdi||""))||cariler.find(c=>String(c.id)===String(g.cariId||""))||{};
  const title=(g.plate?esc(g.plate)+" · ":"")+esc(g.cariAdi||party.name||"Cari / Tedarikçi");
  const sub=[party.tel,party.code].filter(Boolean).map(esc).join(" · ");
  return '<div class="group"><div class="groupHead"><div><div class="groupTitle">'+title+'</div><div class="groupSub">'+(sub||"Araç / cari geçmişi")+'</div></div><div class="groupStats">'+ws.length+' iş emri · '+sales+' kesilen · '+buys+' gelen<br><b>'+money(total)+'</b></div></div><div class="groupBody">'+
