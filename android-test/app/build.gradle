@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    // Web arayuzunu APK icine de paketle. Boylece internet yokken ayni HTML/JS/SVG dosyalari yerelden acilir.
+    def offlineAssetsDir = layout.buildDirectory.dir("generated/offlineAssets")
+    sourceSets {
+        main {
+            assets.srcDir offlineAssetsDir
+        }
+    }
+
     namespace 'com.mau.otoservis'
     compileSdk 36
 
@@ -10,8 +18,8 @@ android {
         applicationId "com.mau.otoservis.app"
         minSdk 26
         targetSdk 36
-        versionCode 14
-        versionName "1.0-rc.5"
+        versionCode 15
+        versionName "1.0-rc.6"
     }
 
     signingConfigs {
@@ -47,3 +55,16 @@ dependencies {
     // Bundled on-device OCR: ilk kullanımda model indirmesi gerektirmez.
     implementation 'com.google.mlkit:text-recognition:16.0.1'
 }
+
+
+tasks.register("prepareOfflineAssets", Sync) {
+    from(rootProject.projectDir.parentFile) {
+        include "*.html"
+        include "*.js"
+        include "*.svg"
+        include "update.json"
+    }
+    into(layout.buildDirectory.dir("generated/offlineAssets"))
+}
+
+preBuild.dependsOn("prepareOfflineAssets")
