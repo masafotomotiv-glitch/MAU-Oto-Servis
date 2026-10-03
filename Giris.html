@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MAU Oto Servis · Güvenli Giriş</title>
+<script src="auth.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:linear-gradient(145deg,#061f3b,#073a70 55%,#0a8a87);display:flex;align-items:center;justify-content:center;padding:18px;color:#18324d}
+.card{width:min(440px,100%);background:#fff;border-radius:18px;box-shadow:0 22px 70px #00152855;overflow:hidden}
+.top{padding:28px 24px 20px;background:#f8fbfe;border-bottom:1px solid #e5ebf1;text-align:center}.mark{font-size:42px;font-weight:900;color:#0b6db8}.title{font-size:23px;font-weight:900;margin-top:8px}.sub{font-size:11px;color:#718096;margin-top:5px}
+.body{padding:22px}.mode{background:#edf7ff;border:1px solid #cfe8fb;color:#0b5f9d;border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.5;margin-bottom:14px}
+.field{margin-bottom:10px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:5px}.field input{width:100%;border:1px solid #d7e0e9;border-radius:10px;padding:12px;font-size:14px;outline:none}.field input:focus{border-color:#0b76c5;box-shadow:0 0 0 3px #0b76c516}
+.btn{width:100%;border:0;border-radius:10px;padding:13px;background:#0b76c5;color:#fff;font-weight:900;font-size:14px;cursor:pointer}.btn:disabled{opacity:.6}
+.msg{min-height:20px;margin-top:10px;font-size:11px;line-height:1.45;text-align:center;color:#b02435}.ok{color:#14814e}
+.note{font-size:10px;color:#718096;line-height:1.55;margin-top:14px;text-align:center}
+.badge{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;color:#46627d;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="card">
+ <div class="top"><div class="mark">M••</div><div class="title">MAU OTO SERVİS</div><div class="sub">Güvenli Yerel Giriş</div></div>
+ <div class="body">
+  <div id="modeBox" class="mode">Güvenlik hazırlanıyor…</div>
+  <form id="form">
+   <div class="field"><label>Kullanıcı Adı</label><input id="username" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+   <div class="field"><label id="passLabel">Şifre</label><input id="password" type="password" autocomplete="current-password"></div>
+   <div id="confirmWrap" class="field" style="display:none"><label>Şifre Tekrar</label><input id="confirm" type="password" autocomplete="new-password"></div>
+   <button id="submitBtn" class="btn" type="submit">Giriş Yap</button>
+   <div id="msg" class="msg"></div>
+  </form>
+  <div class="badge">🔐 Şifre düz metin olarak saklanmaz</div>
+  <div id="nativeNote" class="note"></div>
+ </div>
+</div>
+<script>
+let setupMode=false;
+function setMsg(t,ok){const m=document.getElementById("msg");m.textContent=t||"";m.className="msg"+(ok?" ok":"")}
+async function init(){
+ try{
+  const p=await MAUAuth.prepare();
+  const info=MAUAuth.securityInfo();
+  document.getElementById("username").value=p.username||"admin";
+  setupMode=!p.configured;
+  if(setupMode){
+   document.getElementById("modeBox").innerHTML="<b>İlk güvenlik kurulumu</b><br>Bu cihaz için yönetici şifresi oluşturun. En az 8 karakter kullanın.";
+   document.getElementById("passLabel").textContent="Yeni Şifre";
+   document.getElementById("password").autocomplete="new-password";
+   document.getElementById("confirmWrap").style.display="";
+   document.getElementById("submitBtn").textContent="Güvenliği Kur ve Aç";
+  }else{
+   document.getElementById("modeBox").innerHTML=p.migrated?"<b>Güvenlik yükseltildi.</b><br>Eski düz metin şifre güvenli özete dönüştürüldü.":"<b>Oturum kilitli.</b><br>Devam etmek için kullanıcı adı ve şifrenizi girin.";
+  }
+  document.getElementById("nativeNote").textContent=info.nativeAtRest
+   ?"Android güvenli kasası etkin: MAU yerel kayıtları cihaz anahtarıyla şifreleniyor."
+   :"Tarayıcı test modu: parola özeti güvenli; cihaz-veri şifrelemesi APK içindeki Android güvenli kasasında etkinleşir.";
+  setTimeout(()=>document.getElementById(setupMode?"password":"password").focus(),80);
+ }catch(e){setMsg(e.message||String(e))}
+}
+document.getElementById("form").addEventListener("submit",async function(ev){
+ ev.preventDefault();setMsg("");
+ const btn=document.getElementById("submitBtn"),u=document.getElementById("username").value.trim(),p=document.getElementById("password").value;
+ btn.disabled=true;
+ try{
+  if(setupMode){
+   const c=document.getElementById("confirm").value;
+   if(p!==c)throw new Error("Şifreler aynı değil.");
+   await MAUAuth.setup(u,p);
+  }else{
+   await MAUAuth.login(u,p);
+  }
+  setMsg("Giriş başarılı.",true);
+  location.replace(MAUAuth.nextUrl());
+ }catch(e){setMsg(e.message||String(e));document.getElementById("password").value="";document.getElementById("confirm").value=""}
+ finally{btn.disabled=false}
+});
+init();
+</script>
+</body>
+</html>
