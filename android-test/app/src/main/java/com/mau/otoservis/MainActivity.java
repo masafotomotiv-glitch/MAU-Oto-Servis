@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
         s.setSupportZoom(false);
         // Test döneminde GitHub Pages'teki güncel arayüz önceliklidir.
         // Normal HTTP önbellek kuralları kullanılır; eski içeriğe zorla bağlı kalınmaz.
-        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(true);
         s.setAllowFileAccessFromFileURLs(false);
