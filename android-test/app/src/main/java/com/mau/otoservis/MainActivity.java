@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.os.Bundle;
 import android.content.Context;
 import android.print.PrintAttributes;
@@ -29,6 +34,7 @@ import org.json.JSONObject;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -106,7 +112,34 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(true);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                if (uri != null
+                        && "https".equalsIgnoreCase(uri.getScheme())
+                        && "masafotomotiv-glitch.github.io".equalsIgnoreCase(uri.getHost())
+                        && uri.getPath() != null
+                        && uri.getPath().startsWith("/MAU-Oto-Servis/")
+                        && !isInternetAvailable()) {
+                    String assetPath = uri.getPath().substring("/MAU-Oto-Servis/".length());
+                    if (assetPath.isEmpty() || assetPath.endsWith("/")) {
+                        assetPath += "index.html";
+                    }
+                    try {
+                        InputStream in = getAssets().open(assetPath);
+                        return new WebResourceResponse(
+                                mimeTypeFor(assetPath),
+                                "UTF-8",
+                                in
+                        );
+                    } catch (IOException ignored) {
+                        // Paketlenmemis bir kaynaksa normal WebView davranisina birak.
+                    }
+                }
+                return super.shouldInterceptRequest(view, request);
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(
@@ -150,10 +183,56 @@ public class MainActivity extends Activity {
         // ruhsat fotoğrafı seçer ve OCR sonucunu sayfaya geri verir.
         webView.addJavascriptInterface(new AndroidBridge(), "MAUAndroid");
 
-        // Her uygulama açılışında index sayfasını benzersiz sorgu ile iste.
-        // Sorgu parametresi origin'i değiştirmez; localStorage verileri aynı yerde kalır.
-        webView.loadUrl(START_URL + "?v=" + System.currentTimeMillis());
+        // Internet varsa test donemindeki guncel GitHub arayuzu acilir.
+        // Internet yoksa ayni URL WebViewClient tarafindan APK icindeki kopyadan servis edilir.
+        loadStartPage();
         updateManager.checkForUpdates();
+    }
+
+    private void loadStartPage() {
+        String url = isInternetAvailable()
+                ? START_URL + "?v=" + System.currentTimeMillis()
+                : START_URL;
+        webView.loadUrl(url);
+    }
+
+    private boolean isInternetAvailable() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return false;
+            Network network = cm.getActiveNetwork();
+            if (network == null) return false;
+            NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+            return caps != null
+                    && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String mimeTypeFor(String path) {
+        String p = path == null ? "" : path.toLowerCase();
+        if (p.endsWith(".html")) return "text/html";
+        if (p.endsWith(".js")) return "application/javascript";
+        if (p.endsWith(".css")) return "text/css";
+        if (p.endsWith(".svg")) return "image/svg+xml";
+        if (p.endsWith(".json")) return "application/json";
+        if (p.endsWith(".png")) return "image/png";
+        if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
+        return "application/octet-stream";
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        // Uygulama ikonuna yeniden basildiginda her zaman ana sayfadan basla.
+        if (webView != null) {
+            webView.stopLoading();
+            webView.clearHistory();
+            loadStartPage();
+        }
     }
 
     @Override
