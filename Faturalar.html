@@ -81,6 +81,39 @@ function compactInvRow(x){
  const kind=isBuy(x)?"Gelen":"Kesilen",docType=x.belgeTuru||x.faturaTipi||"Fatura";
  return '<div class="compactRow"><div class="compactMain"><b>'+esc(x.plaka||x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invNo(x))+'</b><span>'+esc(x.cariAdi||x.tedarikciAdi||"-")+' · '+esc(invDate(x)||"-")+'</span></div><div class="compactMeta">'+esc(kind)+' · '+esc(docType)+'</div><div><div class="compactAmount">'+money(invAmount(x))+'</div><div class="actions" style="justify-content:flex-end;margin-top:5px"><a class="btn" href="FaturaArsiv.html?q='+encodeURIComponent(invNo(x))+'">Detay</a></div></div></div>'
 }
+function cariSeeds(q){
+ return cariler.filter(c=>norm([c.name,c.code,c.tel,c.mail,c.vn,c.tc,c.adres].join(" ")).includes(q));
+}
+function searchGroups(q){
+ const sw=works.filter(w=>hayWork(w).includes(q)),si=invoices.filter(x=>hayInvoice(x).includes(q)),sc=cariSeeds(q);
+ const plates=new Set(),ids=new Set(),codes=new Set(),names=new Set();
+ function add(x){
+  if(x.plaka)plates.add(norm(x.plaka));
+  if(x.cariId||x.tedarikciId)ids.add(String(x.cariId||x.tedarikciId));
+  if(x.cariCode)codes.add(String(x.cariCode));
+  if(x.cariAdi||x.tedarikciAdi)names.add(norm(x.cariAdi||x.tedarikciAdi));
+ }
+ sw.forEach(add);si.forEach(add);sc.forEach(c=>{if(c.id)ids.add(String(c.id));if(c.code)codes.add(String(c.code));if(c.name)names.add(norm(c.name))});
+ const rw=works.filter(w=>plates.has(norm(w.plaka))||ids.has(String(w.cariId||""))||codes.has(String(w.cariCode||""))||names.has(norm(w.cariAdi)));
+ const ri=invoices.filter(x=>plates.has(norm(x.plaka))||ids.has(String(x.cariId||x.tedarikciId||""))||codes.has(String(x.cariCode||""))||names.has(norm(x.cariAdi||x.tedarikciAdi)));
+ const groups=new Map();
+ function keyOf(x){const p=norm(x.plaka);if(p)return "p:"+p;const id=String(x.cariId||x.tedarikciId||"");if(id)return "c:"+id;return "n:"+norm(x.cariAdi||x.tedarikciAdi||"-")}
+ function group(x){const k=keyOf(x);if(!groups.has(k))groups.set(k,{plate:x.plaka||"",cariId:x.cariId||x.tedarikciId||"",cariAdi:x.cariAdi||x.tedarikciAdi||"",works:[],invoices:[]});return groups.get(k)}
+ rw.forEach(w=>group(w).works.push(w));ri.forEach(x=>group(x).invoices.push(x));
+ return [...groups.values()].sort((a,b)=>String(a.plate||a.cariAdi).localeCompare(String(b.plate||b.cariAdi),"tr"));
+}
+function groupHtml(g){
+ const docs=g.invoices.slice().sort((a,b)=>String(invDate(b)).localeCompare(String(invDate(a))));
+ const ws=g.works.slice().sort((a,b)=>String(workDate(b)).localeCompare(String(workDate(a))));
+ const sales=docs.filter(x=>!isBuy(x)).length,buys=docs.filter(isBuy).length,total=docs.reduce((s,x)=>s+invAmount(x),0);
+ const party=cariler.find(c=>String(c.id)===String(g.cariId||""))||cariler.find(c=>norm(c.name)===norm(g.cariAdi))||{};
+ const title=(g.plate?esc(g.plate)+" · ":"")+esc(g.cariAdi||party.name||"Cari / Tedarikçi");
+ const sub=[party.tel,party.code].filter(Boolean).map(esc).join(" · ");
+ return '<div class="group"><div class="groupHead"><div><div class="groupTitle">'+title+'</div><div class="groupSub">'+(sub||"Araç / cari geçmişi")+'</div></div><div class="groupStats">'+ws.length+' iş emri · '+sales+' kesilen · '+buys+' gelen<br><b>'+money(total)+'</b></div></div><div class="groupBody">'+
+ (ws.length?'<div class="sectionTitle">İş Emirleri</div>'+ws.slice(0,8).map(workRow).join(""):"")+
+ (docs.length?'<div class="sectionTitle" style="margin-top:10px">Belgeler</div>'+docs.slice(0,10).map(compactInvRow).join(""):"")+
+ '</div></div>';
+}
 function stockWaitingRows(){
  const waiting=moves.filter(x=>String(x.type)==="Giriş"&&x.belgeDurumu==="Belge Bekliyor");
  if(!waiting.length)return "";
